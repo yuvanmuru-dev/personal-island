@@ -1,0 +1,9 @@
+# Project working rules
+
+- Keep all accepted utility groups in scope. Face unlock is deferred. Track unfinished features honestly in IMPLEMENTATION_STATUS.md.
+- Before pushing implementation changes, run `python3 implementation/verify.py` and resolve failures. Add regression tests for changed ownership, cleanup, concurrency, interaction or build-policy behavior. Test observable outcomes and failure boundaries, not incidental implementation details.
+- Automated checks use synthetic fixtures only. They must not launch the graphical app, collect personal data, grant permissions, control accounts, or send messages. Keep actual display/attachment/account verification separate and record its limits.
+- App and package source must match implementation/APP_SOURCE_PROVENANCE.json. Review changes before updating hashes; preserve copied/adapted source origins and license notices. Do not change upstream revisions or add external packages/helpers without reviewing the resulting source and build behavior.
+- Keep app startup and feature lifecycles explicit. Adding a UI switch must include stopping the corresponding work when disabled. Do not substitute simulated success for an unavailable integration.
+- Use the existing private GitHub origin. Keep screenshots, temporary shelf contents, credentials, build outputs, local reference archives and machine-specific receipts out of commits. Do not change repository visibility or publish an app as part of routine development.
+- Coverage reports describe only the production files actually exercised. A passing build or unit suite does not establish runtime privacy, full display compatibility, attachment delivery or completion of planned features.

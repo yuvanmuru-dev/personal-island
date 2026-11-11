@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "updated_date": "2026-11-11",
+  "review_method": "Local source text and manifest JSON inspection only; no upstream package evaluation, resolution, build, download or launch by this preflight.",
+  "scope": {
+    "atoll_role": "First full-app candidate and deliberate component source; not built or adopted wholesale by the initial controlled host.",
+    "dynamicnotch_role": "Pinned component reference and alternative.",
+    "controlled_host_role": "Early PersonalIslandApp integration target; preview, not the complete product.",
+    "all_accepted_feature_groups_remain_planned": true,
+    "face_unlock": "deferred; excluded from active work"
+  },
+  "controlled_host": {
+    "name": "PersonalIslandApp",
+    "dependency_policy": "Apple SDK frameworks and local PersonalIslandCore only.",
+    "external_packages": [],
+    "upstream_binary_helpers": [],
+    "local_packages": [
+      {
+        "name": "PersonalIslandCore",
+        "path": "PersonalIslandCore",
+        "manifest": "PersonalIslandCore/Package.swift",
+        "external_dependencies_declared": 0,
+        "plugins_or_binary_targets_declared": 0
+      }
+    ],
+    "configuration_status": "Declared target policy; root agent is preparing target separately.",
+    "bundle_inspection_status": "pending; this inventory is not a build or runtime receipt",
+    "copy_or_port_provenance_status": "Record each actual copied/adapted file before claiming reuse; none asserted by this inventory."
+  },
+  "atoll": {
+    "repository": "https://github.com/Ebullioscopic/Atoll",
+    "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
+    "audit_snapshot_is_complete_build_tree": false,
+    "project_path": "audit/sources/atoll/DynamicIsland.xcodeproj/project.pbxproj",
+    "resolved_path": "audit/sources/atoll/DynamicIsland.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+    "resolved_sha256": "ba6fc38f458df4a8227c5bd9320c52f10f8b5f6d565d3874f75439b5a0fea45c",
+    "remote_project_references": 13,
+    "linked_app_package_products": 11,
+    "resolved_pins": 16,
+    "pins_are_not_execution_approval": true,
+    "packages": [
+      {
+        "identity": "atollextensionkit",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/Ebullioscopic/AtollExtensionKit",
+        "state": {
+          "branch": "main",
+          "revision": "e2d30afedbbcc259bec7eeb1bea0757e52f4ca01"
+        },
+        "initial_host_decision": "omit",
+        "reason": "Unrequested extension hosting; remove UI, startup and package references together.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "defaults",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/sindresorhus/Defaults",
+        "state": {
+          "revision": "00c82eff4550c87cf9c547d7e5493a6a97837061",
+          "version": "9.0.3"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Controlled host uses local settings; imported Atoll components may justify a reviewed source dependency later.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "keyboardshortcuts",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/sindresorhus/KeyboardShortcuts",
+        "state": {
+          "revision": "045cf174010beb335fa1d2567d18c057b8787165",
+          "version": "2.3.0"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "No external package needed for initial native shortcut route; review before deliberate reuse.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "launchatlogin-modern",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/sindresorhus/LaunchAtLogin-Modern",
+        "state": {
+          "branch": "main",
+          "revision": "a04ec1c363be3627734f6dad757d82f5d4fa8fcc"
+        },
+        "initial_host_decision": "defer",
+        "reason": "Optional login startup remains off; use reviewed implementation when added.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "lottie-spm",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/airbnb/lottie-spm.git",
+        "state": {
+          "branch": "main",
+          "revision": "04f2fd18cc9404a0a0917265a449002674f24ec9"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Inspect raw manifest for binary targets, artifact downloads and transitive graph; no source-only assumption.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "lottieui",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/jasudev/LottieUI.git",
+        "state": {
+          "branch": "main",
+          "revision": "0cd5b54a1c8467b19c01f56395aec179087b62e2"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Initial views can use native animation; inspect wrapper and all animation dependencies before reuse.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "macrovisionkit",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/TheBoredTeam/MacroVisionKit",
+        "state": {
+          "revision": "5e8b06c448298de182638bb28ca064eaf6b1fe99",
+          "version": "0.1.0"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Private/fullscreen behavior isolated behind a capability adapter; not needed for initial capsule.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "open-meteo",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/open-meteo/open-meteo",
+        "state": {
+          "revision": "f18ccb781804c444b87e6175a4b62ecfbe0212dc",
+          "version": "1.4.16"
+        },
+        "initial_host_decision": "omit_from_initial_host",
+        "reason": "Project reference is not among the 11 linked app products; a small direct weather client needs no package.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "pow",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/EmergeTools/Pow",
+        "state": {
+          "revision": "a504eb6d144bcf49f4f33029a2795345cb39e6b4",
+          "version": "1.0.5"
+        },
+        "initial_host_decision": "omit_from_initial_host",
+        "reason": "Project reference is not among the 11 linked app products; no need for initial views.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "skylightwindow",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/Lakr233/SkyLightWindow",
+        "state": {
+          "branch": "main",
+          "revision": "4a7e8628c85e6b2ec429b57657a556a2171a4864"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Lock-screen widgets remain planned; review private interfaces and rebuild source before integration.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "sparkle",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/sparkle-project/Sparkle",
+        "state": {
+          "revision": "0ca3004e98712ea2b39dd881d28448630cce1c99",
+          "version": "2.7.0"
+        },
+        "initial_host_decision": "omit",
+        "reason": "Remove upstream updater and signing/install services; local reviewed rebuilds remain the update route.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "swift-argument-parser",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "revision": "626b5b7b2f45e1b0b1c6f4a309296d1d21d7311b",
+          "version": "1.7.1"
+        },
+        "initial_host_decision": "unresolved_transitive_role",
+        "reason": "No direct app import identified; inspect manifests to establish whether any retained dependency needs it.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "swift-collections",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/apple/swift-collections.git",
+        "state": {
+          "revision": "671108c96644956dddcd89dd59c203dcdb36cec7",
+          "version": "1.1.4"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Atoll TrayDrop imports OrderedCollections; the new shelf core does not require it.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "swift-syntax",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/swiftlang/swift-syntax",
+        "state": {
+          "revision": "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+          "version": "601.0.1"
+        },
+        "initial_host_decision": "unresolved_transitive_role",
+        "reason": "Inspect macro/compiler-plugin use and executable build dependencies before evaluation.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "swiftterm",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/migueldeicaza/SwiftTerm",
+        "state": {
+          "revision": "8e7a1e154f470e19c709a00a8768df348ba5fc43",
+          "version": "1.13.0"
+        },
+        "initial_host_decision": "omit",
+        "reason": "Unrequested terminal is omitted.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      },
+      {
+        "identity": "swiftui-introspect",
+        "kind": "remoteSourceControl",
+        "repository": "https://github.com/siteline/swiftui-introspect",
+        "state": {
+          "revision": "807f73ce09a9b9723f12385e592b4e0aaebd3336",
+          "version": "1.3.0"
+        },
+        "initial_host_decision": "review_before_reuse",
+        "reason": "Initial AppKit/SwiftUI views do not require it; review before adapting retained view behavior.",
+        "manifest_reviewed": false,
+        "implementation_reviewed": false,
+        "binary_targets_verified": false,
+        "plugins_and_macros_verified": false,
+        "included_in_initial_host": false
+      }
+    ]
+  },
+  "excluded_upstream_surfaces": [
+    {
+      "name": "NowPlayingTestClient",
+      "paths": [
+        "Contents/Helpers/NowPlayingTestClient"
+      ],
+      "evidence": "project.pbxproj:55,70-79,124",
+      "decision": "No copied executable in initial host; rebuild matching reviewed source if later needed."
+    },
+    {
+      "name": "MediaRemote adapter and Perl loader",
+      "paths": [
+        "Frameworks/MediaRemoteAdapter.framework",
+        "mediaremote-adapter/MediaRemoteAdapter.framework",
+        "mediaremote-adapter/mediaremote-adapter.pl"
+      ],
+      "evidence": "project.pbxproj:24,29,125,468-473; NowPlayingController.swift:258-278",
+      "decision": "No bundled framework/loader in initial host; broader players remain planned behind a reviewed adapter."
+    },
+    {
+      "name": "Sparkle updater",
+      "paths": [
+        "DynamicIsland/services/AtollUpdaterDelegate.swift",
+        "DynamicIsland/components/Settings/SoftwareUpdater.swift",
+        "DynamicIsland/components/Settings/CustomUpdaterViews"
+      ],
+      "evidence": "project.pbxproj:485-502; Info.plist:16-23; DynamicIslandApp.swift:38-44",
+      "decision": "Omit package, startup, settings, feed/key entries, installer Mach exceptions and signing shell phase."
+    },
+    {
+      "name": "Extension hosting",
+      "paths": [
+        "DynamicIsland/services/Extensions",
+        "DynamicIsland/managers/Extensions",
+        "DynamicIsland/components/Extensions"
+      ],
+      "evidence": "DynamicIslandApp.swift:121-122; DynamicIsland.entitlements:9-12",
+      "decision": "Omit RPC/XPC listeners, webviews and AtollExtensionKit; remove related main-view/settings routes."
+    },
+    {
+      "name": "AI assistant and account usage access",
+      "paths": [
+        "DynamicIsland/components/ScreenAssistant",
+        "DynamicIsland/managers/ScreenAssistantManager.swift",
+        "DynamicIsland/managers/ScreenAssistantPanelManager.swift",
+        "DynamicIsland/managers/LLMUsage",
+        "DynamicIsland/components/Notch/NotchLLMUsageView.swift"
+      ],
+      "decision": "Unrequested; no AI endpoints, API keys or other-app credential reading in initial host."
+    },
+    {
+      "name": "Terminal",
+      "paths": [
+        "DynamicIsland/managers/TerminalManager.swift",
+        "DynamicIsland/components/Notch/NotchTerminalView.swift"
+      ],
+      "decision": "Unrequested; omit SwiftTerm and shell UI."
+    },
+    {
+      "name": "LocalSend",
+      "paths": [
+        "DynamicIsland/components/Shelf/Services/LocalSendService.swift",
+        "DynamicIsland/managers/LocalSendDevicePickerWindowManager.swift",
+        "DynamicIsland/components/Shelf/Views/LocalSendLiveActivity.swift"
+      ],
+      "decision": "Omit from initial host; AirDrop and ordinary manual dragging remain planned."
+    },
+    {
+      "name": "Face/password unlock",
+      "repository": "jackson-storm/DynamicNotch",
+      "commit": "f8623de5806ec5a22d9845189360bc9f4d92c374",
+      "paths": [
+        "DynamicNotch/Features/FaceID"
+      ],
+      "decision": "Deferred; no enrollment, password collection or authentication changes."
+    }
+  ],
+  "before_any_upstream_package_execution": [
+    "Read raw Package.swift and referenced manifests at exact pinned revisions before evaluating or resolving them.",
+    "Identify binary targets, artifact URL/checksums, command/build/prebuild plugins, compiler macro executables and transitive code.",
+    "Review build scripts, resource inclusion, source licenses and private API or permission implications.",
+    "Remove omitted package references and enforce reviewed revisions without silently following moving branches.",
+    "Inspect final bundle and signed entitlements; preserve an artifact-specific receipt.",
+    "Record runtime behavior separately; a dependency pin or compilation does not prove privacy or compatibility."
+  ],
+  "license_and_provenance": {
+    "upstream_code_license_files": [
+      "audit/sources/atoll/LICENSE",
+      "audit/sources/dynamicnotch/LICENSE"
+    ],
+    "additional_atoll_notices": [
+      "audit/sources/atoll/NOTICE",
+      "audit/sources/atoll/COPYRIGHT_ASSETS",
+      "audit/sources/atoll/TRADEMARKS"
+    ],
+    "rule": "Preserve applicable headers/licenses/notices when copying or adapting source. Record repository, commit, file hashes and modifications. Review asset-specific terms separately; do not assume source-code license covers all media.",
+    "distribution": "Not planned; no publishing or source push authorized by this receipt."
+  },
+  "limits": [
+    "Remote package manifests/implementations were not fetched or evaluated by this preflight.",
+    "Binary target and plugin flags mean unverified, not confirmed absent.",
+    "No completed app bundle, effective signature, runtime traffic, permissions or display behavior is certified here."
+  ]
+}

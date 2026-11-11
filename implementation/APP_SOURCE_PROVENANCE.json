@@ -1,0 +1,118 @@
+{
+  "date": "2026-11-11",
+  "scope": "Controlled graphical host and directly tested local presentation/storage components, not a complete Atoll fork. No DynamicNotch source has been copied into this host.",
+  "files": [
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
+      "local_sha256": "68e63ad38d8b3475c72225f56293f032dd0d15f1d12eee1d6fca8579d157264a",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
+      "local_sha256": "d8a1a00d67c0a35dbbf001b457142b7320e97daf15aa4b70988e5d6a79963d15",
+      "origin": "adapted",
+      "repository": "https://github.com/Ebullioscopic/Atoll",
+      "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
+      "upstream_path": "DynamicIsland/sizing/matters.swift",
+      "upstream_sha256": "e9d4b3d2fc752f7908eea0e23e7fb8b7ce887fe28a6dde7a7ff835053036690a",
+      "modifications": "Adapted getClosedNotchSize measurement ideas into pure display inputs and screen-relative layout; added external floating capsule placement and size bounds. Test-driven fix: preserve menu-bar clearance by bounding panel height below its top edge; compress margins on synthetic tiny frames.",
+      "license": "GPL-3.0-or-later; retained headers and upstream notices"
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandPanelController.swift",
+      "local_sha256": "a9177223d8d3f57f677b7eb1008b7ff43da40ec00ce6e92560ba1f3ded0d35d8",
+      "origin": "adapted",
+      "repository": "https://github.com/Ebullioscopic/Atoll",
+      "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
+      "upstream_path": "DynamicIsland/components/Notch/DynamicIslandWindow.swift",
+      "upstream_sha256": "07427c36598e884b0ffa7131352596881cfafa3ad40b9d501db7cc58109514cb",
+      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift.",
+      "license": "GPL-3.0-or-later; retained headers and upstream notices"
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandView.swift",
+      "local_sha256": "9c61ecb04befb20319aa4f99a2406589949bc63a1242eb8536fad0736dda57ef",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
+      "local_sha256": "bc7a8908517c9502012a4e9f3ea6567dc0d6680641cf358e32b89711a95d84ca",
+      "origin": "adapted",
+      "repository": "https://github.com/Ebullioscopic/Atoll",
+      "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
+      "upstream_path": "DynamicIsland/components/Notch/NotchShape.swift",
+      "upstream_sha256": "745ada0c528a38db6fcaf2d6f15d3e16d4cf497795168ca0ed27fcff56b6f265",
+      "modifications": "Retained production drawing implementation and license header; added provenance and removed editor-only #Preview block.",
+      "license": "GPL-3.0-or-later; retained headers and upstream notices"
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/PersonalIslandApp.swift",
+      "local_sha256": "5c37fd3c49ea49f62b35cf6694c441731cc88c5c98a1a184522bd4d80ca57d3b",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/SettingsView.swift",
+      "local_sha256": "0b367fa30eb78c1dba0b244fd787ce00d89487b762339170ffbf2cbbd28a54b4",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied."
+    },
+    {
+      "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/Models.swift",
+      "local_sha256": "b9576dc8833fca10ce1652c09fcb5a7fc75fe775fc643373381e0856063cc4ce",
+      "origin": "new_local_implementation",
+      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
+    },
+    {
+      "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/OwnedExportDirectory.swift",
+      "local_sha256": "9522052b89e99af9e53da1abb7ab621469e9880bc0293bb32e561d0e09f0e439",
+      "origin": "new_local_implementation",
+      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
+    },
+    {
+      "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/ShelfStore.swift",
+      "local_sha256": "4b848f421d9d7a6261be16bc66dd54fd7f0d21bfc0584ea2a5d4de532424aaa8",
+      "origin": "new_local_implementation",
+      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandPresentation.swift",
+      "local_sha256": "baf970d3deff6ea9bf3d4eb2adca71b97c4ffeb9f1915edc4160d91c78fcf4a4",
+      "origin": "new_local_implementation",
+      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests."
+    }
+  ],
+  "notch_production_body_matches_upstream": true,
+  "retained_upstream_notices": [
+    {
+      "local_path": "PersonalIslandApp/Resources/Atoll-LICENSE.txt",
+      "upstream_path": "LICENSE",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "copied_unchanged": true
+    },
+    {
+      "local_path": "PersonalIslandApp/Resources/Atoll-NOTICE.txt",
+      "upstream_path": "NOTICE",
+      "sha256": "bb80927845ea360a1296615493f37d3bda573eb4e8b379875fb7011f2103dc07",
+      "copied_unchanged": true
+    },
+    {
+      "local_path": "PersonalIslandApp/Resources/Atoll-COPYRIGHT_ASSETS.txt",
+      "upstream_path": "COPYRIGHT_ASSETS",
+      "sha256": "ab9fff8dbf60a1190d4ebdd0d151916be8d2b09019f26eb25687cba9ba143f8c",
+      "copied_unchanged": true
+    },
+    {
+      "local_path": "PersonalIslandApp/Resources/Atoll-TRADEMARKS.txt",
+      "upstream_path": "TRADEMARKS",
+      "sha256": "2303638e1072d3af8acb68dee7a18d3bfc76160c242d59f6ac80186928f8139b",
+      "copied_unchanged": true
+    }
+  ],
+  "external_packages": [],
+  "upstream_helpers": [],
+  "assets": "Only Apple system symbols and local UI drawing. Upstream artwork, media and animations are not bundled. Full retained NOTICE text may mention assets not used here.",
+  "limits": "Source hashes record provenance, not a certification of runtime behavior. Complete upstream assets/dependency implementations remain unreviewed for later feature ports."
+}

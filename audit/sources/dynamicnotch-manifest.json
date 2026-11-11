@@ -1,0 +1,3786 @@
+{
+  "repository": "jackson-storm/DynamicNotch",
+  "revision": "f8623de5806ec5a22d9845189360bc9f4d92c374",
+  "review_date": "2026-11-10",
+  "archive_sha256": "cd213fef39186ef9c21b73ededb4440930453e2af88f56940bba8002a114bcbc",
+  "text_files": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "size": 834,
+      "sha256": "0c8d64f29fb4536513653bf8c97da30f3340e2041b91c8952db1515d6b23a7b3"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/custom.md",
+      "size": 126,
+      "sha256": "a062d66844de4e399924f13739309fcd6fa478edca7a6733ba2f9bdb85b9f45d"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "size": 595,
+      "sha256": "1f48c52f209a971b8e7eae4120144d28fcf8ee38a7778a7b4d8cf1ab356617d2"
+    },
+    {
+      "path": ".github/pull_request_template.md",
+      "size": 2349,
+      "sha256": "73d891e191a61c6261f5e907d8b563461a9cdb985bb64cc7795c005c223e8601"
+    },
+    {
+      "path": ".gitignore",
+      "size": 208,
+      "sha256": "ba2ac972b80e3f7783ee625702d404650e5d106fbff29cd303795f8ef2d60d34"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "size": 5202,
+      "sha256": "88504558eb3470566208af69870487d373e6687575e8c9b9863f517f16309d81"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "size": 7862,
+      "sha256": "849ec358d9e39b2109fab61a6fa65155a03e038d4d910fd3c79bff3652492a05"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/project.pbxproj",
+      "size": 32127,
+      "sha256": "55df0dffab73c5d3fa5ec388ca4aa8e81f7f2f423c351b9b1477553dfe21a34c"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+      "size": 135,
+      "sha256": "7f3b00b5c3fdb45242d7b87e1e5c4e25d1fa8129a16c94295ecc4e8ea2235c5f"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+      "size": 653,
+      "sha256": "7e0c6d645e76b0f28f69b4b8a983723f7a4de7204e175adacd4c06a98475653c"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/xcshareddata/xcschemes/DynamicNotch.xcscheme",
+      "size": 3404,
+      "sha256": "04ca95021f129420dea1427cab96c071ea16d6251ab1d0d03abdb9d016a7c1e3"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/xcshareddata/xcschemes/DynamicNotchUI.xcscheme",
+      "size": 3373,
+      "sha256": "ca826aa266cc8fe643fbbb80697f86cb59f73c7c91b7d55d3fda247a632a23d4"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/xcuserdata/macintosh.xcuserdatad/xcschemes/xcschememanagement.plist",
+      "size": 347,
+      "sha256": "a15c11b92a412572165214695ce1f02490533db07909907fb5fa76da5384d249"
+    },
+    {
+      "path": "DynamicNotch/Application/AppContainer.swift",
+      "size": 5174,
+      "sha256": "6bf01362dfb704ece827a71142fb808f74175de378186867c08f5d4ef56fdddb"
+    },
+    {
+      "path": "DynamicNotch/Application/AppDelegate/AppDelegate+Observers.swift",
+      "size": 6830,
+      "sha256": "28c0bc365f0d13a7f4a7c2975e210931241fb69cde1ba77700524086b1c3e1d2"
+    },
+    {
+      "path": "DynamicNotch/Application/AppDelegate/AppDelegate+OutsideClick.swift",
+      "size": 3382,
+      "sha256": "d773db432209560c0da17108b0d0185a5ed84647de7e72d86db1faba873a4b9f"
+    },
+    {
+      "path": "DynamicNotch/Application/AppDelegate/AppDelegate+Window.swift",
+      "size": 5943,
+      "sha256": "e39040a122c40005fc4178e391ec13fd9abadf970d3ad484097258d6ed479c6f"
+    },
+    {
+      "path": "DynamicNotch/Application/AppDelegate/AppDelegate.swift",
+      "size": 6011,
+      "sha256": "fae357eae8e69d7f16b3c1da091bde4ce4ee172aaa953ab7c60bb42428f024ff"
+    },
+    {
+      "path": "DynamicNotch/Application/AppEnvironment.swift",
+      "size": 902,
+      "sha256": "ce02129caac50d520f96f06770746f08b457eac5a0fec6e925575e7b15d6711f"
+    },
+    {
+      "path": "DynamicNotch/Application/DynamicNotch.entitlements",
+      "size": 441,
+      "sha256": "84e0a3574299278ce067a86df236596c55e70fc6baabd52b78becda97d2b2330"
+    },
+    {
+      "path": "DynamicNotch/Application/DynamicNotchApp.swift",
+      "size": 422,
+      "sha256": "e1e9172375909a5f550f19509136c5a339917f204e1dd904ebe99050577b5073"
+    },
+    {
+      "path": "DynamicNotch/Application/GlobalClickMonitor.swift",
+      "size": 483,
+      "sha256": "64084688a22ad2d5adce69c37eb6e84aba60a0bf021bcb356dcdddd581dddd51"
+    },
+    {
+      "path": "DynamicNotch/Application/Info.plist",
+      "size": 888,
+      "sha256": "0d80a49fc624caab3785d0c30cba2f59c34bb53c1f395491c18642bfd734496a"
+    },
+    {
+      "path": "DynamicNotch/Application/MenuBarMenu.swift",
+      "size": 1875,
+      "sha256": "a40547d8f212002d6f5db3f8b4be67ea629fc1742944b8f06c6d92cc2fb42b6f"
+    },
+    {
+      "path": "DynamicNotch/Application/Panels/OverlayPanelFactory.swift",
+      "size": 1685,
+      "sha256": "3525d953842f1c73fae0394c66911dfc2b19de56c30621b844aec2aa81aa94c8"
+    },
+    {
+      "path": "DynamicNotch/Application/Panels/OverlayPanelWindow.swift",
+      "size": 370,
+      "sha256": "9e50dfe282f6cdad99531e290d4052986222032c34b84d93e75bc6a7b36f5a0d"
+    },
+    {
+      "path": "DynamicNotch/Application/Windows/OverlayWindowLayout.swift",
+      "size": 618,
+      "sha256": "6480f1f79d4a6d082690bc3dbf504f3dc84b7a207382dada30b1cf6d145baf8d"
+    },
+    {
+      "path": "DynamicNotch/Application/Windows/OverlayWindowLevel.swift",
+      "size": 454,
+      "sha256": "a7294191e4ec2c40aea4e2dd0620665b0a8c7490e6c0548ef860f2335cfa3bea"
+    },
+    {
+      "path": "DynamicNotch/Application/Windows/SettingsWindowController.swift",
+      "size": 4114,
+      "sha256": "80eb54161b4f87b1eb15b3e71292a881120caa4fb06e3033a614daa020622d84"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Display/NotchDisplayLocation.swift",
+      "size": 806,
+      "sha256": "b4ad269105bfa6245894669af07814b2880544b973b45b33f620ec802be26cb0"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Display/NotchDisplayOption.swift",
+      "size": 1080,
+      "sha256": "fb1028f775e2e23574c2954eed427cc89adb20a96cc2b9de79e0bdfade1dd62e"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Display/NotchScreenSelection.swift",
+      "size": 1482,
+      "sha256": "c43772c2da4fd1e77662a4e50186500cb655e5e996a397170c5b51f8a89b4c7e"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Display/NotchScreenSelectionPreferences.swift",
+      "size": 335,
+      "sha256": "f115f5ed403e0b85c74891f3dd9b6856c82414cbaa900178c2858618a7a6e6f3"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Gestures/NotchCollapseInteraction.swift",
+      "size": 616,
+      "sha256": "c0ec859cbc02bf0756e03999529a511db9a7a1bc2e3dd318ad5220453c48469c"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Gestures/NotchExpandInteraction.swift",
+      "size": 710,
+      "sha256": "6c907dc76efd0c3606d13ebb607e17fc6dae9149ae02f632307bcd746e67df64"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/NotchContentPriority.swift",
+      "size": 6947,
+      "sha256": "ba748f022916dceb9d6f8923f793f49a661e66d7437bc7b4365deac8d23a1ce5"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/NotchContentRegistry.swift",
+      "size": 7435,
+      "sha256": "b001f3ffb7d25e3169e170640ad043821d10d809065a3551e3dee83eecad483a"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/NotchModel.swift",
+      "size": 7605,
+      "sha256": "0b03ab479bab976f737756244b65687382977df673cc691a9c28bca2894cf373"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/NotchState.swift",
+      "size": 1514,
+      "sha256": "2e60cf9b0df4dc8b3fffdab95e1dee7757d88fc57361584270081ce8a3a6890a"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/NotchTransitionMetrics.swift",
+      "size": 1262,
+      "sha256": "c0c2ed7fc7863143ce4a935380e1b3264c3e386e7f31612b897e5b851b678558"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Swipe/SwipeDirection.swift",
+      "size": 279,
+      "sha256": "5d3e5cb44fd344f335817865f03605352a2a716fc80779f6139a3bb35de52a3f"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Swipe/SwipeFeedbackMetrics.swift",
+      "size": 1190,
+      "sha256": "0ac7f84e556a953ee2bea7b2dfa81fd7b0b8826e91a2761c416a8a06d2a09e7b"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Models/Swipe/SwipeInteraction.swift",
+      "size": 544,
+      "sha256": "02b8286edee82fce3502e29cc211f109991c5b6a8563767111caccec2660b470"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/NotchEngine.swift",
+      "size": 23562,
+      "sha256": "3e1982833cb01b4609eaf0dcdd8a70840383aaa84421585607275886dc78164b"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Protocols/DynamicIslandCustomizable.swift",
+      "size": 2370,
+      "sha256": "4eb45f6abaa3b06639e8dae525e4d5af33cb91640c2382e846e40d7f3dbb13a8"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Protocols/NotchContentProtocol.swift",
+      "size": 6747,
+      "sha256": "4ab90a5178c5147e952076344368d728221d0e2a0dc4e01d9605090d43b7ac65"
+    },
+    {
+      "path": "DynamicNotch/Core/NotchEngine/Protocols/NotchSettingsProviding.swift",
+      "size": 806,
+      "sha256": "336db8549ec71c167ab258d6b7278e246c6eb593af142adfac7702d5958dffe7"
+    },
+    {
+      "path": "DynamicNotch/Core/SettingsEngine/GeneralSettingsStorage.swift",
+      "size": 17147,
+      "sha256": "a0dcae8bdc65f6ef7a5fa4b51199cd6d618a5702a49accc0d4c7845b7acf85c5"
+    },
+    {
+      "path": "DynamicNotch/Core/SettingsEngine/SettingsStoreBase.swift",
+      "size": 7227,
+      "sha256": "c74533e4652da75bd3605ebacbd61f807671d6180a005cb036718e3454c12001"
+    },
+    {
+      "path": "DynamicNotch/Core/SystemBridges/DisplayServicesBridge.swift",
+      "size": 2639,
+      "sha256": "e6f1a6d5243ebbe95115f3904f5f4b01ddb123c99937967dc63c32f1549eb3d4"
+    },
+    {
+      "path": "DynamicNotch/Core/SystemBridges/SkyLightOperator.swift",
+      "size": 5068,
+      "sha256": "e21047d85bde51be2ca8b8ca46696306b4ce1ea9ec4a6c2d0c01d330eb473120"
+    },
+    {
+      "path": "DynamicNotch/Core/Utilities/AppRelauncher.swift",
+      "size": 647,
+      "sha256": "6702e779a8c683891592522ed46d1ed9ad57721567c01723b57316b54f57f6d6"
+    },
+    {
+      "path": "DynamicNotch/Core/Utilities/AppVersionText.swift",
+      "size": 471,
+      "sha256": "01aa7b95f3a664d9ddb971f69c6df2a94cc4042ea03d9d4ef8362c66a4b26fc5"
+    },
+    {
+      "path": "DynamicNotch/Core/Utilities/ApplicationActivator.swift",
+      "size": 3260,
+      "sha256": "3466987bfd38dc230016d6fae5cfcd704dd72347d0c77378b383d94cfdcff08f"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Components/BatteryCompactStatusView.swift",
+      "size": 1966,
+      "sha256": "26e141f8f60fcaff4035d93f4eb8fbc2e8a58135bd5836bc703c5d804ce4fd53"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Content/ChargerNotchContent.swift",
+      "size": 939,
+      "sha256": "d982e1b6747a71026d54bbc28ce3cf5be31c4581f873058c9cbf2e5f2c9fcbc3"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Content/FullPowerNotchContent.swift",
+      "size": 1604,
+      "sha256": "b2b915ac16de2c2574ed88de39242c8fc09e48d810016af0687ede5efe03110c"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Content/LowPowerNotchContent.swift",
+      "size": 1602,
+      "sha256": "f68698a80de87e7a05ac367804f283430d5ba409fb5a652e39d2402314483383"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/EventHandlers/NotchPowerEventsHandler.swift",
+      "size": 2781,
+      "sha256": "e5c395dd5f0e75512e76082eb83a7667ef2a05269b329446fa592cfddf9ca7ba"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Models/BatteryNotificationStyle.swift",
+      "size": 358,
+      "sha256": "a13e422523a18a796e4695f5519d52a71dc0f57fce81212ce0fbf365185270b8"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Protocols/PowerStateProviding.swift",
+      "size": 221,
+      "sha256": "a48869bc4c2d7e5e7226c3820b7a5139ebca41e493785a8367fbbbda849317af"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Services/PowerService.swift",
+      "size": 4707,
+      "sha256": "170fc7cfef9dc4975e464957dfdcb7d5152677e55c7e761b2a3ee9aa1a647647"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Settings/BatterySettingsStore.swift",
+      "size": 4401,
+      "sha256": "74a6e2e8163c433486b41cf07fb991af961ee8561da8fb5c448627779014c495"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Settings/BatterySettingsView.swift",
+      "size": 17625,
+      "sha256": "22f0d1f37141a0bfcb76686d0ce63a298c7f947f8a6c33e4249a2440d675521a"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/ViewModels/PowerViewModel.swift",
+      "size": 2564,
+      "sha256": "1b36f621072a6c39632e1c47f842165adf856ae7fff5a93013bae59d684e3737"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Views/ChargerNotchView.swift",
+      "size": 753,
+      "sha256": "d9a816bb20d6b77c195b74da793e4966c46bbab302d32386ad2cac5deaf9b086"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Views/FullPowerNotchView.swift",
+      "size": 6607,
+      "sha256": "cfe979fc9e7315fd2c623a34fcf46348d59488ea2c284ed2b71e53196a14a3e2"
+    },
+    {
+      "path": "DynamicNotch/Features/Battery/Views/LowPowerNotchView.swift",
+      "size": 5057,
+      "sha256": "ad1e3432b738bdd4e67a49f4bc77cca5e5d8d131debbcf0cb26ce398c5c492cc"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Components/BluetoothBatteryIndicatorView.swift",
+      "size": 1448,
+      "sha256": "eeffceaac882daf7f1ff77999cb775f0bea56a1ccfa4654f74c9cbb13bbb46be"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Content/BluetoothConnectedNotchContent.swift",
+      "size": 2480,
+      "sha256": "ca89b383b0bc614c55fa716eef51aba791acb85790d44e1a111ee7d8065d2934"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Models/BluetoothAppearanceStyle.swift",
+      "size": 808,
+      "sha256": "2efefc1e817635622c189d9db08e29af1411546589eb34ace0c608e1c73c1a6d"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Models/BluetoothBatteryIndicatorStyle.swift",
+      "size": 370,
+      "sha256": "10a46e8d79fda68298887f7026d2aad555d0a2810f49c0ea0b65df6dd94b69b7"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothAudioDeviceType.swift",
+      "size": 1910,
+      "sha256": "f8a2e9e5912dbc5caf575f77dc27a2a2439716e30678cdc08db1f0be3b3143da"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothLEBatteryReader.swift",
+      "size": 10357,
+      "sha256": "9b82e6724b8f11c7b0a557978795103b805b240d11ad24ae44a6ee90b4c4c924"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothService+Battery.swift",
+      "size": 37441,
+      "sha256": "4d1f4fbf4e468e3e600dac8cb7d31c0c1844faec92fe52bf9b2c45f24bef8cfa"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothService+Detection.swift",
+      "size": 13895,
+      "sha256": "2a5a6d677b8f3bdaa11f4bea194bfa764ce4653a8e962a2e962ad30e9bd6693c"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothService+Lifecycle.swift",
+      "size": 15399,
+      "sha256": "3c74880661f336d7fc8492617b72e42c48a22e57ce84d7d5d33f584c7e408f04"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothService.swift",
+      "size": 6198,
+      "sha256": "0115e5df70806cd0274e75e11c35027114b4098354c3fcb8e4f94406c9e8c24a"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/BluetoothServiceProtocol.swift",
+      "size": 744,
+      "sha256": "70513a2897af8c5339bc72d0c1b49b25884e075ae1c78ebaa5a13b856630bd55"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/InactiveBluetoothService.swift",
+      "size": 666,
+      "sha256": "7562aa376ff6b937d875551eb7ed7136861d1f25b93cfdb7e9940dc39534447a"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Services/Models/BluetoothAudioDevice.swift",
+      "size": 942,
+      "sha256": "2bfcce8e310b9c1c3ead06e46a29845db230d95e308fb348b0938b7eb46b7fc7"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Settings/BluetoothSettingsView.swift",
+      "size": 7939,
+      "sha256": "f09808a4689e097a6f39760f965f237788e94180258b13a782215b5e197e5015"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/ViewModels/BluetoothViewModel.swift",
+      "size": 3459,
+      "sha256": "ff952656903fe79e8a744a2237db4f439b4215a9453c0d56e5e1e33e249da5de"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Views/BluetoothCompactNotchView.swift",
+      "size": 2269,
+      "sha256": "92ff386bf482acd135169f699f1758a4d5e005ae7eb0236b038dd441c9ce0433"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Views/BluetoothConnectedNotchView.swift",
+      "size": 1003,
+      "sha256": "9e030d14c6465ef0c573c3b9e8efae46950b9b50698ccfe69913dce1825abd10"
+    },
+    {
+      "path": "DynamicNotch/Features/Bluetooth/Views/BluetoothDetailedNotchView.swift",
+      "size": 2580,
+      "sha256": "ea0d870b0b2a42fa3eefaba5119041b87eb887ea9a79fed42ae6399557e0ebfb"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/Content/CalendarNotchContent.swift",
+      "size": 2007,
+      "sha256": "4b0e627ac17199e707a00e348aabec9e6747164f57973e240ef07f97e8475ab1"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/EventHandlers/NotchCalendarEventsHandler.swift",
+      "size": 1851,
+      "sha256": "97a8eee7e80f81ef04dce968c1dfccfe9ed5333f1ceab750daa4a6445fb04a2b"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/Models/CalendarTimeDisplayFormat.swift",
+      "size": 508,
+      "sha256": "bb576c61a812a723c187d3eabdb8c39d3e453695ef3d2f05d5f505e7ab3f8c0f"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/Settings/CalendarSettingsStore.swift",
+      "size": 1955,
+      "sha256": "9188a11160925360d4c9e1c2f7f85516aa0d9f89327bc7b51099cd734901953e"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/Settings/CalendarSettingsView.swift",
+      "size": 5560,
+      "sha256": "edf1f2488c480e4b06b361519fde16b8ba79b1d0f26c6e885d8630f3526ec895"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/ViewModels/CalendarViewModel.swift",
+      "size": 9369,
+      "sha256": "2c3ee35e0045e0603ef86c8e5acb6a74efcfcfa52cf569f35bd7121b7ab0a7bc"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/Views/CalendarExpandedNotchView.swift",
+      "size": 5319,
+      "sha256": "3f8d2964d520b3be174b8393aa1cba0478accf10c34240ec293b365c1eb83664"
+    },
+    {
+      "path": "DynamicNotch/Features/Calendar/Views/CalendarMinimalNotchView.swift",
+      "size": 1031,
+      "sha256": "b5939e0e5b711eef589e6d68e5c674b59b05e947c0612878ed3c86b0198139be"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Components/DownloadFileThumbnailView.swift",
+      "size": 1541,
+      "sha256": "fe4b4e94c7de0de920f03142c5e49c79d02d6e14691745dfba225a1087327734"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Components/DownloadProgressIndicatorView.swift",
+      "size": 1572,
+      "sha256": "c0ec4efbc02637d3e484f9750e6c9df5c42827f11f28d27d011e65b90d904aea"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Content/DownloadNotchContent.swift",
+      "size": 2152,
+      "sha256": "c503a3849be0fa6ffcc987e767e0d33bfb117b3fa2a01265ea1a8f7c9d6559de"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/EventHandlers/NotchDownloadEventsHandler.swift",
+      "size": 1259,
+      "sha256": "64f19011182467873bcb9f3af41e83649c09b410ad016e3edfea945de19fa665"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Models/DownloadProgressIndicatorStyle.swift",
+      "size": 678,
+      "sha256": "7aad07165df4b2ff943b6f34b2bbc281625d4ed599ac5fbc247c173b06876652"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Protocols/DownloadMonitoring.swift",
+      "size": 215,
+      "sha256": "c1ff2322147330d75b0e22b9fa2e13d6a8089c9468634c7d46f25430e6926d38"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Services/ChromiumDownloadMetadataReader.swift",
+      "size": 6349,
+      "sha256": "6eccf55afce707a02ba4be8766fd0d4a55d9984beab93169cd6c003dda2a2fe9"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Services/FolderFileDownloadMonitor.swift",
+      "size": 23255,
+      "sha256": "17b6256b418ec17f6e42082282024c33fe5313896762c64f1403cf54ce4c8aef"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Services/InactiveDownloadMonitor.swift",
+      "size": 273,
+      "sha256": "40e36607bb308fa7c40b00ce7552dcf7c5fe28d697659528eec21da0df4382a1"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Services/Models/DownloadModel.swift",
+      "size": 534,
+      "sha256": "1b35095840997046869084a10f48cf606f64a0ffe5904c56ef6063a0f7878c88"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Settings/DownloadsSettingsView.swift",
+      "size": 1480,
+      "sha256": "2dea5f3a56071b2c8723af9750d3f93d31be0126c7d86a39aab089ce4782cd48"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/ViewModels/DownloadViewModel.swift",
+      "size": 4833,
+      "sha256": "cea0f6caf8a5948660e048c3e04ae3c766b130eed491741dce331b546df1732e"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Views/DownloadExpandedNotchView.swift",
+      "size": 3114,
+      "sha256": "e50f8d64093887824d611ccf5bf78b31a72d0322b3fce52edebe611fc0e936d2"
+    },
+    {
+      "path": "DynamicNotch/Features/Download/Views/DownloadNotchView.swift",
+      "size": 2640,
+      "sha256": "d0030a617cc02da1358240c66776ffe7c6cb8fc3a2b3cd4d14a1c4f20fc0875f"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/Content/AirDropActiveNotchContent.swift",
+      "size": 1593,
+      "sha256": "c00902b8f7b891b9315f511da47bcb341fdba9d923383e39ee76cee88bf50710"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/Models/AirDropTransferInfo.swift",
+      "size": 663,
+      "sha256": "11881d84e593bf0249192e98e8406e226f9edd500af6c169ec890e4dc919f88f"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/ViewModels/AirDropViewModel.swift",
+      "size": 3569,
+      "sha256": "db86cac3e92dd3de5d7fe70b6a2ab4b694f527bdd8717d7106f712f19e5be443"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/Views/AirDropActiveNotchView.swift",
+      "size": 2288,
+      "sha256": "e8f1741134723f5af0ef40bd9ac71d103648136697e9f84641b6fbd6ba0f0a8a"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/Views/AirDropDestinationView.swift",
+      "size": 8220,
+      "sha256": "02b3ce6e76c3e25e4854a760fd6cfd8e01141694b3fd8c401b3aee18aa09b5db"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/Views/AirDropExpandedActiveNotchView.swift",
+      "size": 4784,
+      "sha256": "c8eca228cd9f0370c8f9f89f2db4a986cb45225cc4482cf59c1b1a1f44c81bd5"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/AirDrop/Views/AirDropTransferProgressRingView.swift",
+      "size": 1073,
+      "sha256": "9a2ae387798b077e8477962733a75711147d46c25c9328ab2bd59cdf9f60789a"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Components/AirDropController.swift",
+      "size": 14172,
+      "sha256": "5338eb8aca831ec5fe065a0c2935814a8a0fa351fb5c1a17a7fa28b97009a022"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Components/DragAndDropTarget.swift",
+      "size": 1721,
+      "sha256": "09ecc4acce770a78cde0886803dc4b0b5f68e6f53631bef206e2d9a6c73da70d"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Content/AirDropNotchContent.swift",
+      "size": 1202,
+      "sha256": "01318848217868f7e1e3074c3e626e668d9bbfda1dd79d9b2abe5381bf1e07aa"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Content/DragAndDropCombinedNotchContent.swift",
+      "size": 1379,
+      "sha256": "318740007ac85996d3a7fe35632c8a2f394726e3a329a87a76c6b86de48ca095"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Content/TrayNotchContent.swift",
+      "size": 1095,
+      "sha256": "001448d654d1564e2a39df1b8cedcb9a60f018c2da0542692647a64675059590"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/EventHandlers/NotchDragAndDropEventsHandler.swift",
+      "size": 6370,
+      "sha256": "0e46d05d0de2e5d2190c8b7a628d7571ab2c87a8978de61a1383a62fca406f26"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Models/DragAndDropActivityMode.swift",
+      "size": 1158,
+      "sha256": "6dd441d6e2f56256b12b58102b057463e45fa2df8bc6c94a51885d340d7e6991"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Models/FileTrayUsageMode.swift",
+      "size": 722,
+      "sha256": "c48a77fb6565d1c016356ff096f1af49183008fb04db41a06a1eb5c29d2e89f2"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Settings/DragAndDropSettingsView.swift",
+      "size": 3690,
+      "sha256": "fd2c9f7109560aaae94710a0cdc654da82f0b4240d3689021f78e15d58dd51f3"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Tray/Content/TrayActiveNotchContent.swift",
+      "size": 1593,
+      "sha256": "11940f6f5bba521193019ea39402f516895b251e32ae8b2db932f25bb30d6041"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Tray/ViewModels/FileTrayViewModel.swift",
+      "size": 13224,
+      "sha256": "cc68c6a0f80183f83c15ea519a936d830f9631b3f5bae390ee7f672eb45eb700"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Tray/Views/TrayActiveNotchView.swift",
+      "size": 966,
+      "sha256": "676a05608b766c1bfd29f1138d7a700bde796df86350f93e7970e7e4f6801125"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Tray/Views/TrayExpandedActiveNotchView.swift",
+      "size": 11480,
+      "sha256": "39d912f95a6a94bd34e50bcea013597c22c2dfcc56b895054efd8fef0c89a811"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Views/AirDropNotchView.swift",
+      "size": 1313,
+      "sha256": "127fa89d3680f8aad68908451b830e866f17255f311ce7e1f24bed1c1cd4b6cd"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Views/DragAndDropCombinedNotchView.swift",
+      "size": 1257,
+      "sha256": "f01e71cbf6c37e7a4c1c718578fed8112f24782555b400a711f1b9ef52a86113"
+    },
+    {
+      "path": "DynamicNotch/Features/DragAndDrop/Views/TrayNotchView.swift",
+      "size": 1653,
+      "sha256": "178fd1d3907b495699dd7962982a2c20b318ef9df1690443351b633f2926811d"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/EventHandlers/NotchExternalDevicesEventsHandler.swift",
+      "size": 1821,
+      "sha256": "0ed467697c2bafec9e7c65a1aa045b70b207e7d864c02190f331110e08c65b9c"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/ExternalDrives/Content/ExternalDriveNotchContent.swift",
+      "size": 1114,
+      "sha256": "8f73aa723d5e2f751d5657d94a1a6e14581b30ff554d2b3beed812ba40108a8f"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/ExternalDrives/Models/ExternalDriveModel.swift",
+      "size": 2222,
+      "sha256": "5b07ced242a1cc3d02477161a65b444267e4ed653520c8ffd6e8ec4472916781"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/ExternalDrives/Services/ExternalDrivesMonitor.swift",
+      "size": 8971,
+      "sha256": "509185c467e463f1b0767f3ceecd0c53e52b87fb0f2f9e1fdf079341c67b85d5"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/ExternalDrives/Views/ExternalDriveNotificationView.swift",
+      "size": 2765,
+      "sha256": "5f4d1d049bfcf79de919bb27bed57772e4ae902f6a20588fc60ad17672353ca8"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/Settings/ExternalDevicesSettingsStore.swift",
+      "size": 1167,
+      "sha256": "25d6af0b2caf1d36f70c2b802dc311299823362362ee63b3d25a96eade55e2fe"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/Settings/ExternalDevicesSettingsView.swift",
+      "size": 227,
+      "sha256": "1ec422185dd46dbc6a1c77f23bcfb19978ac352016e90d626bf23bd0bcf10a10"
+    },
+    {
+      "path": "DynamicNotch/Features/ExternalDevices/Settings/ExternalDrivesNotificationsSettingsView.swift",
+      "size": 3924,
+      "sha256": "6bafd584a77be16c29f355e51004414c012ae4e8abfea4ea42eeeab0661d22f2"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Components/FaceIDCheckmarkShape.swift",
+      "size": 517,
+      "sha256": "049d36d77313ee433c0cc057b9bdda6251bf6a5bbda0e52fb13035ac52cc058f"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Content/FaceIDEnrollmentNotchContent.swift",
+      "size": 2530,
+      "sha256": "11ae0debe79882bd2a9846973e89774776dba15e3e7feb4730cdc47a376050e2"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Content/FaceIDNotchContent.swift",
+      "size": 1271,
+      "sha256": "286a0d4f3280101176667bb278ba3c5486fce81480dc00b4755e3cc817bae9b2"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Models/FaceIDPresentationStyle.swift",
+      "size": 674,
+      "sha256": "bcf0ec37bff8711a172c500e1115ac511cf35b11a2e283b8b6d3b3fe49ca732d"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Models/FaceIDSettings.swift",
+      "size": 764,
+      "sha256": "26325090e15c55e868ea49d3fd6268654494d5bf375f7b830fd8884560fa6bd6"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Models/FaceIDState.swift",
+      "size": 805,
+      "sha256": "0923e3ca6a405c2138c34ddb3f94c7b759f0306cb89561368e302e6916023d2d"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Services/FaceAttentionEvaluator.swift",
+      "size": 4311,
+      "sha256": "b6aa67b3854bd2099f6369cf432ce54830769f2ece6930dd101a271a0464ef84"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Services/FaceIDEnrollmentCameraService.swift",
+      "size": 13851,
+      "sha256": "857baa087c68fdfa94eb87688717ae49288063021741d4dfe989049e740a0fed"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Services/FaceIDKeychainService.swift",
+      "size": 2540,
+      "sha256": "52d24f9a05f214989c9d5363a5c5987b7b5838c88317011fb61d969afe4d15cc"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Services/FaceIDService.swift",
+      "size": 11150,
+      "sha256": "44df2f17b78e0ae06cd1f95e184af6d120366f0ef62bb0b4adb97a4f28537076"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Services/FaceIDSettingsStore.swift",
+      "size": 2743,
+      "sha256": "53f4e6ff89fa124d22668cceb1237be1da020cccf1f404c561d9bb88fb6cb027"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Settings/FaceIDSettingsView.swift",
+      "size": 14730,
+      "sha256": "cae8998739cdee347b92b00bc8f4e92dcd014f38a8b964eb1d0704dc03ed41bd"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Views/FaceIDEnrollmentNotchView.swift",
+      "size": 9845,
+      "sha256": "7785aa2f3b360b4fb2c091b18bb0cd69e6548fd2315eedb92d1b89061c6d44f9"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Views/FaceIDEnrollmentSheetView.swift",
+      "size": 13639,
+      "sha256": "c041a29a1a33a6fbfa01e03d146f89278a12303b15bd439726f5f9c30870166b"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Views/FaceIDNotchView.swift",
+      "size": 1626,
+      "sha256": "4208fac5bf2eda93133b3310cbdae8f0ebdf7de3285ee54a8ec3c83737a248e0"
+    },
+    {
+      "path": "DynamicNotch/Features/FaceID/Views/ScanAnimationView.swift",
+      "size": 8327,
+      "sha256": "805b69b4657336b763337021d58e4ff82fc278c4904f2cc6e802f7caf18f3b15"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Content/FocusOffNotchContent.swift",
+      "size": 2131,
+      "sha256": "ec369acbbbd50197cb5cdd61d215cbcdc229b15b50303980f8cab6d1342e16c1"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Content/FocusOnNotchContent.swift",
+      "size": 1802,
+      "sha256": "810122a305164e0252b8af86d43348a52b16c5fa6deccda14ed14a3d1b8de791"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/EventHandlers/NotchFocusEventsHandler.swift",
+      "size": 2190,
+      "sha256": "53bc50711cbb7ad1d7572e2963a7736e6a667faf32ad087c10bf556b35083b37"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Models/FocusAppearanceStyle.swift",
+      "size": 537,
+      "sha256": "68708e7c160ebcecb75324c5547f0362615cba762b206d5912c3acfaab009063"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/DoNotDisturbManager+Metadata.swift",
+      "size": 47,
+      "sha256": "e2356c962ea2eef78b165e8c08a60b0e06d2baa7c03204566e74a2e02d7244b8"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/DoNotDisturbManager.swift",
+      "size": 27357,
+      "sha256": "9f7d3d3893f28270c6c948575f2907cc599154cc36392f414e6668b3afb22c5e"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/FocusAssertionsReader.swift",
+      "size": 2649,
+      "sha256": "566d78dee3a00f352121673f0f644e183a550cdf73820abf74880cb678cde2f2"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/FocusLogStream.swift",
+      "size": 7989,
+      "sha256": "6c747d51e3e217e4042a2c28dcf3ae53de25e796a1af2b9a1a9c766436e54a47"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/FocusMetadataDecoder.swift",
+      "size": 3283,
+      "sha256": "89805f49581f4a6bd5ee01952ee41dde7fc202dab2ad7ce7953e56e21d77db12"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/FocusModeType.swift",
+      "size": 11164,
+      "sha256": "a8b27bb6310a4256fb9ef19ce4e35d3841eb7d738a141da2bd6de4cb56bad6d9"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/FocusService.swift",
+      "size": 3154,
+      "sha256": "96708fda3efac8b732d6f2c3eda24f5153e5117098a932bdb9bea1a904824153"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Services/FullDiskAccessAuthorization.swift",
+      "size": 1058,
+      "sha256": "8ae54b35089451d47e33e0dede94980210968db48cbc2a9cddba42d748463b7c"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Settings/FocusSettingsView.swift",
+      "size": 6491,
+      "sha256": "34b7ab68bf4cd21a5427189aafd5971061b2df55fee7ab9b0f68ae1db4e71b04"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/ViewModels/FocusViewModel.swift",
+      "size": 541,
+      "sha256": "ba4d88776d66510049d9e05679590ee67c7b438031675f986a1c6cd6ab1d18b4"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Views/Compact/FocusOffNotchView.swift",
+      "size": 493,
+      "sha256": "d69ad1b9708a011c4594eb2eb00ca877b5ea210f33794966b6398c70ad73bfa6"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Views/Compact/FocusOnNotchView.swift",
+      "size": 1159,
+      "sha256": "bee71a974a61e16fbe1e4e7e446df468ac1ba9a3c90f283670553fd03bf35f36"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Views/Expanded/FocusOffExpandedNotchView.swift",
+      "size": 2275,
+      "sha256": "df1574bf7a7ae85b064584c311bddbe84268532a9540314bdad476a7799dd6ca"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Views/Expanded/FocusOnExpandedNotchView.swift",
+      "size": 2411,
+      "sha256": "4bd2d69fd9369831f1bedfbca71ad0ac7b116646537fc46ae8a4b23e469ef017"
+    },
+    {
+      "path": "DynamicNotch/Features/Focus/Views/FocusStatusNotchView.swift",
+      "size": 1595,
+      "sha256": "ac4c37ff7e2866ddd882fdf654d303166dcfeb5a7f38ae00e8cd36db6f05ffad"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Components/HudLevelIndicatorView.swift",
+      "size": 2979,
+      "sha256": "608b6cfbbc0c55f74996cecca1291be09e6cbd4bc7610b002c36dc1d0daf55fb"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Components/HudLevelStyling.swift",
+      "size": 1904,
+      "sha256": "2cf53e8040867c61531b53c8c6576f1c871e5373959365b2ae05ba1a39f91f7f"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Content/HudNotchContent.swift",
+      "size": 5030,
+      "sha256": "fd4ce190286f296c9f46adb03b944c232b86db836b14604d397c0f5e7dfc0ff8"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/EventHandlers/NotchHUDEventsHandler.swift",
+      "size": 3310,
+      "sha256": "8620ca0c5fa31c8e80f990b284a8204974f33eacfa1874d93e8a9f6ac39a14a1"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Models/HudIndicatorStyle.swift",
+      "size": 979,
+      "sha256": "24ffb6a6b6a2f57e1e4eb2580c61591480ca573263bb615289a4a2d7f1b9d4b1"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Models/HudLayoutType.swift",
+      "size": 442,
+      "sha256": "b497018089f03fea8489d8fd181b943ba670413e4e41be5e38379637e22959d1"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Models/HudPresentationKind.swift",
+      "size": 1887,
+      "sha256": "876249b9f93e5c3e93b3502833bb75c7b90815682fdd362d15d83d210e4c968f"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Models/HudStyle.swift",
+      "size": 1044,
+      "sha256": "fb5fccce0bbfae9a2ef1038fd4920b7cc23d83001be7dde120614347e6b921d8"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Services/HardwareHUDMonitor.swift",
+      "size": 6591,
+      "sha256": "09a3532754c259733b69251c7d47a32b4fcd01fc64bb39da93731c428797e96f"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Services/SystemAudioChangeObserver.swift",
+      "size": 6490,
+      "sha256": "7b6311eaf77cc9eee97d94b1da0a6c659f7afc569a950b9ec0ee404c098e5334"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Services/SystemAudioVolumeService.swift",
+      "size": 10429,
+      "sha256": "08e4b708b06842eadf7d9f0a373b8f54125b914e9d0a3fb1f7bc16e2c438d970"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Services/SystemDisplayBrightnessService.swift",
+      "size": 7581,
+      "sha256": "3bae6386404889bd94da8992bacad5a2a9a8f7f71081b0c6e04bad4596748a7d"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Services/SystemMediaKeyTap.swift",
+      "size": 9346,
+      "sha256": "7cb805124d80c98646021089c09e6b002d8d96e7c6f5f5ebfc9e00bd9ff81217"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Services/VolumeFeedbackSoundPlayer.swift",
+      "size": 2455,
+      "sha256": "db8058e149fb5f3f177650620ae1389d09df816af01ccba9068d1274d72c01e4"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Settings/HUDSettingsStore.swift",
+      "size": 3644,
+      "sha256": "013425ed4606e2d958bd6a47cb1d1f1d0843e7218d99a60c8a234554e4a73fde"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Settings/HUDSettingsView.swift",
+      "size": 15163,
+      "sha256": "e1f96053ce775f8c521b4123e11c27192e8a3df6248f93147a2c525345891147"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Views/Compact/HudCompactContentView.swift",
+      "size": 1636,
+      "sha256": "110ee5e989323a40fdaad189bf035f11ebde40f66637e826aba522079d55289a"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Views/Compact/HudMinimalContentView.swift",
+      "size": 944,
+      "sha256": "875985a2f2c6b3fbb284e5b43fee8cdbd716bd7b8404e82d13adf244adab349a"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Views/Compact/HudStandardContentView.swift",
+      "size": 1626,
+      "sha256": "fe865386ad66eacb6863ed81dea2a4fd13851a7c3693bbd946842aaaa86f3750"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Views/Expanded/HudExpandedCompactContentView.swift",
+      "size": 1343,
+      "sha256": "a35c24a694a569024cad8ff3472bb48f82504ed84fe79a1bba6c0dc3fc5a48c2"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Views/Expanded/HudExpandedDetailedContentView.swift",
+      "size": 1944,
+      "sha256": "15f893a79bdb6b6d514815e6f5a91e6aced8d7551fd492833cedc03898ceaba6"
+    },
+    {
+      "path": "DynamicNotch/Features/HUD/Views/HudContentView.swift",
+      "size": 1674,
+      "sha256": "092d108afed5bcdc402e49dfec4b1b723d86fb43ae8f81034358229f08223f87"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Components/LockScreenClockView.swift",
+      "size": 1802,
+      "sha256": "0ababf73c03ce17ce8ebf99664035811cae246a348a523c7ceaf1735744b1194"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Components/LockScreenLyricsView.swift",
+      "size": 11410,
+      "sha256": "c7e73bb5145c45aef3ec06d9a0bc1e02a143eec6b7cf39e926895a0ee167e46c"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Components/LockScreenNowPlayingView.swift",
+      "size": 8778,
+      "sha256": "381a2e683159cb37aaac2d16df5924d955f27bc5243ccf1eccc2b80df9e23e7e"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Components/LockScreenWidgetSurface.swift",
+      "size": 2181,
+      "sha256": "d3a716c233bc44e5440ddc508ac138cd9d78af38e33b9c3dad86aa695b4aef83"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Content/LockScreenNotchContent.swift",
+      "size": 1895,
+      "sha256": "aac95c6c98b286266f3a65aaeac6229528fdf9fa989000a97680d0adca13641d"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/EventHandlers/NotchLockScreenEventsHandler.swift",
+      "size": 1509,
+      "sha256": "7d7e8ad5874d214e06c1bb446b17bfa57d49ca68fce39ef0e071d556ff6cd0ad"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Models/LockScreenCustomSoundKind.swift",
+      "size": 1793,
+      "sha256": "c2441bbc7abd624a554c8add827075c6cce757a0682f1afdc486e9704b307804"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Models/LockScreenMediaPanelBackgroundStyle.swift",
+      "size": 539,
+      "sha256": "7a879ac8927250dd684d4746dec3c26bf483bb12d5ffed23c9cdf4dedc31667a"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Models/LockScreenSettings.swift",
+      "size": 4717,
+      "sha256": "1bc0f83e05f0b8e3f95079fd319c5ecc608f78f178da4601143659b3a9755f3d"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Models/LockScreenWidgetAppearanceStyle.swift",
+      "size": 686,
+      "sha256": "17c72048de7132fd904b8c2ab759ddd267f33dd16f20bf792c999854dc2b513b"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Models/LockScreenWidgetTintStyle.swift",
+      "size": 531,
+      "sha256": "9758519ea8b56a1df1c58d8bf3d74ad0c4f3a524c3922cc16f1c43ab4d7f96e3"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Protocols/LockScreenMonitoring.swift",
+      "size": 296,
+      "sha256": "9aa4062af5551860a4767923e43e718874c8bf301bad8b4f404cb93904f9574c"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Services/DistributedLockScreenMonitoringService.swift",
+      "size": 1184,
+      "sha256": "30133b00e0f361b2781d07c2ec4c010063905c13812b374bd551ea9b93ae9262"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Services/InactiveLockScreenMonitoringService.swift",
+      "size": 198,
+      "sha256": "4013a427c6f4200905438843e095396d4441b8a609cd8487e17437bd97f47087"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Services/LockScreenManager.swift",
+      "size": 6001,
+      "sha256": "e6f7c426fd9d7666237c4f2c7a6974b95faefe1bbf06600d77ead2df718239e4"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Services/LockScreenSoundPlayer.swift",
+      "size": 4259,
+      "sha256": "d0b5df95514e066481084b13ff8325319e443e035bce2ad7758356fff3c98e69"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Settings/LockScreenFeatureSettingsStore.swift",
+      "size": 4516,
+      "sha256": "7faa369337894cbd77a730f784622a2762faaa334ff5a566a439282bb5e063fd"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Settings/LockScreenSettingsView.swift",
+      "size": 16400,
+      "sha256": "ebb6b4493094f0b370c379d71c939d4a39620c387d930e23d13c2f8319d49c13"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Views/LockScreenFaceIDButtonView.swift",
+      "size": 1045,
+      "sha256": "e3c551bcf519a84d159bead9df719a85af30e3cb31adf9b65d644aee93d52e75"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Views/LockScreenLiveActivityOverlayView.swift",
+      "size": 692,
+      "sha256": "950ae25b4347b40155667ff7047912fa5e15949401a16551ebeaf1348a4d1494"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Views/LockScreenNotchView.swift",
+      "size": 2355,
+      "sha256": "4921d1aa675da8af2b420d21c251ef33e409ba47cc2b70255f9bc4e3aa4cdab6"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Views/LockScreenNowPlayingPanelView.swift",
+      "size": 10414,
+      "sha256": "ccb496089eeb361a06a260ec6b1465e10581eccf56c1402404ecca7a80ae63e3"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Windowing/LockScreenFaceIDWindowManager.swift",
+      "size": 12579,
+      "sha256": "d0c1c669e306e73bcead7c7bb8b1b2fc00a9c12982d15328179681b23ddbf98d"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Windowing/LockScreenLiveActivityWindowManager.swift",
+      "size": 12646,
+      "sha256": "7f883dccfc2315f678a46c07b0f8e7908304210b0614ee29ba2344c1a0258453"
+    },
+    {
+      "path": "DynamicNotch/Features/LockScreen/Windowing/LockScreenPanelManager.swift",
+      "size": 12869,
+      "sha256": "4c73e449e217ae152a09fb8c2f5e378f538dd955d2c226c6fe14f2aed0f7e871"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/Settings/NetworkSettingsView.swift",
+      "size": 5727,
+      "sha256": "6b3dbc29b434e9f53d51c22df39a9ffe223f56a940b36560e258b66b9d39b867"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/Content/VpnActiveNotchContent.swift",
+      "size": 3026,
+      "sha256": "db0aea1f4f92d52afc9c550c74ce2dd7ef19dc43d8445b706acb21262a49b316"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/Services/SystemSettingsVpnMonitor.swift",
+      "size": 4545,
+      "sha256": "8f6ee9d412879ea9367156041d51e3f2554d09329279ed95f0fd51cc76cfdbcb"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/Services/VPNLocationService.swift",
+      "size": 6565,
+      "sha256": "df8f08a112a1fd79b1ce86b3b758d97a2f671345ca8a2360c13d8b7955c934a7"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/Services/VPNStatusFetcher.swift",
+      "size": 10007,
+      "sha256": "7dad2c00ef10623ae2ab9ac6a931bb05d8b4106219f0a46fa03abbdf13183dc4"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/ViewModels/VpnViewModel.swift",
+      "size": 12162,
+      "sha256": "391275b4fa94d0d5e3634334da96764cc0605989ba937205aed0c60283768a4e"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/Views/VpnActiveNotchView.swift",
+      "size": 3148,
+      "sha256": "824ad45849cdb1fadc01f88c8b7ae81c7298b9f97c21ac47e6a1fb41e6a3b1eb"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/VPN/Views/VpnExpandedNotchView.swift",
+      "size": 4052,
+      "sha256": "a285fcafcb4ec424e78e417d45eb1f09baa134f9e100f3643a980c1a1692d0a5"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Content/HotspotActiveContent.swift",
+      "size": 1332,
+      "sha256": "d2302032e63ddb3253b3f736563ae2ffc7ee5eb3b8a617d9374b49b89cd171ef"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Content/NoInternetConnectionContent.swift",
+      "size": 2007,
+      "sha256": "26cb33beedfe02d1b815446568d089840697ce21debb2965875e5315de8876d5"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/EventHandlers/NotchConnectivityEventsHandler.swift",
+      "size": 4042,
+      "sha256": "7cd96aa43858390747b760d8db2229b4a506a68445be5464a2cc9e72fa26af26"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Models/HotspotAppearanceStyle.swift",
+      "size": 466,
+      "sha256": "aeac0de2acdffd43b39a87e7dd00e16eab36c6fc542d7881d7f636324ceb5081"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Protocols/WifiMonitoring.swift",
+      "size": 484,
+      "sha256": "bb0b7b9c99bf07e1b10db85b0cd12fe244bea2c19950ab5ee67d87112410efe2"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Services/HotspotBatteryMonitor.swift",
+      "size": 3291,
+      "sha256": "439cf421fb2e52a27b6d629c87df729165ac608bc19de5e2e6c9b46f6917d9cc"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Services/WifiMonitor.swift",
+      "size": 8946,
+      "sha256": "3be99cfbfae681ae80bc60fc17046bdae034cad05f4ce43bcf32784d7957d844"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/ViewModels/WifiViewModel.swift",
+      "size": 3881,
+      "sha256": "d645268cdc8795173f4e10da1406f0576cc6fecc91b821452f0ba1bd71c7573f"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Views/HotspotActiveNotchView.swift",
+      "size": 2641,
+      "sha256": "2806a840407d6c4d5fb8f56a003ab7f83a71735a9a2ae912f8bf4d498fc268da"
+    },
+    {
+      "path": "DynamicNotch/Features/Network/WiFi/Views/NoInternetConnectionView.swift",
+      "size": 2611,
+      "sha256": "7e2f7a52c8b62c8ede2bbce8edaf29b8201eac95e83e7be46282ba7820d33983"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Components/NotchBackgroundSurface.swift",
+      "size": 1046,
+      "sha256": "d2b92b084393e6642a07aea8a3292207319918a62b735596fadb5a6007244396"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Components/NotchContextMenu.swift",
+      "size": 1236,
+      "sha256": "3f19de9b49718c8a0200d602e9df3e09bbebb6c235cde1a775304bd7319ef8a4"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Components/NotchDragAndDropDestinationOverlay.swift",
+      "size": 1646,
+      "sha256": "2ca9c5014a1611fa0105ccdc4716485a7581389a9a6fea3e06c6a0742ccc6f25"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Components/NotchInteractiveBodyView.swift",
+      "size": 2194,
+      "sha256": "d1962c9ca718b7eb94d5031dec2ca837674c95f0665c613b3c6744270506375f"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Components/NotchSurfaceContainerView.swift",
+      "size": 6816,
+      "sha256": "05218d12f74932a381953812fd8b337eedf68563e3c2a8af93790bae3d55495d"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/GestureCoordinator.swift",
+      "size": 20577,
+      "sha256": "7266c540ed07a0ad5db60a9d7186ff35e00cda5698aedfd48949103fac145e3b"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/NotchAnimations.swift",
+      "size": 3554,
+      "sha256": "f546fc208db57f7f56609fbca54e7771e24a0c434e0bf8be6e1d37601f6b02a1"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/NotchEventCoordinator.swift",
+      "size": 17215,
+      "sha256": "2e596247e5731defb0668e95173118fc039686e5800fccb33439ffaeb79d97fc"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Observers/NotchSettingsObserver.swift",
+      "size": 16131,
+      "sha256": "282d7c2e0e49c6cb0a65373bad4e2b83b13c487db401ef44a55d73c31d2652ac"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Observers/NotchSystemEventsHandler.swift",
+      "size": 1419,
+      "sha256": "426f57d2a01ffee1302e0218513bf6621e9ffaf5b5bff0e956be20d81bb4b1e0"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Services/NotchlessWindowConstrainer.swift",
+      "size": 38994,
+      "sha256": "38a7acce501303861c50edc616661045cdc927680bfca833d65d08e28c5e6083"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Services/WindowSnapPreviewManager.swift",
+      "size": 3237,
+      "sha256": "2f032e6cc594d9048967b2079992f8f7fdff20a5d8b4e7bb0b1dcc9690658377"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Settings/ActivityPrioritiesSettingsView.swift",
+      "size": 3858,
+      "sha256": "4a094a54a6c7fb79e825a20ded37021a7e8d68df6e75d09d01e4b10415518234"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Settings/DisplaySettingsView.swift",
+      "size": 12214,
+      "sha256": "21072c23b4e8dc4124293f078829211c337af7d30faf58f574794a7cdd44dd4b"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Settings/GesturesSettingsView.swift",
+      "size": 4095,
+      "sha256": "db4c82050ea8b85d14a85e8eda672049f70d2046e0f8e044abc0a2c12dee0ed4"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Settings/NotchSettingsView.swift",
+      "size": 4800,
+      "sha256": "950c43cc0bd68579810d163c15049c9b9f805e9236b6e1f87855c9458d8ad99f"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/ViewModels/NotchViewModel.swift",
+      "size": 24696,
+      "sha256": "af59a31069aef1471f26a64689c6956e024f9711f5348ca89e73f3e338abed32"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Views/NotchHostingView.swift",
+      "size": 644,
+      "sha256": "6698ea3cba7c4c1c2654ffcf5f9662fabdec2fc21aa9bc5df8b49efe7d34b085"
+    },
+    {
+      "path": "DynamicNotch/Features/Notch/Views/NotchView.swift",
+      "size": 1531,
+      "sha256": "a3333ad5fcaad53ca53d5aface09403a73d06141664b7d5f4dc4802d0ac70ad2"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/ArtworkView.swift",
+      "size": 5908,
+      "sha256": "a7108c6f55ac1428a01f72dc710cf145751b083eaa2a7a69c6a866c5981e3dd5"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/AudioOutputRoutePickerButton.swift",
+      "size": 2078,
+      "sha256": "eea129b9f7310fb1ff92048ca47054da4a38bd8a76180fb0fae359a4961bd248"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/FavoriteTrackButton.swift",
+      "size": 1031,
+      "sha256": "a350824945d03a153681df61da728fa5daa85d2df2b79b314e019f615d7c7947"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/LightweightNowPlayingEqualizerView.swift",
+      "size": 17579,
+      "sha256": "e4f356750b5ef698427dad618293dfcf9cc8ab0cbe5e96469f744970eb02a302"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/NowPlayingArtworkBackground.swift",
+      "size": 5179,
+      "sha256": "e64569b090cf403d5d210a407e9120ee1d044264d4a1e94ced93a18f15544010"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/NowPlayingArtworkPalette.swift",
+      "size": 5195,
+      "sha256": "10226f49890290a85eaf9bbdd2a241fd7592e25209f46a3dc485dbb1b275b97f"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/PlayerControlButton.swift",
+      "size": 4322,
+      "sha256": "5d138de2d9b9bc997fd7274added7f950a8bc9cb1159181c6f10437026fadcd4"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Components/PlayerProgressBar.swift",
+      "size": 4426,
+      "sha256": "859c41453848f893ad91c34ad72b7389a51d0d03b5c51743f6cd8b9b5633c764"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Content/NowPlayingNotchContent.swift",
+      "size": 2801,
+      "sha256": "205782e3c70dd9ea24e081d812a801beea2ca8f8c401881c38e0f1f808e97ed6"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/EventHandlers/NotchMediaEventsHandler.swift",
+      "size": 8859,
+      "sha256": "7940c41331d55c897ddfd620b6e26055b2eb765377cb1a0961ebda316d8b26c9"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Models/NowPlayingSnapshot+Mutations.swift",
+      "size": 4844,
+      "sha256": "1c95cca405e4955cd5810c12510a0c3c460511a9e5f7f9f4e1e85d4444f76a8b"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Models/NowPlayingSourceFilter.swift",
+      "size": 1629,
+      "sha256": "936d2f9f839f97c4f6195d8ebbbded048b56486cd180bca39c76b5b6b20ebca4"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Protocols/AudioOutputRouting.swift",
+      "size": 364,
+      "sha256": "ad7e121674c020d81c97f93fc61d440f1bbd5934110b4dc29c4008f445bdbd0d"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Protocols/LyricsProviding.swift",
+      "size": 398,
+      "sha256": "7c76474cf76e1014699d6d3d3058a9febcdf4785a0b8a30e40f1a9f6585dbf86"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/AudioOutputRoute.swift",
+      "size": 1863,
+      "sha256": "3e8826b80a427a1a2d7f5e70aece1c30c53366aacbddd9e93ed12f33dbd5388e"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/InactiveAudioOutputRoutingService.swift",
+      "size": 419,
+      "sha256": "7b018c87e182bfafdb461fcb197ba31eec68b640e4cbea2dcd957abad5d92893"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/InactiveNowPlayingService.swift",
+      "size": 268,
+      "sha256": "165f006b78cadb854cb6f6548be072f3013b4f2799ef1e86b8d57edfea02d73a"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/LyricLine.swift",
+      "size": 255,
+      "sha256": "ed6d9c7fa8252f6adcf494f9d245348fcbf7c67a49add432d8ece5c6dc6ac1c4"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/NowPlayingLyricsState.swift",
+      "size": 659,
+      "sha256": "433eebfcb9874c7d52f987564d293f9e01f51be1501e8b039ff812bd5141662c"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/Provider/CompositeLyricsProvider.swift",
+      "size": 1111,
+      "sha256": "f0d0a4478f9a13f65a8ebc0239f394268ade11f24fd09ab7f8ba6c61188600a6"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/Provider/InactiveLyricsProvider.swift",
+      "size": 308,
+      "sha256": "fe74c4f3a22bbe8f373e57a7be4baa5114c3c55611ae4475547f9a93dcf3aa17"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/Provider/LRCLIBLyricsProvider.swift",
+      "size": 11552,
+      "sha256": "063fbf2ba8dbf1756d44711cce5cfc44242cb0e701c7617bbbb8effb8015730d"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/Provider/OvhLyricsProvider.swift",
+      "size": 2846,
+      "sha256": "81d393b63fe9c249ac1f28b9743d6ddf0c37dfd10f536372bd4f084d286f1711"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/Lyrics/TrackLyrics.swift",
+      "size": 613,
+      "sha256": "dc0d39d041cc512fdcab90fd949dfcc715436b454b037a911caf386b0d5f4b77"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/MediaKeyCommandDispatcher.swift",
+      "size": 2356,
+      "sha256": "fa12a47659544057e053a33cb0239e17ff0b0773554616eeea5b653debfc714e"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/MediaRemoteAdapterResources.swift",
+      "size": 3132,
+      "sha256": "ae331de5a0c35efe53fda599f6d46b4f9c8178a23c363652b92a3951d7fcaf6f"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/MediaRemoteCommandDispatcher.swift",
+      "size": 7059,
+      "sha256": "c92c6fb23f3e850d6e3e12d701230c8a2d8b5f6c4a1c9a8f35070b29dd573973"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/MediaRemoteNowPlayingService.swift",
+      "size": 25545,
+      "sha256": "90da83dfdaf55ea5b4e7812041f6fa8d88a96b047f57b3ec747e4c2588f36cc0"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/NowPlayingApplicationBridge.swift",
+      "size": 19928,
+      "sha256": "6a6dd25ef5367e1d122cf97d7c49f2ac12179526cb24bd0357660f412c5d4934"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/NowPlayingCommand.swift",
+      "size": 306,
+      "sha256": "46fc0dda051a61d183fc97bb1d52f19b8c92f8a9a058ac5d0b61b682207a5dfb"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/NowPlayingMonitoring.swift",
+      "size": 327,
+      "sha256": "c4483581dcf2d4e688e0fffbf2a7d9830b6ba6bbec8d99050bb9f0f9497a0aff"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/NowPlayingSnapshot.swift",
+      "size": 6403,
+      "sha256": "66d7833b0064a0fcaeb606c32d17069da34e994623922c833515e2c01b9e9b0f"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/SystemAudioOutputRoutingService.swift",
+      "size": 8665,
+      "sha256": "b5fa30858f809609cf20382d9ea43edd59645619a5b263b9b14c11f2d60b0b0c"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Services/WorkspacePlaybackSourceOpener.swift",
+      "size": 846,
+      "sha256": "8d09537dbcd7d3618e7ce1ed9142ec5d086fb3788a703cabce5e507164b58865"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Settings/NowPlayingSettingsView.swift",
+      "size": 10585,
+      "sha256": "b5531e3883eeb144ee8165b31f23afa8b8a1706737a13606705ceb07587acd45"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/ViewModels/NowPlayingViewModel.swift",
+      "size": 25014,
+      "sha256": "14ed25117b57b1129249b0bce74dcca39b334cda08e96ba6e6aee4745b458808"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Views/NowPlayingExpandedNotchView.swift",
+      "size": 10137,
+      "sha256": "c383ea21ac22963ef7a0951197617cc0aa007ae3f75f50d710476a60ee3114db"
+    },
+    {
+      "path": "DynamicNotch/Features/NowPlaying/Views/NowPlayingMinimalNotchView.swift",
+      "size": 2010,
+      "sha256": "6cb4b84069071bb5066e7c4a8fb98f8f18371f82924b50fb353ab19c42ce4465"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Content/DebugOnboardingPreviewNotchContent.swift",
+      "size": 1750,
+      "sha256": "7151538c2dbc3866e440d84f75dde5f61734c229d57e4121791b9e6ce94f3121"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Content/OnboardingNotchContent.swift",
+      "size": 1723,
+      "sha256": "85cd4c9f4a37d497221bb7edc15268934bcbdba012cc68a122d9b76e178030da"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/EventHandlers/NotchOnboardingEventsHandler.swift",
+      "size": 3193,
+      "sha256": "2e3dd497107e8c83dfaf409c700c5d4d14d7da66976341aa0f7e54b57ec9f757"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Models/OnboardingSteps.swift",
+      "size": 1954,
+      "sha256": "a25a562546f598e7fc2b4ae2f0a4ad7e2ae6a2e7e3486118470aa28a7794d251"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Views/OnboardingNotchFirstStepView.swift",
+      "size": 557,
+      "sha256": "9da4a09c2fc9a90f8ebe6af926f04790ecbea4ed7acba76ed83f6eef24307264"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Views/OnboardingNotchFourthStepView.swift",
+      "size": 1365,
+      "sha256": "3b9e695ea3537ce7c0f81a008e644b59c9a185276d441c391826f7aa05e205f7"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Views/OnboardingNotchSecondStepView.swift",
+      "size": 1427,
+      "sha256": "7ba30b99c252e5ea8c5bd55476675e9374caa4e4a2fc669736f081193bd75ac7"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Views/OnboardingNotchThirdStepView.swift",
+      "size": 1419,
+      "sha256": "99bfaa1244f4a27647b66cd059bd39b1d9c35f8e1a9355962a9445e32014b6cf"
+    },
+    {
+      "path": "DynamicNotch/Features/Onboarding/Views/OnboardingNotchView.swift",
+      "size": 5210,
+      "sha256": "81cc860c4c87e1125352d89993df2198d5059620d6c5137d438a30df198f5a73"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Content/ScreenRecordingContent.swift",
+      "size": 2706,
+      "sha256": "353a2ac8a6c81b502a5451b5ad09679c1026d707f2047f97f20765ef354c3fa6"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Content/ScreenRecordingResultNotchContent.swift",
+      "size": 974,
+      "sha256": "449a93030f28045b04f21127e7f9caaddff40c152a6bfcd20a5a2972bac0f06d"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/EventHandlers/NotchScreenRecordingEventsHandler.swift",
+      "size": 1650,
+      "sha256": "932bb05dd7cc045b0b715c44e3a210aa0a1f9538c12da7f6ba04662b6cb2cb27"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Models/ScreenRecordingResultModel.swift",
+      "size": 1407,
+      "sha256": "39936449d52a0dc34877bcc5993380cc3bb5e94b89431af15a70ef3406df1703"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Models/ScreenRecordingStyle.swift",
+      "size": 670,
+      "sha256": "641194edce48f52c859c5c2abbd7d3980567f3d048b9b21aea0d4bbede74efdb"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Protocols/ScreenRecordingMonitoring.swift",
+      "size": 264,
+      "sha256": "ec21c26a8a6eccb7228441026849b977d1274641d0f915c8c45c88df14738929"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Services/InactiveScreenRecordingMonitor.swift",
+      "size": 334,
+      "sha256": "4502f8f0ee664c960f345fb770859f9f92351d3fc177f4a6e912d77c4f55d624"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Services/SystemScreenRecordingMonitor.swift",
+      "size": 5882,
+      "sha256": "c5021ac7bffa2b203b1b3df141553153580632d9741ce4a25199be35d6c942c1"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Settings/ScreenCaptureSettingsView.swift",
+      "size": 9146,
+      "sha256": "e9282d2e5f99f70f904c2653453083703e96049471f9cb51ea597628eb656e52"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Settings/ScreenRecordingSettingsStore.swift",
+      "size": 2395,
+      "sha256": "a49d92623cd1b042e4f2f4490b6ce1694a2f1f2957c8c06848ac4072bcae0de0"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/ViewModels/ScreenRecordingResultViewModel.swift",
+      "size": 3269,
+      "sha256": "e276f067700c1763e0f58ffda307bf65de51c29bf9f2fe1ec9fc75a33877c0d6"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/ViewModels/ScreenRecordingViewModel.swift",
+      "size": 2339,
+      "sha256": "fb2f20b3c8742dd31c2504bde1461fcb2d219f6300dd4cbf550df53122f97479"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Views/ScreenRecordingExpandedNotchView.swift",
+      "size": 2199,
+      "sha256": "175b8437c8e1ac0c9f2167b53af200e30498b6c899d5479c9bdf4652c0d31c7f"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Views/ScreenRecordingResultNotchView.swift",
+      "size": 2935,
+      "sha256": "0e45759e881cb0177c4f19c85daa7129aae7d55fcd863b47a14461b7932d1506"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenRecording/Views/ScreenRecordingView.swift",
+      "size": 1305,
+      "sha256": "be9db2fc379f9ef2a8623aa66d64df70e05159eded8d15020aa13f6422f511b0"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Content/ScreenshotNotchContent.swift",
+      "size": 1008,
+      "sha256": "0b37f3cdaa22c2342bfd0ff6aaf0ab968a7c52dff53146af9fb414dbb6609f7f"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/EventHandlers/NotchScreenshotEventsHandler.swift",
+      "size": 6520,
+      "sha256": "d2965d0542aeb67f2c62abc98c11ee13c9896947fdbfe6d45712df4229e3400f"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Models/ScreenshotModel.swift",
+      "size": 552,
+      "sha256": "676b2ced11d52d853ef44a2d22e8502efb72dc08e9a246e9794a066f68b26562"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Services/OCRService.swift",
+      "size": 1879,
+      "sha256": "bfadd03e1a015daf6695460f1db9565bdaaae1b51362a20046ef3b77fef01826"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Services/ScreenshotImageLoader.swift",
+      "size": 5448,
+      "sha256": "160490dcc939cc0ac0cfc9befe7fdc1efd3322979bf8ac9b5ef3bc5e019bc81f"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Services/ScreenshotMonitorService.swift",
+      "size": 13444,
+      "sha256": "5d82782a1f01ca0568819875994480629d44d481bec0d45e26e9645d3061211d"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/ViewModels/ScreenshotViewModel.swift",
+      "size": 11279,
+      "sha256": "2ff65f5c7882be578acd115e9375e9a595f11281c0a6419772207749d26eef5a"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Views/ScreenshotFlyAnimationView.swift",
+      "size": 18891,
+      "sha256": "db37ccf8aa8db8e753603e21d6e602ae213b471fb842ee5780c62357f4fe136f"
+    },
+    {
+      "path": "DynamicNotch/Features/ScreenshotHub/Views/ScreenshotNotchView.swift",
+      "size": 3432,
+      "sha256": "9352322efdfd6724fda34244ca5ec7a0678b5f2cd07cd01f07632625fc421701"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Content/LanguageChangedNotchContent.swift",
+      "size": 769,
+      "sha256": "5be83c727f1bbcfa0c94a6f90e0abf559297f90572281d9a215cdcb5a0314b81"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Content/NotchSizeHeightNotchContent.swift",
+      "size": 736,
+      "sha256": "3b8404467889a8826b6eecd2eba0989b858742e2764a7a80519866e3ea255fa0"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Content/NotchSizeWidthNotchContent.swift",
+      "size": 914,
+      "sha256": "6cdb0931560b6829099619ee065b3bf6e1508a26cdd1329980487e7edfceaa99"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Content/NotchStrokeOpacityNotchContent.swift",
+      "size": 646,
+      "sha256": "73e806eb3532934096835408bec1cca0d61a80ef6027c820cab44417507195d8"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Views/LanguageChangedNotchView.swift",
+      "size": 1679,
+      "sha256": "9606d4f3c0d3121fceacf6e028e3f39925867f24e85394e96cf51ebc688f2a73"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Views/NotchSizeHeightNotchView.swift",
+      "size": 795,
+      "sha256": "e3bb60a40c91655848fdf88c753d45904f7ff37f2a96446fbc0f5224cc4852f8"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Views/NotchSizeWidthNotchView.swift",
+      "size": 968,
+      "sha256": "560a55dfe74b7ab29bd8a46d9b77c9aa3ba589e1c53e709ac0a96fe0af4557b5"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/ActivityContent/Views/NotchStrokeOpacityNotchView.swift",
+      "size": 1101,
+      "sha256": "bb719e8465940fb863e419be408913601dd0451ad58c03eb5b9de29e2b56545c"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Controllers/SettingsPermissionController.swift",
+      "size": 20998,
+      "sha256": "f235f9c36d05f3abb3fe40984b94e60f1a1d0d99331b91a5b459f8dc833d956e"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Models/DynamicNotchLanguage.swift",
+      "size": 17465,
+      "sha256": "4942302f253ec084bb61b9a5605c6a484e30b5ab2e80f39f60566e2c4dcba8aa"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Models/SettingsAppearanceMode.swift",
+      "size": 1229,
+      "sha256": "9b0e814859d428bb7617e61342c76316ebba2211be456156251bb8d2bdfe1e3a"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Stores/ApplicationSettingsStore.swift",
+      "size": 19174,
+      "sha256": "35dbb7a12f51966fa76206ead0f723d87662ed7b9a8196d692fded348bb1984b"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/ViewModels/DebugSettingsViewModel.swift",
+      "size": 39475,
+      "sha256": "932d0180146e05c1b899788da018efb9905640783bf99bddc5889f39c76decff"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/ViewModels/SettingsViewModel.swift",
+      "size": 18249,
+      "sha256": "48f06bc6764434abcdeffa8ed33856128b22b31b3e208a76a48b722d22664e3e"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/AboutAppSettingsView.swift",
+      "size": 8056,
+      "sha256": "1eba2d71a50cdc49b4468ae44ca91c8dd1d5de589d65ccfcd52c99fa8ccd366c"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/AppearanceSettingsView.swift",
+      "size": 6934,
+      "sha256": "a8fb57037d87f97735ed422ce3c0602a5346c482579730993021f8772bf68d34"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/DebugSettingsView.swift",
+      "size": 24194,
+      "sha256": "3ddfe581dd345f9f9f8c5bfe9364cad051cb711755e644193cf84c7a1023bd92"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/GeneralSettingsView.swift",
+      "size": 5170,
+      "sha256": "d58ccf547ad73f13ae664422c17c7cef47cee15fa6d9657f3b89155978007d0d"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/LanguageSettingsView.swift",
+      "size": 7069,
+      "sha256": "44407d61d2994b1d9631158e45dbbb4889800475d08f64e194fec35a16d0147e"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/OtherSettingsView.swift",
+      "size": 3406,
+      "sha256": "873e7e05e98095a94b4b12615733ccaf6258d6b68d35759556d00d3014475502"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/PermissionsSettingsView.swift",
+      "size": 4711,
+      "sha256": "27906184d00a7af04bf0436460863422f6b6e8ddd0e31d6c84ad1d2c42489f6e"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Application/Views/SupportSettingsView.swift",
+      "size": 3732,
+      "sha256": "da9e2e9f649824261e98291177f58b06d9d4f1cdb9d757e813ccbe05e535e4bb"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Root/Factories/SettingsRootDebugFactory.swift",
+      "size": 6567,
+      "sha256": "4d95842063f160c73793e9f882c3d0a14a280133f70d90c51c9bb18b84525b02"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Root/Models/SettingsRootSections.swift",
+      "size": 15251,
+      "sha256": "67e7a6b1bdfee3c2e72fec04335508758ec67c7c8f5f2e4a292f90e37a0a93da"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Root/Models/SettingsSelectionHistory.swift",
+      "size": 1280,
+      "sha256": "fc929729306f4b6daea9a03380ed19b13f35f0bd2842da88f7675595bfad1ea9"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Root/Models/SettingsSubPage.swift",
+      "size": 4750,
+      "sha256": "92b9d89c14225169a5ba0534c275e9f2eb5dda3345195c969e7cfde38c3eaf75"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Root/ViewModels/SettingsRootViewModel.swift",
+      "size": 3117,
+      "sha256": "044591a45276eea18f6164d8e7efa5fd0272607c8677034cf377f15fbf3a7b29"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Root/Views/SettingsRootView.swift",
+      "size": 28537,
+      "sha256": "037c093986a389f208185a6e26a35bbd28897b3593c4bf326ddba4874295f3f6"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsAccessibilityModifier.swift",
+      "size": 434,
+      "sha256": "700ecbd3087a1c416b8a05144beeba7bc2bec3a572c0326fe82caa97c9c47560"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsButtonRow.swift",
+      "size": 6272,
+      "sha256": "b88d27ac42d961d8b87843b0ffc5c648cf926337384aed6ac1c7924f1b26a4f9"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsCardView.swift",
+      "size": 3041,
+      "sha256": "4a2a851886f3d36abbfe89d13a461551acfe25bdb13e118ae658cae065b1b21a"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsChoiceRow.swift",
+      "size": 2111,
+      "sha256": "1b9f5f94c0b03bbe3528f0890876b8b1b90f725a6ad29ad4dc0bb5d6e6af84cd"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsCopyRowView.swift",
+      "size": 6992,
+      "sha256": "ad5f5817585cad5cbe11319ca170f75c33790ed039f9c4f0fdb8ebd7c67e75bb"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsIconBadge.swift",
+      "size": 3407,
+      "sha256": "74ed6d90e71062324dd245b727da809033a5b7c8e1a1be29af11db2926394ac7"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsMenuRow.swift",
+      "size": 2825,
+      "sha256": "8056c81f7ace5077bff6b56b09a467c842156268e962da3f0c87d7616219563d"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsNavigationRowView.swift",
+      "size": 6942,
+      "sha256": "69adf452647704088f96b3cbff19b5e26eefc0c1b02210a9eb3696305e659778"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsNotchPreview.swift",
+      "size": 3339,
+      "sha256": "4621aaf15584d2044d7dd6a58208cc01d417a07b9514d3ee3a8b3d7ad7c0f6bb"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsPageScrollView.swift",
+      "size": 985,
+      "sha256": "3fdaf18ac794a570e449943f36959514943c1b0e5c121e62b038e0779871f401"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsSearchableListView.swift",
+      "size": 5894,
+      "sha256": "d6e7c3fe449fae947c93541ff5d3973f25680aa36568ecb06dc65e082f7343e2"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsShortcutRow.swift",
+      "size": 4416,
+      "sha256": "88669a16df87ec28b2beaa8e9420d2e130ec073b67d03f7737b78b2c1d884521"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsSidebarRow.swift",
+      "size": 2564,
+      "sha256": "1f42495b6e81a55d4d14bfd9a29d93411984719675a5801b8265cbdf60c245eb"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsSliderRow.swift",
+      "size": 1464,
+      "sha256": "e2598b46a2329788b902a318d5923290e331f4ecea8eb67d90b047677b24013f"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsStrokeToggleRow.swift",
+      "size": 859,
+      "sha256": "1346276a1adaa7046949ac7a5b3bfc6371d33e3de198ef524e09699a1c9c5965"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsToggleRow.swift",
+      "size": 5403,
+      "sha256": "3423b911f0691ed54fab21a07e3e9b3bd93d1d83b2ae7827da369a537e965c87"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Components/SettingsUrlRowView.swift",
+      "size": 4831,
+      "sha256": "1215c04922f01262b63aa688c47f62c53cc282ec0d55cddada3d2963a2dc7830"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Stores/ConnectivitySettingsStore.swift",
+      "size": 6340,
+      "sha256": "a38d2c3424e29c540eed41b9f7955288db59591f5ef7568a10699671f9903b6d"
+    },
+    {
+      "path": "DynamicNotch/Features/Settings/Shared/Stores/MediaAndFilesSettingsStore.swift",
+      "size": 6500,
+      "sha256": "7c7f7d845cb4cd973a509bb97a420de2a334e980967a5a8bcfa32dcdca88c1a4"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/Content/SoftwareUpdateNotchContent.swift",
+      "size": 1953,
+      "sha256": "2e7f30b0f5146aae9a39624687d9db0303811f653ce0ebe12f7c969090046914"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/EventHandlers/NotchSoftwareUpdateEventsHandler.swift",
+      "size": 859,
+      "sha256": "67187be49d22c95c8ea26196d1e0cdd56285c8b4fd30e60167f2592471186cb5"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/Models/SoftwareUpdateEvent.swift",
+      "size": 156,
+      "sha256": "7adee4c8127cf4d7285ba059a2e7899b31e1cebd93c44f5b138777309d66ff5d"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/Services/SparkleUpdater.swift",
+      "size": 4668,
+      "sha256": "648e99a297210d6510276f535c312ee0fb23db33b744aca5f8cf4f2f3c9e7836"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/Settings/SoftwareUpdateSettingsView.swift",
+      "size": 2332,
+      "sha256": "f5a0922a087c591754af68dc76fa51cc2f6285043e844fa2886df0fcbe095839"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/Views/SoftwareUpdateExpandedNotchView.swift",
+      "size": 1961,
+      "sha256": "164a2928e8a9ee63762e40be616ea10cca1e25ccc71e12cdac7b5095715ca717"
+    },
+    {
+      "path": "DynamicNotch/Features/SoftwareUpdate/Views/SoftwareUpdateNotchView.swift",
+      "size": 1064,
+      "sha256": "06d0069692fa659bf49c491a1d4207093228eb1aadce3c252a8387dc42846fa5"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Components/TimerCompactIndicatorView.swift",
+      "size": 2776,
+      "sha256": "7a081bbe2cf70b0e9d229a085d242cde750e5a3111ff67369b9ff09ffc942e27"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Components/TimerCountdownSchedule.swift",
+      "size": 1303,
+      "sha256": "e71abf6a6a6ee261c893f2cd9b270803c6a233b3092cd20d1b679ab6aef00bb5"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Components/TimerCountdownText.swift",
+      "size": 1308,
+      "sha256": "15d840979398a42d30d4f85af6067e6cb5cc477f1dbd573622e44d41fe116f2d"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Content/LocalTimerSetupNotchContent.swift",
+      "size": 1236,
+      "sha256": "bca52ff8ddd9ff6ae3b1e7bea320d7db2caae6f5dd009986916e37bf33a68446"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Content/TimerFinishedNotchContent.swift",
+      "size": 1322,
+      "sha256": "b3d8a1554f67c9129432e6dcfffeb2fa060972b7edc019ee1411cb22dbe9d1b6"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Content/TimerNotchContent.swift",
+      "size": 3091,
+      "sha256": "aa570b990dc29c16153204ef8138e9f92fc1e8143292f639bd46b4dc865ab1c4"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/EventHandlers/NotchLocalTimerEventsHandler.swift",
+      "size": 5294,
+      "sha256": "4b696f74f5b061ae180877cb77f2c8097940d705190fab2c9a728814e94b4328"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/EventHandlers/NotchTimerEventsHandler.swift",
+      "size": 3028,
+      "sha256": "d6908714f977f880b1299645b1c75277291cd79c828e27f490d09272d22f7c58"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Models/TimerSound.swift",
+      "size": 4245,
+      "sha256": "643a0eed27419b88e552afd60bfa222cfe71bd276bc8254ee66a61e6733802a5"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Protocols/ClockTimerControlling.swift",
+      "size": 154,
+      "sha256": "aa10e83f4c3d5a153e38b762e6ee4a0341e49769a8ec802a9bcb25b92ba6b0e4"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Protocols/ClockTimerMonitoring.swift",
+      "size": 189,
+      "sha256": "664106ff49b7aa974effe13b4d20e5d0a343b33f43655c4f9f036757b0d7b374"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Services/ClockTimerController.swift",
+      "size": 5895,
+      "sha256": "338c7e28025137f198e6b29e7ede9ab9b2248bbfb50bc50490350e5fc2116434"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Services/ClockTimerMonitor.swift",
+      "size": 53308,
+      "sha256": "0561695b00b098299772dd38b2958dc3162993812290cad141d76b585ed37eaa"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Services/GlobalHotkeyManager.swift",
+      "size": 2051,
+      "sha256": "30b1f42fee1e9f2fddb50e6672809902c43253863dc28a587963aacc768110eb"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Services/InactiveClockTimerController.swift",
+      "size": 196,
+      "sha256": "577ee14d983de9679d84c0ba2c3d8ec69332327d545f7b2a64e0dfb4e84ded31"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Services/InactiveClockTimerMonitor.swift",
+      "size": 239,
+      "sha256": "622eda130af2c2285bdfbce69474bd028d2ed4434d8504fa7595db4a01038dfc"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Services/TimerSoundPlayer.swift",
+      "size": 2088,
+      "sha256": "7c533e1cf4fba474089fff6722764b3dc46db5e61c6c9f7ed72f5561aec24d95"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Settings/TimerSettingsView.swift",
+      "size": 3899,
+      "sha256": "0775cbf9647ad16c0b0f57a4d86506cc72f22b948330e64ddb49594b3d22e3cb"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/ViewModels/LocalTimerViewModel.swift",
+      "size": 3139,
+      "sha256": "af94ab70f538c25af9260753354cc1eec1792bd80ad5d0cb3188b18795902be6"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/ViewModels/TimerSource.swift",
+      "size": 3517,
+      "sha256": "a51627b17057edcce66934fbde8f3ebb274b8e6a92d6b86418798316b76c7f47"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/ViewModels/TimerViewModel.swift",
+      "size": 7058,
+      "sha256": "3ab57a9984bf08b4798f926fefb1a86f26a569f926fe933e4977479098f9d4df"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Views/LocalTimerSetupNotchView.swift",
+      "size": 19230,
+      "sha256": "8d7dffaa3bbce2d838b5e91f5c94757a31e3c71b3d4f7fddc80a46f0d1b43469"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Views/TimerExpandedNotchView.swift",
+      "size": 4694,
+      "sha256": "7a35ac585d03ee362ae9df9422cce7403aa1648a2200c187b2c95d7b3dc0e91c"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Views/TimerFinishedNotchView.swift",
+      "size": 2146,
+      "sha256": "2c4f76e1ee973507ffbd38a318fb9221aba86f6e44cdf3293cf81f662bdf66b9"
+    },
+    {
+      "path": "DynamicNotch/Features/Timer/Views/TimerNotchView.swift",
+      "size": 1210,
+      "sha256": "2f6d09beaf8c34da6e5ed5c4d8f61e390ed7cb1ccea7711b437c0045ca4414f0"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AccentColor.colorset/Contents.json",
+      "size": 123,
+      "sha256": "9af65086fa30b49252fae1a1225731691de794f7775af74d71befeb507d12b7c"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json",
+      "size": 1241,
+      "sha256": "ff67f123012133c8783d7f2a3bcae3608cbe3903cb1dc7da8219f3ba0648e87b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/Contents.json",
+      "size": 63,
+      "sha256": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/Contents.json",
+      "size": 63,
+      "sha256": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundDark.imageset/Contents.json",
+      "size": 433,
+      "sha256": "2fe961c58ae85e43d29da496b05184ee5740cc2fe86fcb578d135db15bcdfe20"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundLight.imageset/Contents.json",
+      "size": 436,
+      "sha256": "410a4ae736cd43ad19f0e27318c5bf9380d2aba3ed8ae8b656db0ff97fdad59f"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/Contents.json",
+      "size": 63,
+      "sha256": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/airdrop.white.imageset/Contents.json",
+      "size": 423,
+      "sha256": "50160c27d3f9c950d3f2ceb99ba856726e258afc6b1800c77ce13447b27dba19"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/bluetooth.white.imageset/Contents.json",
+      "size": 431,
+      "sha256": "ea7ca1ed2ca269648e3471866115dc02081006754d04c7d434a4c3755ef469c7"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/boosty.imageset/Contents.json",
+      "size": 410,
+      "sha256": "845b9475d9752eb4af06345249c42a4297cd40bef84e361cf7977c14ad2f91a9"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/btc.imageset/Contents.json",
+      "size": 395,
+      "sha256": "6155d5af5a1ebbf68517f27cc56d7c4be01301f271dec32f3661454f2400c037"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/donationAlerts.imageset/Contents.json",
+      "size": 398,
+      "sha256": "81aaf39b6b9f5d8dc7f5bcf48e1f1bf7ce8817415502e4f69998c76db69f3b6a"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/email.imageset/Contents.json",
+      "size": 414,
+      "sha256": "626e771de188a4d42408a6cb234dc09023474ff610942d368934add4d0def831"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/erc-20.imageset/Contents.json",
+      "size": 380,
+      "sha256": "b7b66820bb21c45a96aa91a34d3cffe8e641274a55268c74bbba70abcc898252"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/gitHub.imageset/Contents.json",
+      "size": 406,
+      "sha256": "d2d0b0293542b176258d415607a14a0e9becb0835791a3ac57d34cbd6977a11a"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/logo.imageset/Contents.json",
+      "size": 377,
+      "sha256": "d59801eed763a184d9b1dde226d3ea428fdda6feb91725ced5ddbeaab9871afe"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/simplifiedLogo.imageset/Contents.json",
+      "size": 404,
+      "sha256": "12be7af4f080e8b6db4d89d74a598ca968b76d177296afb7974b5fc8493ec45e"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/telegram.imageset/Contents.json",
+      "size": 415,
+      "sha256": "113fddae6233959ee85085315473730692fcfa7fac93159ff70f4d0a0919af79"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/trc-20.imageset/Contents.json",
+      "size": 482,
+      "sha256": "76e5e0487d178ec4b6b856a932d97237296075e8e77398c4623c062de3787db4"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/Contents.json",
+      "size": 63,
+      "sha256": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/arabic.imageset/Contents.json",
+      "size": 362,
+      "sha256": "a3465b94643919151ce61ee93b8c2d8de4e2a15bafb53d0a4fa68af1ae45e3d4"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bengali.imageset/Contents.json",
+      "size": 362,
+      "sha256": "279a0fad4778a88076a52f9125cfc5bd2d392fb1211865ce4340788900a775e7"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bulgarian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "335ea6f460c08aadc2382f5aa4becad8a8b67f120c6555b64461bb26bfea87c8"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/catalan.imageset/Contents.json",
+      "size": 362,
+      "sha256": "626dea1cf9faf587c4c5f905006ba6cd00c1d51240fda46413684b15d7b9a3fd"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/chinese.imageset/Contents.json",
+      "size": 362,
+      "sha256": "5f09c7b5004570dbe70d71c24c6b246e40947adb7fd0348b7f46566d5bb08166"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/croatian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "051efabf8d2bc2e7a5bc16c79be8b038c8739919b4ece706e6fdcf7229b0da0b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/czech.imageset/Contents.json",
+      "size": 362,
+      "sha256": "f4ff84eae23502a0c3c9aeed060250ac4ca69924b1a1115376a0913164fe254c"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/danish.imageset/Contents.json",
+      "size": 362,
+      "sha256": "05516f4505859d7bc2a26e02a5ddc2dd5ecc92d240620d820d424a3e46bb56fb"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/dutch.imageset/Contents.json",
+      "size": 362,
+      "sha256": "d283c9e01cc5e053837187d5d3402d0ddfe01e18511d31ce2d7c93c0877c8bc8"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/english.imageset/Contents.json",
+      "size": 430,
+      "sha256": "d57e3e7f19a30b0c934ed19a45bfdfceacca00f2164a2512aeae1374f2fb8473"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/filipino.imageset/Contents.json",
+      "size": 362,
+      "sha256": "67109c05fbcd7a83fdbccc5b0df088fba46c3ee0bec8e832a46a5c5543f92ed8"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/finnish.imageset/Contents.json",
+      "size": 362,
+      "sha256": "da88af102d4387a1a2ce03721d58fb66c21a81afda9395348a7052008b09c462"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/french.imageset/Contents.json",
+      "size": 362,
+      "sha256": "b93f867999c628203d2678e8b669d5c00aef855c47d193d267cf9cc4db10c271"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/german.imageset/Contents.json",
+      "size": 362,
+      "sha256": "9de1399c200a9beafb9b09fe6b22c341ad62eca99d5dabeaa8f86f5c93623ee1"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/greek.imageset/Contents.json",
+      "size": 362,
+      "sha256": "2c66d82f58ae2e937cac3c887205ec7a89cf65aebd4f7f59a72691a1e6adf476"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hebrew.imageset/Contents.json",
+      "size": 362,
+      "sha256": "fc50da175c5a4894bc4bd3e6e18d922769d952a3adfa8425bb51299cdc84befc"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hindi.imageset/Contents.json",
+      "size": 362,
+      "sha256": "f84c223e2df28590c45554243b875a2507491224a97842afc68851e0b71125f0"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hungarian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "a2b792e10a201a6b9c89011089e8f3ae4a3e3906ff7ed31e2696e41b9a4ae3ff"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/indonesian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "4b6ebc46f52193cfdaf25e13b98e6af0ac91ea0fcbed488f28abcfd8ef5eee16"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/italian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "0eb152126b521c6012aaabfeb65bd5bc203e7a993b6c5dfc78a2f0d4c145ca75"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/japanese.imageset/Contents.json",
+      "size": 362,
+      "sha256": "7e413c0fc5a631d2dfbb11ea571d54837a5798daec3b96624ce2f573f5c5924b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/kazakh.imageset/Contents.json",
+      "size": 362,
+      "sha256": "1be0eb4652ad3e124a40a73da3b0cad2802c3a56a95570c9251aaa1fe8f5c8ec"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/korean.imageset/Contents.json",
+      "size": 362,
+      "sha256": "3d064f8cbf4680a58c9014714b1b5324d78e1a09e9ecc7ef182947f53b92fb07"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/malay.imageset/Contents.json",
+      "size": 362,
+      "sha256": "1fb0728bbb1eab016dbc9418cd5a88fcb9ca14db2dd08bf35ca98640c69bc15b"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/norwegian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "43d5062421fc814476ac73c40bc62c24218511f83615cb01ac9a01e50a5945f9"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/persian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "a2be384040ff237f28f2d28bc063ebc3546d77419b6236028c7abffe2dc6e920"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/polish.imageset/Contents.json",
+      "size": 362,
+      "sha256": "de2766b8dc721cf0216b1a66ffeec6ccf62e96ccfcef5c40b108a86f9fe5f316"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/portuguese.imageset/Contents.json",
+      "size": 362,
+      "sha256": "d2f76e3262ba16d35ad934e02f2dd98dc7b737502fa89b8cc07c77036ccfa93c"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/romanian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "f18b7e166fc8ce7c15905180ef58adf7ba29fee804aec990bfdb2b5ce1b0ddca"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/russian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "a1ea5aab8034d28d55f9f45d8c7d01756cd9fc40eae51fe52ad52507cd6be843"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/serbian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "b3f5a84edbe733ca2cd8625a5dcbba58c0f015f7a6052fe64bd318adbe8acae3"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/slovak.imageset/Contents.json",
+      "size": 362,
+      "sha256": "5f5ea68bf6cdc7b85df77d503c98126d7be73490992e0df6bcf75c9b671e011c"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/spanish.imageset/Contents.json",
+      "size": 362,
+      "sha256": "5e143a5cd7f610c790be452439e715de4e39e275df99e553b7145f99098d5567"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/swedish.imageset/Contents.json",
+      "size": 362,
+      "sha256": "6c1653a2c178b91a4058c7e617cefb96204d80b31d87cc36ddb6008a36a6b2b8"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/thai.imageset/Contents.json",
+      "size": 362,
+      "sha256": "89ed5233b81526d4ad5584071bf15176d6fa4ee3fef5bd41376e70c216d6a233"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/traditionalChinese.imageset/Contents.json",
+      "size": 362,
+      "sha256": "5f09c7b5004570dbe70d71c24c6b246e40947adb7fd0348b7f46566d5bb08166"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/turkish.imageset/Contents.json",
+      "size": 362,
+      "sha256": "8d7a9b04797c2a2a35266626197f31d5663756840324297b785fb991d292d82d"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/ukrainian.imageset/Contents.json",
+      "size": 362,
+      "sha256": "93041c42caf30ce1a1a31738a9731ae6f66d00c64b7b59c9557b5a742b889521"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/vietnamese.imageset/Contents.json",
+      "size": 362,
+      "sha256": "bd510e79f124045dabe16fa924a225054ee6a36700a7f56323bcc5561a859feb"
+    },
+    {
+      "path": "DynamicNotch/Resources/Localization/InfoPlist.xcstrings",
+      "size": 72959,
+      "sha256": "d7cb5fb3f790f493f0e71c212d2db1dd2d41e016cae345a1dee9b0c9da957edd"
+    },
+    {
+      "path": "DynamicNotch/Resources/Localization/L10n.swift",
+      "size": 3849,
+      "sha256": "b35412a01d5bff9483d814a1f20d922ed5fc400f00470c1182ff2330ba3a07ea"
+    },
+    {
+      "path": "DynamicNotch/Resources/Localization/Localizable.xcstrings",
+      "size": 5989198,
+      "sha256": "8ccc491de7b2ee9497243610a4efa51d59d20a684651a7d704566a3ec74f8b77"
+    },
+    {
+      "path": "DynamicNotch/Resources/LottieImage/confirm.json",
+      "size": 4122,
+      "sha256": "c7553fb025224e12a968fbec313a8a7d3a5431f2dd51601f7667f7fd389d4ad9"
+    },
+    {
+      "path": "DynamicNotch/Resources/LottieImage/money.json",
+      "size": 302318,
+      "sha256": "36fb08fcc66aef7c798be53c18116aa76f8c47347a4d288f9e66a26b07ef672e"
+    },
+    {
+      "path": "DynamicNotch/Resources/LottieImage/star.json",
+      "size": 23224,
+      "sha256": "bf7e09daa0ea640fc87fedaeecc5dff1e733626f637a459b5d8f93673bba4e88"
+    },
+    {
+      "path": "DynamicNotch/Resources/LottieImage/telegram.json",
+      "size": 20899,
+      "sha256": "11ec4851ef91d0e7c83545d8034c83561a0d73546e02f169f49a3f5c3547b5c9"
+    },
+    {
+      "path": "DynamicNotch/Resources/LottieImage/welcome.json",
+      "size": 7935,
+      "sha256": "edc394a12f9a925fa0194be9486fb3a081f76c7161035cc29aee901cc1cad2ec"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/LICENSE",
+      "size": 1521,
+      "sha256": "a489c16a6be195584fa0b35e28fca54abc8492eb0cc05d851dd24f522f4900a2"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/A/Headers/MediaRemoteAdapter.h",
+      "size": 3989,
+      "sha256": "c0339a1f1ec71ff28df51fb239cd1e46580ebcafbdef4b2f32c8f49409da2b49"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/A/Resources/Info.plist",
+      "size": 740,
+      "sha256": "919445013eed4292ead5b225504cf7e14b99ea8802bb50305781f7e37e6fb7d2"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/mediaremote-adapter.pl",
+      "size": 8444,
+      "sha256": "984d622eeebbcb17656d157a49272b02fb741593ae2ec624d1926c12d955c8a1"
+    },
+    {
+      "path": "DynamicNotch/Shared/Extensions/extension+AnyTransition.swift",
+      "size": 3052,
+      "sha256": "49ccc3c72db2146453b8f7a8fe055587233d21cd03b2bdb6f6b20ed5192a8b03"
+    },
+    {
+      "path": "DynamicNotch/Shared/Extensions/extension+CGFloat.swift",
+      "size": 241,
+      "sha256": "e63304597c34ee7a4f983c0bd66622552f33b6b1ebb6608c081c0259f14f3bc4"
+    },
+    {
+      "path": "DynamicNotch/Shared/Extensions/extension+Int.swift",
+      "size": 242,
+      "sha256": "a333d4d10e9f3c79d563c6c4b8dbf0e36aecb56106e786b180d08f830d450f3a"
+    },
+    {
+      "path": "DynamicNotch/Shared/Extensions/extension+LinearGradient.swift",
+      "size": 601,
+      "sha256": "52d2979592278c9614950cd3cb5a858930564487e7745532022756d4fe251bf8"
+    },
+    {
+      "path": "DynamicNotch/Shared/Extensions/extension+NSScreen.swift",
+      "size": 6434,
+      "sha256": "2ac828a44e0622900203e8541f66c912db39f11b007816d42cc2f4822f7ccd2c"
+    },
+    {
+      "path": "DynamicNotch/Shared/Extensions/extension+View.swift",
+      "size": 1036,
+      "sha256": "e9bd6550fba6e28e7c8a07627a73c7fc967ffef44a9a0ef1c3ae61ef8ed97aad"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/AnimateImage.swift",
+      "size": 2097,
+      "sha256": "625cf3f931b68bb4fcff42a3e8a5698f87f44721f00c38ea41213861a3ffcc24"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/AnimateLevelText.swift",
+      "size": 1646,
+      "sha256": "e0fa847820eddc25733a228692f3862556934e59fbf6a408367852cbcddfa786"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/CircleIndicatorView.swift",
+      "size": 2415,
+      "sha256": "bd1139fdeeb5797047fafbf12a6aa04c01b61419eaf4402f938f4276c4422a2e"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/CustomPicker.swift",
+      "size": 10126,
+      "sha256": "44793459dea217f83ed415ddef0833434b25fe9822d6d2614ee0b9d98d5275e7"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/CustomToggle.swift",
+      "size": 1872,
+      "sha256": "31e1b7c0be1c33f56a8320fe12d2b65795cacea2c9b5137e1db85158e4005f1e"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/LiquidGlassBackground.swift",
+      "size": 12213,
+      "sha256": "485fe5ee365380b10c33609581d8d76606eb1d8099fcc17322fe1945e8b97924"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/MarqueeText.swift",
+      "size": 4714,
+      "sha256": "fdf4839348d498eda8c001f46f3047b0ab7d7542a5ca78dbd785c5b5b7e41841"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/NavigationCardButtonStyle.swift",
+      "size": 1557,
+      "sha256": "856458a93a7809a7803e6ed718b8ffa5a58937afc5c527d405e484deb059e2cc"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/PlaybackSourceButton.swift",
+      "size": 423,
+      "sha256": "6c58389695170672ca22ed3a3a81139b4edbe95e6064ece4295e9aec663cd550"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/PressedButton.swift",
+      "size": 1919,
+      "sha256": "01e55cc000df168b831574d1f680a4bd6e36594a805c15f1e3fdce65f5165eed"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Components/PrimaryButton.swift",
+      "size": 800,
+      "sha256": "05dc28f078218306490d8d8cfcf95765799e067504ef641e458a62ad8598c3e9"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Environment/EnvironmentValues.swift",
+      "size": 602,
+      "sha256": "f19d054345d7fb0d2af4fafd425c406cd7e11616b7fc69c993f3a95c25f6358d"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Environment/IsNotchlessScreenKey.swift",
+      "size": 227,
+      "sha256": "009221a39ec8b353522fbd6a357ba83324a8925d70507cb422c2d5c31e9c8700"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Environment/NotchScaleKey.swift",
+      "size": 214,
+      "sha256": "ca7675c52b880564216676c048a15bc15d6a71916bd1319ccaa87a6dec595d78"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Environment/OnScrubbingChangedKey.swift",
+      "size": 242,
+      "sha256": "ad0216901ef94accd5e004a134239664c09fe67905ffd63a1d7b2d764b5363c5"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Modifiers/BlurFadeModifier.swift",
+      "size": 236,
+      "sha256": "97f923bcb5895ebd0ce378b6fae51ccba45e78d90e55aa311b467103e9aee616"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Modifiers/NotchCustomScaleModifier.swift",
+      "size": 12576,
+      "sha256": "e0900b73de6c8bd44e59a4fa905c11d5a9e2b5dcae014bdf701fb45e3386cc9d"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Modifiers/NotchMouseSwipeModifier.swift",
+      "size": 16016,
+      "sha256": "e9ce5e68491728801c4e02338e96a9d5eaff890b6c46241aad34641cae07dc42"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Modifiers/NotchSwipeDismissModifier.swift",
+      "size": 17986,
+      "sha256": "8d5ffabca87c501d8a71f705b52c05fa228830d4950dd956b7f2b9b7f16a8a45"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Modifiers/NotchTransitionModifier.swift",
+      "size": 629,
+      "sha256": "ee4e19ab8837f708d720fe9b7b8a67c801b88a1a2e1551d1d93c648c7716e4b0"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Modifiers/ResizeAwareBlurModifier.swift",
+      "size": 8771,
+      "sha256": "0daa09b98f0b184b55501bf9e2211053f6a459d3b92efe24feac77aefe18a99f"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Shapes/DynamicIslandShape.swift",
+      "size": 939,
+      "sha256": "8e171d0223df0083cb87163c1a953283e5027ec88006e320c7f70d1d23f84cd1"
+    },
+    {
+      "path": "DynamicNotch/Shared/UI/Shapes/NotchShape.swift",
+      "size": 3310,
+      "sha256": "fbe2cee99a55206889469b384d00dd0b076071f4fe70e49c19f41608ffef6583"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Battery/NotchPowerEventsHandlerTests.swift",
+      "size": 3618,
+      "sha256": "9bd212e93307b37585201138fae78bf7721bc4f77879a72edc032c1fd014bf9c"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Battery/PowerViewModelTests.swift",
+      "size": 4241,
+      "sha256": "05d7f5dd10ac11d8b8efecccaaf22ebe69aa19e6df80d829ff26fe5163e857e5"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Bluetooth/BluetoothConnectedAudioDevicesTests.swift",
+      "size": 4095,
+      "sha256": "1a4dabe5c12480df3dade64ed3da6bb80600b28caf4dddcdc1ce6c48cacc5d5d"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Bluetooth/BluetoothViewModelTests.swift",
+      "size": 7057,
+      "sha256": "f00297f151026e20974eaa989ce36ee96870eab5132a60545179967a9431fd42"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Download/ChromiumDownloadMetadataReaderTests.swift",
+      "size": 7157,
+      "sha256": "6f1aea5d92baa0445cac0ce2f065b1585181aafaacf0bb52ebbbdf47571d9333"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Download/DownloadViewModelIntegrationTests.swift",
+      "size": 4032,
+      "sha256": "6d0db4a681e9f42ccf3d8b4bee7845c0358e4e6c1e98b362298ac5c9bcf2f352"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Download/FolderFileDownloadMonitorIntegrationTests.swift",
+      "size": 2781,
+      "sha256": "d1920afc073362449eb9a2e5715dbfc9a590489b133a6afb6eca649e9812a6e9"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Focus/FocusTests.swift",
+      "size": 3876,
+      "sha256": "55b8296ab004ec060dbbf304d4f3db9785d65d7524ed0712926d06d7d3cb4e90"
+    },
+    {
+      "path": "DynamicNotchTests/Features/HUD/SystemMediaKeyTapConfigurationTests.swift",
+      "size": 2410,
+      "sha256": "930c3c8d3165ce6eed894a5eebffb7136795f6b16916aade28c2135143a27f64"
+    },
+    {
+      "path": "DynamicNotchTests/Features/HUD/SystemMediaKeyTapTests.swift",
+      "size": 4219,
+      "sha256": "3eaa56c9b444ccc37552c6d8b57333df0cda722fe65eb9fadf457d9c7899c479"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Notch/LockScreenManagerIntegrationTests.swift",
+      "size": 2225,
+      "sha256": "f1cd10b65b6ad2327eb5188d7eb5ab2771f3732ad4b3c05535b05461a5481709"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Notch/NotchEventCoordinatorIntegrationTests.swift",
+      "size": 34540,
+      "sha256": "c327f08bf06fbd591b96e5612a5c66722cb9b91d0a71926221766a44a18ec20b"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Notch/NotchTimerEventsHandlerTests.swift",
+      "size": 10137,
+      "sha256": "54988b2b7c9b5139b957eed13ccefe7abbc1aef4cec3d3a644e4cb690f9a35b6"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Notch/NotchViewModelIntegrationTests.swift",
+      "size": 65123,
+      "sha256": "e76bbe1033b4ed91a285f6c2f58c5ddb6791b5a5da30c8dce06439be4bff4c0b"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Notch/NotchlessWindowMarginTests.swift",
+      "size": 1517,
+      "sha256": "e7e32bc66a7845652d18e1e9c88c90ee09b4689fe53821d88ba3698c172e155e"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Notifications/ExternalDrives/ExternalDriveNotchContentTests.swift",
+      "size": 4513,
+      "sha256": "3b081cd346c8d079521957060ad72f5a60eff1028e3f8c6ff6167e77881d4959"
+    },
+    {
+      "path": "DynamicNotchTests/Features/NowPlaying/NowPlayingViewModelIntegrationTests.swift",
+      "size": 20184,
+      "sha256": "7d2e869a6d25da5ec8d6138abc33ff414323b1fbcb1c7afe4cc05f5b79afde47"
+    },
+    {
+      "path": "DynamicNotchTests/Features/ScreenRecording/ScreenRecordingViewModelIntegrationTests.swift",
+      "size": 1497,
+      "sha256": "a78bf834c6f1980ad5e2d6d0c26d822cd897d0fd55e8992367b6e9c8894d6a93"
+    },
+    {
+      "path": "DynamicNotchTests/Features/ScreenshotHub/ScreenshotFlyAnimationViewTests.swift",
+      "size": 2678,
+      "sha256": "a8ed77da66702b03ecf51c2fe39d57722b2c462abd787872b39698a096572e53"
+    },
+    {
+      "path": "DynamicNotchTests/Features/ScreenshotHub/ScreenshotImageLoaderTests.swift",
+      "size": 7104,
+      "sha256": "c44634283b1b530dfbcaaf56b3179bc301d973179bef17e729743e0e3991037f"
+    },
+    {
+      "path": "DynamicNotchTests/Features/ScreenshotHub/ScreenshotMonitorServiceTests.swift",
+      "size": 5527,
+      "sha256": "2cd725b7a377f5f4aa791035ad518eaa3e4204e8c5adba5b16234812333df8ee"
+    },
+    {
+      "path": "DynamicNotchTests/Features/ScreenshotHub/ScreenshotViewModelTests.swift",
+      "size": 2911,
+      "sha256": "3d4b873ba47bf0fce8ddec3188e96f9e55239d228c3c646cdb62ed94825afad0"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Settings/Localization/LocalizationCatalogTests.swift",
+      "size": 7919,
+      "sha256": "ba4ee176a345e156fe8e680e3e6cb687da18a0e6bc79c0e5105da88c59d4e1c3"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Settings/Root/SettingsSelectionHistoryTests.swift",
+      "size": 1651,
+      "sha256": "5556da4407c58c3edad4860bab5a918fc5c6b2abea8760c3622347646bddae0c"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Settings/StoredDefaultTests.swift",
+      "size": 7621,
+      "sha256": "788538affe18341417ce9267df8e1944eee2ad26891ee1d6a9b141f7f8fb9617"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/ClockTimerLogParserTests.swift",
+      "size": 4784,
+      "sha256": "41eb2b6569860980e9e8f751b31ff64ed906f3b37ec1b30820ab025446c24046"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/ClockTimerMonitorNewTimerTests.swift",
+      "size": 4980,
+      "sha256": "5dea0d9412b03ef1486886767b96cc82530a59f3172ac3962e358a4239c21966"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/ClockTimerMonitorPauseStateTests.swift",
+      "size": 15821,
+      "sha256": "b2c582b8fe853ad72251d0137ca935837e0e9f2ccf875dca5ab0b0930a4fbc3a"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/ClockTimerMonitorRedrawPhaseTests.swift",
+      "size": 12409,
+      "sha256": "5c34d31fe983eb85878354e8f0248984e99efb1a05617d2fd816e833e7ca797c"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/ReplaceableFileWatcherTests.swift",
+      "size": 3527,
+      "sha256": "ce72349e8b300b7c296ac822d24e7ac325369f098c2ae2744f3c0b6ece39805f"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/TimerCompactIndicatorViewTests.swift",
+      "size": 2408,
+      "sha256": "4d1992716ff7ab952817a050631694ffef1f2378cf4ef10f2070074e5315afb1"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/TimerCompactTimeTests.swift",
+      "size": 2785,
+      "sha256": "d2c8efbb33d028ddc28c1e772d09fee6ea5b3c3eefd01c8f38303428a2ee444c"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Timer/TimerCountdownScheduleTests.swift",
+      "size": 4124,
+      "sha256": "017da684412314c572ef5b772a79b2754796cf995257378a6d221f77c6e1a80f"
+    },
+    {
+      "path": "DynamicNotchTests/Features/VPN/VPNStatusFetcherTests.swift",
+      "size": 2745,
+      "sha256": "527fc5f5cc296aa2f76e90e80c1c9f289cf8e9dbfe63e8f3719db8482fd90459"
+    },
+    {
+      "path": "DynamicNotchTests/Features/VPN/VpnActiveTimeFormatTests.swift",
+      "size": 1394,
+      "sha256": "c67db283612a0d422442c967d697c5faa5bd177b53d7c537d8b15a9ca0e2d12f"
+    },
+    {
+      "path": "DynamicNotchTests/Features/VPN/VpnViewModelIntegrationTests.swift",
+      "size": 2411,
+      "sha256": "adfce2355ee81091b9d45be7396410f5ba4fd7ff0e9dfee00ab9b60c3f44a870"
+    },
+    {
+      "path": "DynamicNotchTests/Features/Wifi/WifiViewModelIntegrationTests.swift",
+      "size": 4025,
+      "sha256": "a1dff152a19320929d7285a9e530ee19493ec327e4ddbdc678541c54e36c5106"
+    },
+    {
+      "path": "DynamicNotchTests/Shared/AppEnvironmentTests.swift",
+      "size": 544,
+      "sha256": "40e60684ebfda7bd423c01814e26cd9f1e69d3c03cd9e8d8af4b4cc15d68b8b8"
+    },
+    {
+      "path": "DynamicNotchTests/Shared/NotchScreenSelectionTests.swift",
+      "size": 4776,
+      "sha256": "f07d74bd7edeb7de4d2873b3bb7748c2e86217f0a9aeff65d7c89cead1c78483"
+    },
+    {
+      "path": "DynamicNotchTests/Shared/NotchTransitionMetricsTests.swift",
+      "size": 2712,
+      "sha256": "139ff97b0f49f791591d8b19fef2ee551f7ccd9d4630f146900c6157ddd33351"
+    },
+    {
+      "path": "DynamicNotchTests/TestSupport/TestDoubles.swift",
+      "size": 11157,
+      "sha256": "790752c947ddfd6191f4173cbe5246d5a0aa1ee605a4e970271de543879b78ef"
+    },
+    {
+      "path": "DynamicNotchTests/TestSupport/XCTestCase+Async.swift",
+      "size": 683,
+      "sha256": "41af7bb0c86e7666715abb867f0f872108a0340ca5551d053b71dd71bc5a0981"
+    },
+    {
+      "path": "DynamicNotchUITests/DynamicNotchUITests.swift",
+      "size": 310,
+      "sha256": "02c898d4e717f195f24deb9fbb1a680d08d9ab20454c9a4e8c98bca6045312fd"
+    },
+    {
+      "path": "LICENSE",
+      "size": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "README.md",
+      "size": 5474,
+      "sha256": "a95f9ac608c71c678ebf3ead3058f0dccaf8262afe1bcc4f2b326d04b0fabec9"
+    },
+    {
+      "path": "SECURITY.md",
+      "size": 1423,
+      "sha256": "58b2ada43ebcde3c144778742086ff07c318edea0203b1c557d920c05880ea7c"
+    },
+    {
+      "path": "appcast.xml",
+      "size": 2917,
+      "sha256": "eafb1062cc26bc838ff7052aa5dd6e92a5f4eb18e13cb98dc5afed09a7dd610f"
+    },
+    {
+      "path": "build_and_install_app.sh",
+      "size": 2067,
+      "sha256": "42830efe158d233874d2993154de1c4aac6f8f6734971504d6a8ebc0dc2e2112"
+    },
+    {
+      "path": "build_dmg.sh",
+      "size": 2345,
+      "sha256": "6f35c6fa369093a00fe47c6fe964d6bfadd1c9c6b4a20a951d7cbdca3951acaf"
+    }
+  ],
+  "skipped_files": [
+    {
+      "path": ".gitattributes",
+      "size": 66,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/project.xcworkspace/xcuserdata/macintosh.xcuserdatad/UserInterfaceState.xcuserstate",
+      "size": 196579,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch.xcodeproj/xcuserdata/macintosh.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist",
+      "size": 613,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/appicon_mac_128x128_2x.png",
+      "size": 52018,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/appicon_mac_16x16_2x.png",
+      "size": 3486,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/appicon_mac_256x256_2x.png",
+      "size": 160675,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo1024.png",
+      "size": 611705,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo128.png",
+      "size": 18576,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo16.png",
+      "size": 2252,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo256.png",
+      "size": 52018,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo32.png",
+      "size": 3486,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo512.png",
+      "size": 160675,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/AppIcon.appiconset/logo64.png",
+      "size": 7442,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundDark.imageset/backgrounddark_universal_1x.png",
+      "size": 1080316,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundDark.imageset/backgrounddark_universal_2x.png",
+      "size": 1080316,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundDark.imageset/backgrounddark_universal_3x.png",
+      "size": 1080316,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundLight.imageset/backgroundlight_universal_1x.png",
+      "size": 180361,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundLight.imageset/backgroundlight_universal_2x.png",
+      "size": 180361,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/background/backgroundLight.imageset/backgroundlight_universal_3x.png",
+      "size": 180361,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/airdrop.white.imageset/airdrop_white_universal_2x.png",
+      "size": 2954,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/airdrop.white.imageset/airdrop_white_universal_3x.png",
+      "size": 2954,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/airdrop.white.imageset/icons8-airdrop-96-2.png",
+      "size": 2954,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/bluetooth.white.imageset/bluetooth-svgrepo-com-2.png",
+      "size": 27085,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/bluetooth.white.imageset/bluetooth_white_universal_2x.png",
+      "size": 27085,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/bluetooth.white.imageset/bluetooth_white_universal_3x.png",
+      "size": 27085,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/boosty.imageset/boosty-sign-logo-2 1.png",
+      "size": 4888,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/boosty.imageset/boosty-sign-logo-2 2.png",
+      "size": 4888,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/boosty.imageset/boosty-sign-logo-2.png",
+      "size": 4888,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/btc.imageset/Bitcoin.svg-2 1.png",
+      "size": 4260,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/btc.imageset/Bitcoin.svg-2 2.png",
+      "size": 4260,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/btc.imageset/Bitcoin.svg-2.png",
+      "size": 4260,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/donationAlerts.imageset/DA_Alert_White 1.png",
+      "size": 2524,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/donationAlerts.imageset/DA_Alert_White 2.png",
+      "size": 2524,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/donationAlerts.imageset/DA_Alert_White.png",
+      "size": 2524,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/email.imageset/email_universal_2x.png",
+      "size": 2218,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/email.imageset/email_universal_3x.png",
+      "size": 2218,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/email.imageset/icons8-circled-envelope-96.png",
+      "size": 2218,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/erc-20.imageset/images-2 1.png",
+      "size": 1471,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/erc-20.imageset/images-2 2.png",
+      "size": 1471,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/erc-20.imageset/images-2.png",
+      "size": 1471,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/gitHub.imageset/github_universal_2x.png",
+      "size": 12778,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/gitHub.imageset/github_universal_3x.png",
+      "size": 12778,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/gitHub.imageset/icons8-github-96.png",
+      "size": 12778,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/logo.imageset/logo128 1.png",
+      "size": 18576,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/logo.imageset/logo128 2.png",
+      "size": 18576,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/logo.imageset/logo128.png",
+      "size": 18576,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/simplifiedLogo.imageset/simplifiedLogo96 1.png",
+      "size": 12038,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/simplifiedLogo.imageset/simplifiedLogo96 2.png",
+      "size": 12038,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/simplifiedLogo.imageset/simplifiedLogo96.png",
+      "size": 12038,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/telegram.imageset/telegram_universal_1x.png",
+      "size": 3730,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/telegram.imageset/telegram_universal_2x.png",
+      "size": 3730,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/telegram.imageset/telegram_universal_3x.png",
+      "size": 3730,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/trc-20.imageset/u_b_522da230-81a6-11ed-8daa-3558e683ad74-2 1.png",
+      "size": 5437,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/trc-20.imageset/u_b_522da230-81a6-11ed-8daa-3558e683ad74-2 2.png",
+      "size": 5437,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/icons/trc-20.imageset/u_b_522da230-81a6-11ed-8daa-3558e683ad74-2.png",
+      "size": 5437,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/arabic.imageset/sa 1.png",
+      "size": 415,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/arabic.imageset/sa 2.png",
+      "size": 415,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/arabic.imageset/sa.png",
+      "size": 415,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bengali.imageset/bd 1.png",
+      "size": 201,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bengali.imageset/bd 2.png",
+      "size": 201,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bengali.imageset/bd.png",
+      "size": 201,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bulgarian.imageset/bg 1.png",
+      "size": 112,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bulgarian.imageset/bg 2.png",
+      "size": 112,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/bulgarian.imageset/bg.png",
+      "size": 112,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/catalan.imageset/ca 1.png",
+      "size": 289,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/catalan.imageset/ca 2.png",
+      "size": 289,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/catalan.imageset/ca.png",
+      "size": 289,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/chinese.imageset/cn 1.png",
+      "size": 219,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/chinese.imageset/cn 2.png",
+      "size": 219,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/chinese.imageset/cn.png",
+      "size": 219,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/croatian.imageset/hr 1.png",
+      "size": 413,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/croatian.imageset/hr 2.png",
+      "size": 413,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/croatian.imageset/hr.png",
+      "size": 413,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/czech.imageset/cz 1.png",
+      "size": 294,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/czech.imageset/cz 2.png",
+      "size": 294,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/czech.imageset/cz.png",
+      "size": 294,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/danish.imageset/dk 1.png",
+      "size": 124,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/danish.imageset/dk 2.png",
+      "size": 124,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/danish.imageset/dk.png",
+      "size": 124,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/dutch.imageset/nl 1.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/dutch.imageset/nl 2.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/dutch.imageset/nl.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/english.imageset/Flag_of_the_United_Kingdom_(3-5).svg 1.png",
+      "size": 786,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/english.imageset/Flag_of_the_United_Kingdom_(3-5).svg.png",
+      "size": 786,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/english.imageset/gb 2.png",
+      "size": 399,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/filipino.imageset/ph 1.png",
+      "size": 393,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/filipino.imageset/ph 2.png",
+      "size": 393,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/filipino.imageset/ph.png",
+      "size": 393,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/finnish.imageset/fi 1.png",
+      "size": 123,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/finnish.imageset/fi 2.png",
+      "size": 123,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/finnish.imageset/fi.png",
+      "size": 123,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/french.imageset/fr 1.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/french.imageset/fr 2.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/french.imageset/fr.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/german.imageset/de 1.png",
+      "size": 112,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/german.imageset/de 2.png",
+      "size": 112,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/german.imageset/de.png",
+      "size": 112,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/greek.imageset/gr 1.png",
+      "size": 159,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/greek.imageset/gr 2.png",
+      "size": 159,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/greek.imageset/gr.png",
+      "size": 159,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hebrew.imageset/il 1.png",
+      "size": 246,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hebrew.imageset/il 2.png",
+      "size": 246,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hebrew.imageset/il.png",
+      "size": 246,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hindi.imageset/in 1.png",
+      "size": 277,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hindi.imageset/in 2.png",
+      "size": 277,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hindi.imageset/in.png",
+      "size": 277,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hungarian.imageset/hu 1.png",
+      "size": 126,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hungarian.imageset/hu 2.png",
+      "size": 126,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/hungarian.imageset/hu.png",
+      "size": 126,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/indonesian.imageset/id 1.png",
+      "size": 110,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/indonesian.imageset/id 2.png",
+      "size": 110,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/indonesian.imageset/id.png",
+      "size": 110,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/italian.imageset/it 1.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/italian.imageset/it 2.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/italian.imageset/it.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/japanese.imageset/jp 1.png",
+      "size": 244,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/japanese.imageset/jp 2.png",
+      "size": 244,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/japanese.imageset/jp.png",
+      "size": 244,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/kazakh.imageset/kz 1.png",
+      "size": 444,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/kazakh.imageset/kz 2.png",
+      "size": 444,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/kazakh.imageset/kz.png",
+      "size": 444,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/korean.imageset/kr 1.png",
+      "size": 479,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/korean.imageset/kr 2.png",
+      "size": 479,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/korean.imageset/kr.png",
+      "size": 479,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/malay.imageset/my 1.png",
+      "size": 316,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/malay.imageset/my 2.png",
+      "size": 316,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/malay.imageset/my.png",
+      "size": 316,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/norwegian.imageset/no 1.png",
+      "size": 168,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/norwegian.imageset/no 2.png",
+      "size": 168,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/norwegian.imageset/no.png",
+      "size": 168,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/persian.imageset/ir 1.png",
+      "size": 294,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/persian.imageset/ir 2.png",
+      "size": 294,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/persian.imageset/ir.png",
+      "size": 294,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/polish.imageset/pl 1.png",
+      "size": 99,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/polish.imageset/pl 2.png",
+      "size": 99,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/polish.imageset/pl.png",
+      "size": 99,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/portuguese.imageset/pt 1.png",
+      "size": 656,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/portuguese.imageset/pt 2.png",
+      "size": 656,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/portuguese.imageset/pt.png",
+      "size": 656,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/romanian.imageset/ro 1.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/romanian.imageset/ro 2.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/romanian.imageset/ro.png",
+      "size": 117,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/russian.imageset/ru 1.png",
+      "size": 114,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/russian.imageset/ru 2.png",
+      "size": 114,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/russian.imageset/ru.png",
+      "size": 114,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/serbian.imageset/rs 1.png",
+      "size": 806,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/serbian.imageset/rs 2.png",
+      "size": 806,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/serbian.imageset/rs.png",
+      "size": 806,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/slovak.imageset/sk 1.png",
+      "size": 313,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/slovak.imageset/sk 2.png",
+      "size": 313,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/slovak.imageset/sk.png",
+      "size": 313,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/spanish.imageset/es 1.png",
+      "size": 532,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/spanish.imageset/es 2.png",
+      "size": 532,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/spanish.imageset/es.png",
+      "size": 532,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/swedish.imageset/se 1.png",
+      "size": 105,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/swedish.imageset/se 2.png",
+      "size": 105,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/swedish.imageset/se.png",
+      "size": 105,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/thai.imageset/th 1.png",
+      "size": 121,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/thai.imageset/th 2.png",
+      "size": 121,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/thai.imageset/th.png",
+      "size": 121,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/traditionalChinese.imageset/cn 1.png",
+      "size": 219,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/traditionalChinese.imageset/cn 2.png",
+      "size": 219,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/traditionalChinese.imageset/cn.png",
+      "size": 219,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/turkish.imageset/tr 1.png",
+      "size": 259,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/turkish.imageset/tr 2.png",
+      "size": 259,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/turkish.imageset/tr.png",
+      "size": 259,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/ukrainian.imageset/ua 1.png",
+      "size": 110,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/ukrainian.imageset/ua 2.png",
+      "size": 110,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/ukrainian.imageset/ua.png",
+      "size": 110,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/vietnamese.imageset/vn 1.png",
+      "size": 241,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/vietnamese.imageset/vn 2.png",
+      "size": 241,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Assets.xcassets/language/vietnamese.imageset/vn.png",
+      "size": 241,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/FaceID/idleanimation.mp4",
+      "size": 356661,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/FaceID/unlockanimation.mp4",
+      "size": 758069,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/FaceID/unlockstatic.png",
+      "size": 9171,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/FaceID/unsuccessfulunlockanimation.mp4",
+      "size": 987166,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Headers",
+      "size": 24,
+      "reason": "symlink-not-followed"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/MediaRemoteAdapter",
+      "size": 35,
+      "reason": "symlink-not-followed"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Resources",
+      "size": 26,
+      "reason": "symlink-not-followed"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/A/MediaRemoteAdapter",
+      "size": 315168,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/A/_CodeSignature/CodeResources",
+      "size": 2592,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/Current",
+      "size": 1,
+      "reason": "symlink-not-followed"
+    },
+    {
+      "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapterTestClient",
+      "size": 179264,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Sounds/DynamicNotch_lock.caf",
+      "size": 85870,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Sounds/DynamicNotch_unlock.caf",
+      "size": 27886,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "DynamicNotch/Resources/Sounds/LowBatterySound.mp3",
+      "size": 27930,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandCharging.png",
+      "size": 1070025,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandCompactNowPlaying.png",
+      "size": 1095747,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandDesktop.png",
+      "size": 10909464,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandLockScreen.png",
+      "size": 3883297,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandNowPlaying.png",
+      "size": 913707,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandScreenRecording.png",
+      "size": 1039675,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicIsland/IslandSetupTimer.png",
+      "size": 935460,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicNotch/NotchCharging.png",
+      "size": 1049952,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicNotch/NotchCompactNowPlaying.png",
+      "size": 1068841,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicNotch/NotchNowPlaying.png",
+      "size": 870355,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicNotch/NotchScreenRecording.png",
+      "size": 1004070,
+      "reason": "non-text-or-unselected-type"
+    },
+    {
+      "path": "assets/DynamicNotch/NotchSetupTimer.png",
+      "size": 899835,
+      "reason": "non-text-or-unselected-type"
+    }
+  ],
+  "limits": "Source-text snapshot only. Binaries and symlinks are not analyzed or executed."
+}

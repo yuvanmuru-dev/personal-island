@@ -1,0 +1,69 @@
+{
+  "review_date": "2026-11-10",
+  "method": "Broad static pattern searches plus manual tracing of security-sensitive feature paths; not an exhaustive line-by-line verification",
+  "repositories": [
+    {
+      "repository": "Ebullioscopic/Atoll",
+      "revision": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
+      "text_files": 481,
+      "swift_files_including_tests": 391,
+      "app_swift_files": 364,
+      "swift_lines_including_tests": 121380,
+      "unreviewed_binary_candidates": [
+        {
+          "path": "Contents/Helpers/NowPlayingTestClient",
+          "size": 77848,
+          "reason": "non-text-or-unselected-type"
+        },
+        {
+          "path": "Frameworks/MediaRemoteAdapter.framework/Versions/A/MediaRemoteAdapter",
+          "size": 462128,
+          "reason": "non-text-or-unselected-type"
+        },
+        {
+          "path": "Frameworks/MediaRemoteAdapter.framework/Versions/A/_CodeSignature/CodeResources",
+          "size": 2442,
+          "reason": "non-text-or-unselected-type"
+        },
+        {
+          "path": "mediaremote-adapter/MediaRemoteAdapter.framework/Versions/A/MediaRemoteAdapter",
+          "size": 462128,
+          "reason": "non-text-or-unselected-type"
+        },
+        {
+          "path": "mediaremote-adapter/MediaRemoteAdapter.framework/Versions/A/_CodeSignature/CodeResources",
+          "size": 2442,
+          "reason": "non-text-or-unselected-type"
+        }
+      ]
+    },
+    {
+      "repository": "jackson-storm/DynamicNotch",
+      "revision": "f8623de5806ec5a22d9845189360bc9f4d92c374",
+      "text_files": 557,
+      "swift_files_including_tests": 466,
+      "app_swift_files": 423,
+      "swift_lines_including_tests": 65853,
+      "unreviewed_binary_candidates": [
+        {
+          "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/A/MediaRemoteAdapter",
+          "size": 315168,
+          "reason": "non-text-or-unselected-type"
+        },
+        {
+          "path": "DynamicNotch/Resources/MediaRemoteAdapter/MediaRemoteAdapter.framework/Versions/A/_CodeSignature/CodeResources",
+          "size": 2592,
+          "reason": "non-text-or-unselected-type"
+        }
+      ]
+    }
+  ],
+  "not_done": [
+    "No app or helper execution",
+    "No source build or tests",
+    "No packet capture",
+    "No personal files or account access",
+    "No transitive dependency source audit",
+    "No prebuilt binary analysis or source-to-binary verification"
+  ]
+}
