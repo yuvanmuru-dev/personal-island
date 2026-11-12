@@ -21,6 +21,10 @@ struct IslandView: View {
                 if presentation.isExpanded {
                     NotchShape(topCornerRadius: 6, bottomCornerRadius: 22)
                         .fill(.black)
+                } else if presentation.activity != nil {
+                    // Wings beside the housing join it seamlessly in black.
+                    NotchShape(topCornerRadius: 6, bottomCornerRadius: 12)
+                        .fill(.black)
                 } else {
                     // The compact window is the camera housing itself. Paint
                     // nothing visible: square black corners would show beside
@@ -40,6 +44,7 @@ struct IslandView: View {
         .preferredColorScheme(.dark)
         .onExitCommand { presentation.collapse() }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.12), value: presentation.isExpanded)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: presentation.activity)
     }
 
     private var backgroundCornerRadius: CGFloat {
@@ -51,7 +56,9 @@ struct IslandView: View {
             presentation.toggle()
         } label: {
             Group {
-                if presentation.layout.hasNotch {
+                if let activity = presentation.activity {
+                    activityContent(activity)
+                } else if presentation.layout.hasNotch {
                     // Under the camera housing there are no pixels to show
                     // content; the compact island is only a hover/click target.
                     Color.clear
@@ -70,8 +77,63 @@ struct IslandView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Open shelf, \(coordinator.shelfItemCount) items")
+        .accessibilityLabel(presentation.activity.map(Self.activityDescription)
+            ?? "Open shelf, \(coordinator.shelfItemCount) items")
         .help("Open shelf")
+    }
+
+    /// Icon on the left wing, percentage on the right; the center stays clear
+    /// for the camera housing (or holds the pill's spacing).
+    private func activityContent(_ activity: BatteryActivity) -> some View {
+        let wing = presentation.layout.activityWingWidth
+        return HStack(spacing: 0) {
+            BatteryGlyph(percent: activity.percent, charging: Self.showsBolt(activity), tint: Self.tint(activity))
+                .frame(width: presentation.layout.hasNotch ? wing : nil)
+                .frame(maxWidth: presentation.layout.hasNotch ? nil : .infinity)
+            if presentation.layout.hasNotch {
+                Spacer(minLength: presentation.layout.compactSize.width)
+            }
+            Text(Self.activityText(activity))
+                .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(Self.tint(activity))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(width: presentation.layout.hasNotch ? wing : nil)
+                .frame(maxWidth: presentation.layout.hasNotch ? nil : .infinity)
+        }
+        .padding(.horizontal, presentation.layout.hasNotch ? 0 : 8)
+        .transition(.opacity)
+    }
+
+    private static func showsBolt(_ activity: BatteryActivity) -> Bool {
+        switch activity {
+        case .pluggedIn, .charged: true
+        case .unplugged, .low: false
+        }
+    }
+
+    private static func tint(_ activity: BatteryActivity) -> Color {
+        switch activity {
+        case .pluggedIn, .charged: .green
+        case .low(let percent), .unplugged(let percent): BatteryGlyph.tint(percent: percent, pluggedIn: false)
+        }
+    }
+
+    private static func activityText(_ activity: BatteryActivity) -> String {
+        switch activity {
+        case .charged(let percent): percent >= 100 ? "Full" : "\(percent)%"
+        default: "\(activity.percent)%"
+        }
+    }
+
+    static func activityDescription(_ activity: BatteryActivity) -> String {
+        switch activity {
+        case .pluggedIn(let p): "Charging, \(p) percent"
+        case .unplugged(let p): "On battery, \(p) percent"
+        case .low(let p): "Low battery, \(p) percent"
+        case .charged(let p): "Charged, \(p) percent"
+        }
     }
 
     private var expandedContent: some View {
@@ -95,6 +157,19 @@ struct IslandView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
+                if let power = coordinator.power {
+                    HStack(spacing: 4) {
+                        Text("\(power.percent)%")
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white.opacity(0.7))
+                        BatteryGlyph(percent: power.percent, charging: power.isPluggedIn,
+                                     tint: BatteryGlyph.tint(percent: power.percent, pluggedIn: power.isPluggedIn))
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Battery \(power.percent) percent\(power.isPluggedIn ? ", plugged in" : "")")
+                    .help(Self.powerHelp(power))
+                }
                 if showsShelf && !coordinator.shelfItems.isEmpty {
                     headerButton("trash", label: "Clear shelf") { coordinator.clearShelf() }
                 }
@@ -153,6 +228,17 @@ struct IslandView: View {
     }
 
     private var showsShelf: Bool { coordinator.visibleTab == .shelf }
+
+    private static func powerHelp(_ power: PowerSnapshot) -> String {
+        func duration(_ minutes: Int) -> String { "\(minutes / 60):" + String(format: "%02d", minutes % 60) }
+        if power.isPluggedIn {
+            if power.isCharged || power.percent == 100 { return "Charged" }
+            if let minutes = power.minutesToFull, power.isCharging { return "\(duration(minutes)) until full" }
+            return power.isCharging ? "Charging" : "Plugged in, not charging"
+        }
+        if let minutes = power.minutesToEmpty { return "\(duration(minutes)) remaining" }
+        return "On battery"
+    }
 
     private func tabButton(_ tab: IslandCoordinator.ExpandedTab, symbol: String, title: String, count: Int? = nil) -> some View {
         let selected = coordinator.visibleTab == tab
@@ -357,19 +443,45 @@ private struct MediaContent: View {
 
     private var canControl: Bool { coordinator.spotifyStatus == .ready }
 
+    /// The cover, or a placeholder while it loads or when there is none.
+    private var cover: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.white.opacity(0.08))
+            if let artwork = coordinator.artwork {
+                Image(nsImage: artwork)
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Image(systemName: "music.note")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.35))
+            }
+        }
+        .frame(width: 52, height: 52)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .accessibilityHidden(true)
+    }
+
     @ViewBuilder
     private func trackView(_ track: NowPlaying) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(track.title)
-                .font(.system(size: 14, weight: .semibold))
-                .lineLimit(1)
-            Text([track.artist, track.album].filter { !$0.isEmpty }.joined(separator: " — "))
-                .font(.system(size: 11.5))
-                .foregroundStyle(.white.opacity(0.6))
-                .lineLimit(1)
+        HStack(spacing: 12) {
+            if coordinator.spotifyArtworkEnabled {
+                cover
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(track.title)
+                    .font(.system(size: 14, weight: .semibold))
+                    .lineLimit(1)
+                Text([track.artist, track.album].filter { !$0.isEmpty }.joined(separator: " — "))
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
 
         // Redraws only while visible; the slider owns its own drag state so
         // timeline ticks cannot fight a drag in progress.
@@ -629,4 +741,52 @@ private struct CalendarContent: View {
 
 private extension Array where Element == Double {
     subscript(safe index: Int) -> Double { indices.contains(index) ? self[index] : 0.6 }
+}
+
+/// A small battery outline filled to the level, with a bolt while charging.
+private struct BatteryGlyph: View {
+    let percent: Int
+    let charging: Bool
+    let tint: Color
+
+    private static let bodySize = CGSize(width: 25, height: 12)
+    private static let inset: CGFloat = 2
+
+    var body: some View {
+        let inner = Self.bodySize.width - 2 * Self.inset
+        let fill = inner * CGFloat(min(100, max(0, percent))) / 100
+        HStack(spacing: 1) {
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3.5, style: .continuous)
+                    .strokeBorder(.white.opacity(0.5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                    .fill(tint)
+                    .frame(width: max(2, fill), height: Self.bodySize.height - 2 * Self.inset)
+                    .padding(.leading, Self.inset)
+                if charging {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 8.5, weight: .heavy))
+                        // Dark on a filled body, light on a nearly empty one.
+                        .foregroundStyle(percent >= 45 ? Color.black.opacity(0.8) : .white)
+                        .frame(width: Self.bodySize.width)
+                }
+            }
+            .frame(width: Self.bodySize.width, height: Self.bodySize.height)
+            RoundedRectangle(cornerRadius: 1)
+                .fill(.white.opacity(0.5))
+                .frame(width: 1.5, height: 4.5)
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// Green while plugged in; on battery the color follows the level.
+    static func tint(percent: Int, pluggedIn: Bool) -> Color {
+        if pluggedIn { return .green }
+        switch percent {
+        case ...10: return .red
+        case ...20: return .orange
+        case ...50: return .yellow
+        default: return .green
+        }
+    }
 }

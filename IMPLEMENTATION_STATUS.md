@@ -6,6 +6,22 @@ The owner made the repository public. An audit of every tracked file and all 11 
 
 Updated November 12, 2026.
 
+## Battery icon and Spotify artwork — November 12
+
+Version 0.7.1 (12) passes all 265 automated tests plus the Release build and bundle/signature checks.
+
+The user reported the battery icon in the open island did not look full at 100% and asked for color. The fill was 2 points short of the outline's inside; it now fills the whole inside at 100%. The fill is green while plugged in and, on battery, green above 50%, yellow to 21%, orange to 11% and red at 10% or less; the notice beside the notch uses the same colors. The bolt is dark over a well-filled battery and light over a nearly empty one.
+
+The user asked for album artwork, which was off in M3 by their earlier choice. It is now a separate "Show album artwork" switch under Spotify, off by default, and is the app's first network use. With it on, Personal Island asks Spotify (by Apple Event, as for the other track details) for the current track's identifier and cover URL, accepts only https URLs on i.scdn.co, and downloads the image once per track with an ephemeral session: no cookies, credentials, disk cache or redirects, a 15-second limit, image types only and at most 2 MB. The image stays in memory and is dropped when the track changes or Spotify, artwork or the app stops. Spotify's image server sees the request (the Mac's IP address and which cover). The user reported the battery icon and album artwork work. Not itemized: podcasts, local files and tracks without a cover show a placeholder.
+
+## M4 battery and charging — November 12
+
+Version 0.7.0 (11) passes all 259 automated tests plus the Release build and bundle/signature checks. After 0.7.1 the user reported battery works on the MacBook.
+
+Battery is off by default and needs no permission or entitlement: it reads the same public IOKit power-source information as the menu bar. With "Battery and charging" on, plugging in or unplugging widens the compact island for three seconds: a battery outline (with a bolt while charging) on the left of the camera housing and the percentage on the right; on a display without a notch, a longer pill. Optional alerts, both on by default, show when the level falls to 20% and to 10% on battery, and once when charging finishes (100%, or when optimized charging reports the battery as charged). The first reading after launch or turning the switch on is quiet. The open island's header shows the level, with time to full or remaining on hover. Turning the switch off removes and invalidates the power-source run-loop source and forgets the reading. Notices go to every visible island, are skipped during capture, never interrupt an open island, and end when it opens.
+
+Not yet verified on a running Mac: the wing placement and size against crowded menu bars (wings are 64 points each and can briefly cover the nearest menu titles or status items), the alerts at real thresholds, optimized charging, and the Dell pill. Charging animations beyond the notice, and a lock-screen charging widget, are not built; the lock-screen part belongs with lock-screen widgets.
+
 | Milestone | Status | Evidence / remaining work |
 | --- | --- | --- |
 | Source security review | Static pass completed | Pinned source and findings in SECURITY_REVIEW.md; runtime, binaries and dependency implementations remain unverified. |
@@ -14,9 +30,9 @@ Updated November 12, 2026.
 | M1 controlled app source/build | Built; initial MacBook interface confirmed | Release Apple silicon app builds with Xcode 27.2. Explicit app/core sources, no remote packages or helpers, valid ad-hoc signature with hardened runtime and empty Release entitlements. User report/screenshots confirm the compact island, expanded empty shelf and Settings on the built-in display. Dell/shared-display behavior, closing/Quit and broader interactions remain unchecked. See PersonalIslandApp/VERIFICATION.md. |
 | M2 two-display screenshot preview | In progress: region capture and drag-out built | 0.2.0 adds ⌃⇧4/menu/button region capture with a custom overlay and ScreenCaptureKit, in-memory PNG admission to the shared shelf, thumbnails with Copy/Remove/Clear, a post-capture peek, and export cleanup at launch and every 30 minutes. User reported capture works on the MacBook. 0.3.0 adds drag-out (single and multi-select) with temporary PNG exports; user reported it works. 0.3.1 names dragged files `Screenshot <date> at <time>.png`. 0.4.0 adds window (Space) and whole-screen (Return) capture. Remaining: fidelity checks at MacBook/Dell scaling, and display-change edge cases. |
 | M3 Spotify/Calendar | Built and user-confirmed on the MacBook (0.5.0, 0.6.0) | Current track, seekable progress and play/pause/previous/next via Spotify's local scripting interface; user reported it works. Calendar: today's agenda and next event, read-only, with per-calendar visibility; user reported it works. Both-display sync awaits the Dell. |
-| M4 all additional utilities | Planned | Every accepted feature group remains in scope. |
+| M4 all additional utilities | In progress: battery and charging built and user-confirmed on the MacBook (0.7.0, 0.7.1) | The user reported the battery notices and colored icon work. Connections, downloads/AirDrop, timers, lock-screen widgets, system monitoring, clipboard history, media extras and other utilities remain planned. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 246 automated tests pass locally: 38 storage, 127 presentation and 81 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 265 automated tests pass locally: 38 storage, 146 presentation and 81 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.

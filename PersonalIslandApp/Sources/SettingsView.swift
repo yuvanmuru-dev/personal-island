@@ -7,7 +7,6 @@ struct SettingsView: View {
         ("camera.viewfinder", "Screenshots and file shelf"),
         ("music.note", "Spotify and other players"),
         ("calendar", "Calendar"),
-        ("battery.100", "Battery and charging"),
         ("wifi", "Bluetooth, Wi-Fi, VPN and hotspot"),
         ("arrow.down.circle", "Downloads and AirDrop"),
         ("timer", "Timers"),
@@ -36,6 +35,14 @@ struct SettingsView: View {
         case .needsAccess: "Open the island's Calendar tab and choose Allow."
         case .denied: "Calendar access is off: allow Personal Island under Privacy & Security › Calendars."
         case .ready: "Reading calendars on this Mac. Nothing is changed or sent online. Choose which calendars to show:"
+        }
+    }
+
+    private var batteryExplanation: String {
+        switch coordinator.batteryStatus {
+        case .off: "Shows charging changes beside the notch and the battery level in the open island. Reads the same information as the menu bar; no permission needed."
+        case .noBattery: "This Mac doesn't report a battery."
+        case .ready: "Plugging in or unplugging shows a short notice beside the notch on every island. Nothing is stored or sent."
         }
     }
 
@@ -68,6 +75,14 @@ struct SettingsView: View {
                     Text(spotifyExplanation)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    if coordinator.spotifyEnabled {
+                        Toggle("Show album artwork", isOn: $coordinator.spotifyArtworkEnabled)
+                            .padding(.leading, 16)
+                        Text("Downloads the current track's cover from Spotify's image server (i.scdn.co). Spotify's servers see the request; nothing else is sent, and images are kept in memory only.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 16)
+                    }
                     Toggle("Calendar in the island", isOn: $coordinator.calendarEnabled)
                     Text(calendarExplanation)
                         .font(.caption)
@@ -88,6 +103,16 @@ struct SettingsView: View {
                             }
                             .padding(.leading, 16)
                         }
+                    }
+                    Toggle("Battery and charging", isOn: $coordinator.batteryEnabled)
+                    Text(batteryExplanation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if coordinator.batteryEnabled && coordinator.batteryStatus != .noBattery {
+                        Toggle("Low battery alerts at 20% and 10%", isOn: $coordinator.batteryLowAlerts)
+                            .padding(.leading, 16)
+                        Toggle("Alert when charged", isOn: $coordinator.batteryChargedAlert)
+                            .padding(.leading, 16)
                     }
                     if coordinator.captureShortcutEnabled && !coordinator.captureShortcutRegistered {
                         Text("\(coordinator.captureShortcutName) is already used by another app.")

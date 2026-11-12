@@ -58,6 +58,7 @@ final class IslandPanelController {
             guard self.updateFrame() else { return }
             if self.presentation.isExpanded { coordinator?.islandDidExpand() }
         }
+        presentation.onActivityChange = { [weak self] in self?.updateFrame() }
     }
 
     func update(screen: NSScreen) {
@@ -77,6 +78,12 @@ final class IslandPanelController {
     func peek() {
         guard isHoverTrackingActive, panel.isVisible else { return }
         presentation.peek()
+    }
+
+    /// Briefly widens the compact island with a notice such as charging.
+    func showActivity(_ activity: BatteryActivity) {
+        guard isHoverTrackingActive, panel.isVisible else { return }
+        presentation.showActivity(activity)
     }
 
     /// Keeps the shelf open during an outgoing drag. On release, the pointer
@@ -109,6 +116,7 @@ final class IslandPanelController {
         hostingView.setHoverTrackingActive(false)
         hostingView.onPointerReconciliation = nil
         presentation.onExpansionChange = nil
+        presentation.onActivityChange = nil
         presentation.suspendHover()
         panel.orderOut(nil)
         panel.close()
@@ -130,7 +138,7 @@ final class IslandPanelController {
             hide()
             return false
         }
-        let frame = layout.panelFrame(expanded: presentation.isExpanded)
+        let frame = layout.panelFrame(expanded: presentation.isExpanded, activity: presentation.activity != nil)
         if frame != panel.frame { panel.setFrame(frame, display: true) }
         // AppKit need not receive a fresh mouse event when a stationary
         // pointer changes containment because the panel has resized.

@@ -97,7 +97,43 @@ final class IslandCoordinator: ObservableObject {
         }
     }
     @Published private(set) var spotifyStatus: SpotifyStatus = .off
-    @Published private(set) var nowPlaying: NowPlaying?
+    @Published private(set) var nowPlaying: NowPlaying? {
+        didSet { if nowPlaying?.trackID != oldValue?.trackID { updateArtwork() } }
+    }
+    /// The only network use: cover images from Spotify's image server.
+    @Published var spotifyArtworkEnabled = false {
+        didSet {
+            guard spotifyArtworkEnabled != oldValue else { return }
+            saveSettings()
+            updateArtwork()
+        }
+    }
+    /// The current track's cover, in memory only.
+    @Published private(set) var artwork: NSImage?
+    /// Turning this off removes the power-source observer and forgets readings.
+    @Published var batteryEnabled = false {
+        didSet {
+            guard batteryEnabled != oldValue else { return }
+            saveSettings()
+            updateBattery()
+        }
+    }
+    @Published var batteryLowAlerts = true {
+        didSet {
+            guard batteryLowAlerts != oldValue else { return }
+            saveSettings()
+            battery.lowAlertsEnabled = batteryLowAlerts
+        }
+    }
+    @Published var batteryChargedAlert = true {
+        didSet {
+            guard batteryChargedAlert != oldValue else { return }
+            saveSettings()
+            battery.chargedAlertEnabled = batteryChargedAlert
+        }
+    }
+    @Published private(set) var batteryStatus: BatteryStatus = .off
+    @Published private(set) var power: PowerSnapshot?
 
     private var disabledDisplays: Set<CGDirectDisplayID> = []
     private let settingsStore: IslandSettingsStore
@@ -110,8 +146,12 @@ final class IslandCoordinator: ObservableObject {
         captureShortcutEnabled = settings.captureShortcutEnabled
         disabledDisplays = Set(settings.disabledDisplays)
         spotifyEnabled = settings.spotifyEnabled
+        spotifyArtworkEnabled = settings.spotifyArtworkEnabled
         calendarEnabled = settings.calendarEnabled
         hiddenCalendarIDs = Set(settings.hiddenCalendarIDs)
+        batteryEnabled = settings.batteryEnabled
+        batteryLowAlerts = settings.batteryLowAlerts
+        batteryChargedAlert = settings.batteryChargedAlert
         expandedTab = settings.spotifyEnabled ? .media : settings.calendarEnabled ? .calendar : .shelf
     }
 
@@ -122,8 +162,12 @@ final class IslandCoordinator: ObservableObject {
         settings.captureShortcutEnabled = captureShortcutEnabled
         settings.disabledDisplays = disabledDisplays.sorted()
         settings.spotifyEnabled = spotifyEnabled
+        settings.spotifyArtworkEnabled = spotifyArtworkEnabled
         settings.calendarEnabled = calendarEnabled
         settings.hiddenCalendarIDs = hiddenCalendarIDs.sorted()
+        settings.batteryEnabled = batteryEnabled
+        settings.batteryLowAlerts = batteryLowAlerts
+        settings.batteryChargedAlert = batteryChargedAlert
         settingsStore.write(settings)
     }
     private var presenters: [CGDirectDisplayID: IslandPanelController] = [:]
@@ -179,6 +223,28 @@ final class IslandCoordinator: ObservableObject {
         }
         return controller
     }()
+    private lazy var artworkLoader: SpotifyArtworkLoader = {
+        let loader = SpotifyArtworkLoader(environment: SpotifyAdapter.artworkEnvironment())
+        loader.onChange = { [weak self, unowned loader] in
+            // Decoded once here; undecodable data shows no artwork.
+            self?.artwork = loader.imageData.flatMap { NSImage(data: $0) }
+        }
+        return loader
+    }()
+    private lazy var battery: BatteryController = {
+        let controller = BatteryController(environment: BatteryAdapter.environment())
+        controller.lowAlertsEnabled = batteryLowAlerts
+        controller.chargedAlertEnabled = batteryChargedAlert
+        controller.onChange = { [weak self, unowned controller] in
+            self?.batteryStatus = controller.status
+            self?.power = controller.snapshot
+        }
+        controller.onActivity = { [weak self] activity in
+            guard let self, !self.hiddenForCapture else { return }
+            for presenter in self.presenters.values { presenter.showActivity(activity) }
+        }
+        return controller
+    }()
     private lazy var dragFlow = makeDragFlow()
 
     private func makeDragFlow() -> ShelfDragFlow<ShelfItemID, PersonalIslandCore.DragSession> {
@@ -223,6 +289,7 @@ final class IslandCoordinator: ObservableObject {
         startExportCleanup()
         updateSpotify(askPermission: false)
         updateCalendar(askAccess: false)
+        updateBattery()
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -239,7 +306,9 @@ final class IslandCoordinator: ObservableObject {
         }
         isRunning = false
         spotify.stop()
+        artworkLoader.stop()
         calendarController.stop()
+        battery.stop()
         captureFlow.cancel()
         updateCaptureShortcut()
         cleanupTimer?.invalidate()
@@ -393,7 +462,16 @@ final class IslandCoordinator: ObservableObject {
             Task { @MainActor [weak self] in await self?.spotify.start(askPermission: askPermission) }
         } else {
             spotify.stop()
+            artworkLoader.stop()
             if expandedTab == .media { expandedTab = availableTabs.first ?? .shelf }
+        }
+    }
+
+    private func updateArtwork() {
+        if isRunning && spotifyEnabled && spotifyArtworkEnabled {
+            artworkLoader.show(trackID: nowPlaying?.trackID)
+        } else {
+            artworkLoader.stop()
         }
     }
 
@@ -422,6 +500,16 @@ final class IslandCoordinator: ObservableObject {
         prepareShelfIfNeeded()
         guard spotify.isActive, visibleTab == .media else { return }
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
+    }
+
+    // MARK: - Battery
+
+    private func updateBattery() {
+        if isRunning && batteryEnabled {
+            battery.start()
+        } else {
+            battery.stop()
+        }
     }
 
     // MARK: - Calendar

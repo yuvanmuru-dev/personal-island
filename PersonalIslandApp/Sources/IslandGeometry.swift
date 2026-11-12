@@ -24,7 +24,9 @@
  * global managers. On a notched display the compact window is exactly the
  * camera housing, which macOS never fills with menus or status items. On other
  * displays the compact window is a small pill centered inside the menu bar.
- * Only the expanded state, opened by the user, extends over the menu bar.
+ * Only the expanded state, opened by the user, extends over the menu bar,
+ * and a short activity (e.g. charging) widens the compact island for a few
+ * seconds beside the housing.
  */
 
 import CoreGraphics
@@ -44,6 +46,9 @@ enum IslandGeometry {
         /// Height of the camera housing; expanded content starts below it.
         let topContentInset: CGFloat
         let compactSize: CGSize
+        /// The compact island widened for a short notice (e.g. charging):
+        /// equal wings beside the camera housing, or a longer pill.
+        let activitySize: CGSize
         let expandedSize: CGSize
         let displayFrame: CGRect
         let topEdge: CGFloat
@@ -53,8 +58,11 @@ enum IslandGeometry {
                 && expandedSize.width > 0 && expandedSize.height > 0
         }
 
-        func panelFrame(expanded: Bool) -> CGRect {
-            let size = expanded ? expandedSize : compactSize
+        /// Width of each side of the activity beside the compact island.
+        var activityWingWidth: CGFloat { max(0, (activitySize.width - compactSize.width) / 2) }
+
+        func panelFrame(expanded: Bool, activity: Bool = false) -> CGRect {
+            let size = expanded ? expandedSize : activity ? activitySize : compactSize
             return CGRect(
                 x: displayFrame.midX - size.width / 2,
                 y: topEdge - size.height,
@@ -74,6 +82,10 @@ enum IslandGeometry {
     static let pillMaximumHeight: CGFloat = 22
     static let expandedWidth: CGFloat = 420
     static let expandedContentHeight: CGFloat = 228
+    /// Each side of a notch activity. Kept inside the menu bar's empty
+    /// center so it rarely reaches menu titles or status items.
+    static let activityWingWidth: CGFloat = 64
+    static let pillActivityWidth: CGFloat = 150
 
     static func layout(for display: Display) -> Layout {
         let frame = sanitizedFrame(display.frame)
@@ -92,6 +104,10 @@ enum IslandGeometry {
                 hasNotch: true,
                 topContentInset: notchHeight,
                 compactSize: CGSize(width: notchWidth, height: notchHeight),
+                activitySize: CGSize(
+                    width: min(maximumWidth, notchWidth + 2 * activityWingWidth),
+                    height: notchHeight
+                ),
                 expandedSize: CGSize(
                     width: expandedWidth,
                     height: min(frame.height, expandedContentHeight + notchHeight)
@@ -111,6 +127,7 @@ enum IslandGeometry {
             hasNotch: false,
             topContentInset: 0,
             compactSize: CGSize(width: min(pillWidth, maximumWidth), height: pillHeight),
+            activitySize: CGSize(width: min(pillActivityWidth, maximumWidth), height: pillHeight),
             expandedSize: CGSize(
                 width: min(Self.expandedWidth, maximumWidth),
                 height: min(expandedContentHeight, max(0, topEdge - frame.minY))

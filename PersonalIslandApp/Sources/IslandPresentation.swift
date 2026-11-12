@@ -13,10 +13,17 @@ final class IslandPresentation: ObservableObject {
 
     @Published private(set) var isExpanded = false
     @Published private(set) var layout: IslandGeometry.Layout
+    /// A short notice shown in the widened compact island. Never shown while
+    /// the island is open; opening it ends the notice.
+    @Published private(set) var activity: BatteryActivity?
     var onExpansionChange: (() -> Void)?
+    /// Called when a notice starts or ends, so the window can resize.
+    var onActivityChange: (() -> Void)?
 
     private let scheduler: Scheduler
     private var pendingInteraction: AnyCancellable?
+    private var activityTimer: AnyCancellable?
+    private var activityID: UUID?
     private var pendingID: UUID?
     private var openedByHover = false
     private var openedByPeek = false
@@ -30,6 +37,8 @@ final class IslandPresentation: ObservableObject {
     private static let closeDelay: UInt64 = 120_000_000
     /// How long a peek (e.g. after a capture) stays open without interaction.
     static let peekDuration: UInt64 = 3_000_000_000
+    /// How long a notice such as "charging" stays beside the notch.
+    static let activityDuration: UInt64 = 3_000_000_000
 
     init(layout: IslandGeometry.Layout, scheduler: Scheduler? = nil) {
         self.layout = layout
@@ -45,6 +54,7 @@ final class IslandPresentation: ObservableObject {
         openedByHover = false
         openedByPeek = false
         isExpanded.toggle()
+        if isExpanded { endActivity() }
         onExpansionChange?()
     }
 
@@ -84,6 +94,7 @@ final class IslandPresentation: ObservableObject {
                 guard let self else { return }
                 self.openedByHover = true
                 self.isExpanded = true
+                self.endActivity()
                 self.onExpansionChange?()
             }
         } else if !inside, isExpanded, openedByHover {
@@ -102,6 +113,7 @@ final class IslandPresentation: ObservableObject {
         openedByHover = false
         openedByPeek = true
         isExpanded = true
+        endActivity()
         onExpansionChange?()
         guard !pointerInside else { return }
         scheduleInteraction(after: nanoseconds) { [weak self] in self?.collapse() }
@@ -133,6 +145,32 @@ final class IslandPresentation: ObservableObject {
         pointerInside = false
         hoverEnabled = false
         collapse()
+        endActivity()
+    }
+
+    /// Shows a notice for a few seconds. A newer notice replaces the current
+    /// one and restarts the timer. Ignored while the island is open.
+    func showActivity(_ activity: BatteryActivity, for nanoseconds: UInt64 = IslandPresentation.activityDuration) {
+        guard !isExpanded else { return }
+        activityTimer?.cancel()
+        let id = UUID()
+        activityID = id
+        let changed = self.activity == nil
+        self.activity = activity
+        activityTimer = scheduler(nanoseconds) { [weak self] in
+            guard let self, self.activityID == id else { return }
+            self.endActivity()
+        }
+        if changed { onActivityChange?() }
+    }
+
+    func endActivity() {
+        activityTimer?.cancel()
+        activityTimer = nil
+        activityID = nil
+        guard activity != nil else { return }
+        activity = nil
+        onActivityChange?()
     }
 
     func cancelPendingInteraction() {

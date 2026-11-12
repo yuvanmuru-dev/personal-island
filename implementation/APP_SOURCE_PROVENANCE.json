@@ -3,6 +3,18 @@
   "scope": "Controlled graphical host and directly tested local presentation/storage components, not a complete Atoll fork. No DynamicNotch source has been copied into this host.",
   "files": [
     {
+      "local_path": "PersonalIslandApp/Sources/BatteryAdapter.swift",
+      "local_sha256": "b00fb5c3b38513b8da49fb00efb8bf9516b7e4a09d49027ec69ba480fd493a84",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Read-only IOKit power-source adapter: copies the power-source list and returns the internal battery; IOPSNotificationCreateRunLoopSource on the main run loop only while enabled, removed and invalidated on stop. No permission, entitlement or network use."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/BatteryStatus.swift",
+      "local_sha256": "175a914def3b6b0ff949847006054e69a93f6c4d6b57dc9152a28c6baad8927f",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. In-memory internal-battery reading parsed from IOKit power-source descriptions (rejects other sources and implausible values), notice rules (plug in/out, low at 20% and 10% once per crossing, charged including optimized-charging stops; first reading after start is quiet) and the injected-environment BatteryController lifecycle (single observation, stop forgets readings)."
+    },
+    {
       "local_path": "PersonalIslandApp/Sources/CalendarAdapter.swift",
       "local_sha256": "8295e5c3c2a81be33ee8f6ada4e38b18ab3ee3b40e036ce5ec3a74555ac97315",
       "origin": "new_local_implementation",
@@ -34,49 +46,49 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
-      "local_sha256": "112cb5cd4a283a39196d0f692cff99ec5704f5d44f03911b44718a48a0439ef9",
+      "local_sha256": "747165610c960242b31e76ff2cd4b79c1a1a7851df2b19e115c8be54bac84a87",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running. Drag-out increment (0.3.0): selection state, drag flow wiring to ShelfStore.beginFileDrag/endDrag, shelf hold across presenters, export-capacity messages. Wire capture targets. M3 Spotify increment (0.5.0): persisted settings, Spotify feature switch starting/stopping the controller, Media/Shelf tab, explicit Open Spotify and Automation settings actions, refresh on expansion. M3 Calendar (0.6.0): Calendar switch and hidden calendars persisted, controller start/stop, Calendar tab with fallback when a feature is turned off, access/settings/open/join actions. Publishes the upcoming event."
+      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running. Drag-out increment (0.3.0): selection state, drag flow wiring to ShelfStore.beginFileDrag/endDrag, shelf hold across presenters, export-capacity messages. Wire capture targets. M3 Spotify increment (0.5.0): persisted settings, Spotify feature switch starting/stopping the controller, Media/Shelf tab, explicit Open Spotify and Automation settings actions, refresh on expansion. M3 Calendar (0.6.0): Calendar switch and hidden calendars persisted, controller start/stop, Calendar tab with fallback when a feature is turned off, access/settings/open/join actions. Publishes the upcoming event. M4 battery (0.7.0): battery switch and alert choices persisted, controller start/stop with the app and switch, notices sent to every visible island except during capture. 0.7.1: album-artwork switch persisted; loader follows the current track only while Spotify and artwork are on and stops with either."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
-      "local_sha256": "4d0b49cf7672713ac2c9ee1ad5bf387d2f9b77bfe5bcd6b0a7be962e73672ce3",
+      "local_sha256": "e8d2ca93405f8eae973d339b8ab8306728b4d7ea69391c5fa1894aca014cbd88",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/sizing/matters.swift",
       "upstream_sha256": "e9d4b3d2fc752f7908eea0e23e7fb8b7ce887fe28a6dde7a7ff835053036690a",
-      "modifications": "Adapted getClosedNotchSize measurement ideas into pure display inputs and screen-relative layout; added external floating capsule placement and size bounds. Test-driven fix: preserve menu-bar clearance by bounding panel height below its top edge; compress margins on synthetic tiny frames. Menu-bar clearance: place both complete window rectangles below the maximum safe-area, visible-frame and explicit menu-height band; bound compact/expanded bodies to usable space, and reject unusable geometry. Camera width is metadata, not a content spacer. Notch-sized placement (0.1.3): replaces the below-menu-band placement, which covered application content. On notched displays the compact window equals the public camera-housing rectangle at the top edge, which holds no menus or status items; implausible housing metadata falls back to a bounded width. Non-notched displays use a small pill inset inside the menu-bar center. Only the user-opened expanded state extends across the menu row; expanded content starts below the housing.",
+      "modifications": "Adapted getClosedNotchSize measurement ideas into pure display inputs and screen-relative layout; added external floating capsule placement and size bounds. Test-driven fix: preserve menu-bar clearance by bounding panel height below its top edge; compress margins on synthetic tiny frames. Menu-bar clearance: place both complete window rectangles below the maximum safe-area, visible-frame and explicit menu-height band; bound compact/expanded bodies to usable space, and reject unusable geometry. Camera width is metadata, not a content spacer. Notch-sized placement (0.1.3): replaces the below-menu-band placement, which covered application content. On notched displays the compact window equals the public camera-housing rectangle at the top edge, which holds no menus or status items; implausible housing metadata falls back to a bounded width. Non-notched displays use a small pill inset inside the menu-bar center. Only the user-opened expanded state extends across the menu row; expanded content starts below the housing. Battery activity (0.7.0): activity size widening the compact island by equal wings beside the camera housing (or a longer pill), same height, bounded to the display.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPanelController.swift",
-      "local_sha256": "d2d82158a335f5605724c38230292a37d0a40ba1c65a778fb7923c74144ffe1a",
+      "local_sha256": "150ae214e1a58ef66cfe26ff80e2d374e3f2966f2483bc092c22b62844596fde",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/components/Notch/DynamicIslandWindow.swift",
       "upstream_sha256": "07427c36598e884b0ffa7131352596881cfafa3ad40b9d501db7cc58109514cb",
-      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window. Notch placement (0.1.3): panel level above status items so an open island draws over the menu row; explicit mouse-event receipt for the visually empty notch target; pointer reconciliation includes the display's top edge. Peek entry point for post-capture acknowledgement. Hold entry point that reconciles the pointer before release. Expansion notifies the coordinator (shelf preparation and Spotify refresh).",
+      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window. Notch placement (0.1.3): panel level above status items so an open island draws over the menu row; explicit mouse-event receipt for the visually empty notch target; pointer reconciliation includes the display's top edge. Peek entry point for post-capture acknowledgement. Hold entry point that reconciles the pointer before release. Expansion notifies the coordinator (shelf preparation and Spotify refresh). Battery activity (0.7.0): resize to the activity frame while a notice shows; showActivity only on visible, tracking panels.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPresentation.swift",
-      "local_sha256": "6b2b6ef9bc345038ff961737e5b1501bf79722978fb5aa32642fad4509390cc4",
+      "local_sha256": "ed563b69110714dd4f43f8d59f2ad177f4902a8e8b3c44273635e3b5fefde5e6",
       "origin": "new_local_implementation",
-      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters. Peek state: opens briefly, held while the pointer is on it regardless of hover setting, closes after pointer exit, never disturbs an open shelf. Hold state for outgoing drags: pointer exit and hover changes deferred while held, re-evaluated on release; reset on suspend."
+      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters. Peek state: opens briefly, held while the pointer is on it regardless of hover setting, closes after pointer exit, never disturbs an open shelf. Hold state for outgoing drags: pointer exit and hover changes deferred while held, re-evaluated on release; reset on suspend. Battery activity (0.7.0): short notice state with its own stale-guarded timer; ignored while open, ended by opening, peeking, hover-opening or suspension."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandSettings.swift",
-      "local_sha256": "56dfcdca4fb8bf96813118350195ff5e383a70448b650a568bed636030261842",
+      "local_sha256": "88b3f1197c5cfcceff98881ae27a6aee060a013676b506f674763a32493de1dd",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Remembered on/off settings as one bounded JSON value in the app's own preferences; tolerant per-field decoding; injectable storage. No personal content stored. Calendar switch and bounded, de-duplicated hidden calendar identifiers."
+      "modifications": "Written for this personal project; no upstream file copied. Remembered on/off settings as one bounded JSON value in the app's own preferences; tolerant per-field decoding; injectable storage. No personal content stored. Calendar switch and bounded, de-duplicated hidden calendar identifiers. Battery switch and alert choices. Album-artwork switch (off by default)."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandView.swift",
-      "local_sha256": "34602a4737ec2bcf6cd1f612ab3702632e5c77a210c5acc7243fe6b7f015b1ba",
+      "local_sha256": "89567f0b3e0d936e340e52cc14c2e679979fafb3d1de577b450e848eca9b0343",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line. Tile drag overlay, selection highlight and selected accessibility trait. Capture button and empty-state text describe region, window and screen capture. Media/Shelf tabs and Media content: track, extrapolated progress via TimelineView, controls, and explicit states for not running, permission needed/denied and no track. Draggable playback scrubber with keyboard/VoiceOver adjust; play/pause symbol swaps without animation; progress view no longer rebuilt on play-state changes. Media/Calendar/Shelf tabs from available features; Calendar content with next event, today's agenda, Join for validated meeting links and explicit access states. Calendar tab always shows a Today section (\"No events\" when empty) and, once today has nothing left, a Next event section with its day."
+      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line. Tile drag overlay, selection highlight and selected accessibility trait. Capture button and empty-state text describe region, window and screen capture. Media/Shelf tabs and Media content: track, extrapolated progress via TimelineView, controls, and explicit states for not running, permission needed/denied and no track. Draggable playback scrubber with keyboard/VoiceOver adjust; play/pause symbol swaps without animation; progress view no longer rebuilt on play-state changes. Media/Calendar/Shelf tabs from available features; Calendar content with next event, today's agenda, Join for validated meeting links and explicit access states. Calendar tab always shows a Today section (\"No events\" when empty) and, once today has nothing left, a Next event section with its day. Battery activity wings (icon left, percentage right, center clear for the camera) and battery level with time estimate in the open island header. 0.7.1: battery glyph fills its whole outline and is colored (green plugged in; green/yellow/orange/red by level on battery), bolt contrasts with the fill; optional album cover beside the track with a placeholder."
     },
     {
       "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
@@ -109,9 +121,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/SettingsView.swift",
-      "local_sha256": "117927f65c8581c8adae550039b184e23582925df057680b5050308c9053b844",
+      "local_sha256": "a3b1b0485bc1af00dcfddfa3be205fa223b4fb27fb5eab9adb9a817c0923bc4a",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement. Capture-shortcut switch and conflict notice. Spotify switch with status explanation. Calendar switch, status explanation and per-calendar visibility toggles."
+      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement. Capture-shortcut switch and conflict notice. Spotify switch with status explanation. Calendar switch, status explanation and per-calendar visibility toggles. Battery and charging switch with status explanation and low/charged alert toggles; removed from the planned list. Album-artwork switch under Spotify naming the image host and what it sees."
     },
     {
       "local_path": "PersonalIslandApp/Sources/ShelfDragFlow.swift",
@@ -127,9 +139,15 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/SpotifyAdapter.swift",
-      "local_sha256": "b488d1e9063ab26d22a7e21a7dd86567c907d5112657ecd4eb6287e0911c782e",
+      "local_sha256": "c4a067f6b9d27d13f338ae236456061af8baef7358294d6cf08905df4fd3ce85",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Platform adapter: Spotify's PlaybackStateChanged distributed notification and Spotify launch/quit only; Apple Events only to com.spotify.client using its own dictionary codes (playpause/next/previous, player state/position, current track id/name/artist/album/duration), 2-second timeouts on a background queue, AEDeterminePermissionToAutomateTarget for the Automation prompt; never launches Spotify. Permission is requested for the specific core/getd event, because wildcard codes never show the Automation prompt. Permission is now probed with a real player-state read: never-interact to check quietly, a normal send with a long timeout to show the Automation dialog. AEDeterminePermissionToAutomateTarget was removed after it blocked indefinitely on the user's Mac. Every call runs under a hard deadline. Seek via core/setd of the writable player position; 700 ms settle before confirming a command."
+      "modifications": "Written for this personal project; no upstream file copied. Platform adapter: Spotify's PlaybackStateChanged distributed notification and Spotify launch/quit only; Apple Events only to com.spotify.client using its own dictionary codes (playpause/next/previous, player state/position, current track id/name/artist/album/duration), 2-second timeouts on a background queue, AEDeterminePermissionToAutomateTarget for the Automation prompt; never launches Spotify. Permission is requested for the specific core/getd event, because wildcard codes never show the Automation prompt. Permission is now probed with a real player-state read: never-interact to check quietly, a normal send with a long timeout to show the Automation dialog. AEDeterminePermissionToAutomateTarget was removed after it blocked indefinitely on the user's Mac. Every call runs under a hard deadline. Seek via core/setd of the writable player position; 700 ms settle before confirming a command. 0.7.1: artwork lookup (track ID and artwork URL via Apple Events under the same deadline) and an ephemeral, cookie-free, cache-free, redirect-refusing download from the validated image host, limited to 2 MB and image MIME types."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/SpotifyArtwork.swift",
+      "local_sha256": "f30d326342c2a95f9f03382cbe3fcffea977d4b07e967c1f45b7684204e3fe40",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Artwork URL validation (https on i.scdn.co only, no credentials or other ports, bounded length), accepted image types, and the injected-environment SpotifyArtworkLoader: one lookup per track with a single retry when Spotify still reports the previous track, generation-guarded so a slow earlier cover never replaces the current one, size-bounded, memory only, cleared on stop."
     },
     {
       "local_path": "PersonalIslandApp/Sources/SpotifyPlayback.swift",

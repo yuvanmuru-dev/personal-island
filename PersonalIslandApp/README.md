@@ -18,9 +18,17 @@ for the exact checkpoint and untested behavior. The user subsequently opened the
 
 Drag a thumbnail into another app to attach it. Click thumbnails to select several, then drag any selected one to take them all. The shelf stays open while you drag, and items stay on the shelf afterwards so you can drag them again. Screenshots become temporary PNG files named like `Screenshot 2026-11-12 at 14.32.05.png` only when dragged; they are cleaned up automatically at least 24 hours after their last use once removed from the shelf.
 
+## Battery and charging (0.7.0)
+
+Turn on "Battery and charging" in Settings. Plugging in or unplugging briefly shows the battery and percentage on either side of the notch (or in a longer pill on other displays). Alerts at 20% and 10% and when charging finishes can be turned off individually. The open island shows the battery level; hover it for time remaining. No permission is needed.
+
 ## Calendar (0.6.0)
 
 Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
+
+## Album artwork (0.7.1)
+
+Under Spotify in Settings, turn on "Show album artwork" to show the current track's cover in the Media tab. It downloads the cover from Spotify's image server (i.scdn.co) and keeps it in memory only. The battery icon now fills completely and is colored by charge level.
 
 ## Spotify (0.5.0)
 

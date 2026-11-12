@@ -40,6 +40,35 @@ enum SpotifyAdapter {
         )
     }
 
+    /// Artwork lookups go to Spotify like the other Apple Events; downloads
+    /// go only to Spotify's image host (see SpotifyArtwork.validatedURL).
+    @MainActor
+    static func artworkEnvironment() -> SpotifyArtworkLoader.Environment {
+        SpotifyArtworkLoader.Environment(
+            lookup: {
+                guard isRunning() else { return (nil, nil) }
+                let reply = await Deadline.run(seconds: quickTimeout + 3, fallback: ArtworkReply(trackID: nil, url: nil)) {
+                    artworkReply()
+                }
+                return (reply.trackID, reply.url)
+            },
+            fetch: { url in await ArtworkDownload.fetch(url) },
+            retryDelay: { try? await Task.sleep(for: .milliseconds(800)) }
+        )
+    }
+
+    private struct ArtworkReply: Sendable {
+        let trackID: String?
+        let url: String?
+    }
+
+    private static func artworkReply() -> ArtworkReply {
+        let track = property("pTrk", of: .null())
+        let id = try? get(property("ID  ", of: track))?.stringValue
+        let url = try? get(property("aUrl", of: track))?.stringValue
+        return ArtworkReply(trackID: SpotifyPlayback.clean(id), url: url)
+    }
+
     @MainActor
     static func isRunning() -> Bool {
         !NSRunningApplication.runningApplications(withBundleIdentifier: SpotifyPlayback.bundleIdentifier).isEmpty
@@ -192,5 +221,49 @@ enum SpotifyAdapter {
             default: throw SpotifyError.unexpectedReply
             }
         }
+    }
+}
+
+/// One ephemeral session: no cookies, credentials or disk cache, no
+/// redirects, a short timeout and a size limit while reading.
+private enum ArtworkDownload {
+    private static let session: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.urlCredentialStorage = nil
+        configuration.urlCache = nil
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.timeoutIntervalForRequest = 10
+        configuration.timeoutIntervalForResource = 15
+        configuration.httpMaximumConnectionsPerHost = 2
+        return URLSession(configuration: configuration, delegate: NoRedirects(), delegateQueue: nil)
+    }()
+
+    static func fetch(_ url: URL) async -> Data? {
+        guard SpotifyArtwork.validatedURL(url.absoluteString) != nil else { return nil }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("image/*", forHTTPHeaderField: "Accept")
+        guard let (bytes, response) = try? await session.bytes(for: request),
+              let http = response as? HTTPURLResponse, http.statusCode == 200,
+              SpotifyArtwork.isImage(mimeType: http.mimeType),
+              http.expectedContentLength <= Int64(SpotifyArtwork.maximumBytes) else { return nil }
+        var data = Data()
+        do {
+            for try await byte in bytes {
+                data.append(byte)
+                if data.count > SpotifyArtwork.maximumBytes { return nil }
+            }
+        } catch {
+            return nil
+        }
+        return data
+    }
+
+    private final class NoRedirects: NSObject, URLSessionTaskDelegate {
+        func urlSession(_ session: URLSession, task: URLSessionTask,
+                        willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest) async -> URLRequest? { nil }
     }
 }
