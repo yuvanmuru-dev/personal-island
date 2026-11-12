@@ -1,6 +1,6 @@
 # Project working rules
 
-- Keep all accepted utility groups in scope. Face unlock is deferred. Track unfinished features honestly in IMPLEMENTATION_STATUS.md.
+- Keep the accepted scope in PLAN.md: the built features plus downloads/AirDrop progress. On November 12 the owner removed connections, lock-screen widgets/weather, media extras, color picker, Focus and recording indicators; do not add them back unasked. Face unlock is deferred. Track unfinished features honestly in IMPLEMENTATION_STATUS.md.
 - Before pushing implementation changes, run `python3 implementation/verify.py` and resolve failures. Add regression tests for changed ownership, cleanup, concurrency, interaction or build-policy behavior. Test observable outcomes and failure boundaries, not incidental implementation details.
 - Automated checks use synthetic fixtures only. They must not launch the graphical app, collect personal data, grant permissions, control accounts, or send messages. Keep actual display/attachment/account verification separate and record its limits.
 - App and package source must match implementation/APP_SOURCE_PROVENANCE.json. Review changes before updating hashes; preserve copied/adapted source origins and license notices. Do not change upstream revisions or add external packages/helpers without reviewing the resulting source and build behavior.

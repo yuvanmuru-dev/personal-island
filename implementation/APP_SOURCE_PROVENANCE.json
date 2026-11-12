@@ -139,9 +139,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/SettingsView.swift",
-      "local_sha256": "238e1346669b34c589b23011c886c13faeebdae03ae729a717f85ca0f1cd9392",
+      "local_sha256": "ddf71085ea720230706452064c9b5dbda744b8402fa5ab3c3ad1511475c2eb26",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement. Capture-shortcut switch and conflict notice. Spotify switch with status explanation. Calendar switch, status explanation and per-calendar visibility toggles. Battery and charging switch with status explanation and low/charged alert toggles; removed from the planned list. Album-artwork switch under Spotify naming the image host and what it sees. Timers switch with explanation, notch and sound toggles; removed from the planned list. System activity switch with explanation; removed from the planned list. Clipboard history switch with explanation of memory-only storage, skipped password copies and the macOS paste permission; removed from the planned list."
+      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement. Capture-shortcut switch and conflict notice. Spotify switch with status explanation. Calendar switch, status explanation and per-calendar visibility toggles. Battery and charging switch with status explanation and low/charged alert toggles; removed from the planned list. Album-artwork switch under Spotify naming the image host and what it sees. Timers switch with explanation, notch and sound toggles; removed from the planned list. System activity switch with explanation; removed from the planned list. Clipboard history switch with explanation of memory-only storage, skipped password copies and the macOS paste permission; removed from the planned list. Planned list reduced to Downloads and AirDrop after the owner narrowed the scope."
     },
     {
       "local_path": "PersonalIslandApp/Sources/ShelfDragFlow.swift",

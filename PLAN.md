@@ -8,7 +8,7 @@ Research date: November 10, 2026; scope updated November 12, 2026. Status: the s
 - Build a personally controlled native application from source. The user explicitly permits copying/adapting open-source components or maintaining a local fork if that is the best approach. Original implementation is not a requirement. Personal use is intended; distribution is not planned.
 - No subscription or paid developer membership for personal local use. Apple says membership is not required to build and test on personal devices. Apple development tools are still necessary. [Apple membership overview](https://developer.apple.com/help/account/membership/programs-overview/)
 - Core features: temporary screenshots, a file drop shelf, Spotify desktop controls, and Apple Calendar, including accounts already synchronized to it.
-- Expanded scope confirmed: all nine feature groups listed below are wanted, including weather within lock-screen widgets. They are planned features, not an excluded backlog. Each feature should be individually configurable.
+- Scope narrowed November 12, 2026: of the additional groups below, the owner keeps battery, timers, system monitoring, clipboard history (all built) and downloads/AirDrop progress (next). The owner removed connections (Bluetooth, Wi-Fi, VPN, hotspot), lock-screen widgets and weather, media extras (visualizer, lyrics, players beyond Spotify), color picker, Focus status and screen-recording indicators. Each feature is individually configurable.
 - Face unlock is deferred for later at the user's request. Preserve the desired future behavior (face alone, fully hands-free from sleep) and research notes, but do not research or implement it in the current scope.
 - Display placement: enabled on both screens, with one shared tray. Use notch presentation on the MacBook and a floating capsule on the Dell.
 - Automatically deleted temporary files are acceptable. Screenshots should not accumulate in Desktop, Documents, or another permanent screenshot folder.
@@ -24,19 +24,19 @@ Allow click and keyboard activation; make hover optional with a short delay. Sup
 
 ## Accepted additional features
 
-The user confirmed all of the following. Documented upstream coverage is an input to choosing a base, not proof of behavior on the M5 MacBook or macOS 27. [Atoll feature list](https://github.com/Ebullioscopic/Atoll#highlights), [DynamicNotch feature list](https://github.com/jackson-storm/DynamicNotch#-highlights)
+The user first confirmed all of the following, then on November 12 narrowed the list; the Status column records the current decision. Documented upstream coverage is an input to choosing a base, not proof of behavior on the M5 MacBook or macOS 27. [Atoll feature list](https://github.com/Ebullioscopic/Atoll#highlights), [DynamicNotch feature list](https://github.com/jackson-storm/DynamicNotch#-highlights)
 
-| Feature group | Planned behavior | Upstream coverage to investigate |
-| --- | --- | --- |
-| Battery and charging | Charging status, animations, and low/full-charge alerts. | Both projects. |
-| Connections | Bluetooth, Wi-Fi, VPN, and personal-hotspot status and events. | DynamicNotch explicitly lists these. |
-| Downloads and AirDrop | Transfer activity and progress. | DynamicNotch; Atoll documents download activity and AirDrop-related code. |
-| Timers | Create countdowns, pause/resume, and show running timers. | Both projects. Distinguish app-owned timers from observing Apple's Clock timers. |
-| Lock-screen widgets | Selected media, timer, charging, Bluetooth, and weather widgets. | Atoll has broad documented coverage; test actual locked-session behavior. |
-| System monitoring | CPU, GPU, memory, network, and disk activity. | Atoll. Validate available M5 counters and report unavailable readings honestly. |
-| Clipboard history | A searchable/selectable history with copy-back, pause, clear, exclusions, and retention controls. | Atoll; verify exact inherited functionality and adapt gaps. |
-| Media extras | Audio visualizer, lyrics, and support for players beyond Spotify. | Both have visualizer-related code; DynamicNotch lists lyrics providers. Exact player coverage needs testing. |
-| Other utilities | Color picker, Focus status, and screen-recording indicators. | Atoll lists all three; DynamicNotch lists Focus and recording activities. |
+| Feature group | Planned behavior | Upstream coverage to investigate | Status |
+| --- | --- | --- | --- |
+| Battery and charging | Charging status, animations, and low/full-charge alerts. | Both projects. | Built (0.7) |
+| Connections | Bluetooth, Wi-Fi, VPN, and personal-hotspot status and events. | DynamicNotch explicitly lists these. | Removed by the owner |
+| Downloads and AirDrop | Transfer activity and progress. | DynamicNotch; Atoll documents download activity and AirDrop-related code. | Next |
+| Timers | Create countdowns, pause/resume, and show running timers. | Both projects. Distinguish app-owned timers from observing Apple's Clock timers. | Built (0.8, with stopwatch) |
+| Lock-screen widgets | Selected media, timer, charging, Bluetooth, and weather widgets. | Atoll has broad documented coverage; test actual locked-session behavior. | Removed by the owner |
+| System monitoring | CPU, GPU, memory, network, and disk activity. | Atoll. Validate available M5 counters and report unavailable readings honestly. | Built (0.9) |
+| Clipboard history | A searchable/selectable history with copy-back, pause, clear, exclusions, and retention controls. | Atoll; verify exact inherited functionality and adapt gaps. | Built (0.10, memory only) |
+| Media extras | Audio visualizer, lyrics, and support for players beyond Spotify. | Both have visualizer-related code; DynamicNotch lists lyrics providers. Exact player coverage needs testing. | Removed by the owner (Spotify artwork kept) |
+| Other utilities | Color picker, Focus status, and screen-recording indicators. | Atoll lists all three; DynamicNotch lists Focus and recording activities. | Removed by the owner |
 
 Some integrations may need additional permissions, external data services, or private macOS interfaces. Record these per feature during the audit. When a feature is disabled, stop its observers and work; availability in the app does not mean every integration continuously runs. Nothing in this scope adds an AI assistant, terminal, or model-usage tracker merely because an upstream project also contains one.
 
@@ -166,17 +166,17 @@ Request permissions when the corresponding feature is enabled. Validate shortcut
 2. **Screenshot compatibility and shared shelf.** Implement the agreed temporary capture lifecycle. Verify a real attachment reaches Discord desktop, Mail, and Messages; then the user's browser upload destinations. Exercise canceled/repeated/multi-item drags, delayed sending, source removal, quit, and relaunch cleanup. Add imported-file handling and verify original documents survive Clear All, cleanup, and quitting.
 3. **Island and displays.** Adapt compact/expanded presentation, MacBook notch geometry, Dell capsule, shared shelf, and per-display switches. Verify focus stays in the current app. Test clamshell, unplug/replug, scaled 4K, mixed Retina scaling, fullscreen, Spaces, menu-bar auto-hide, and 120 Hz operation. Verify disabling animation-heavy features stops their redraw work.
 4. **Primary media and calendar.** Validate Spotify's local route and EventKit for Apple Calendar. Test permission denial/revocation, Spotify quitting, no active track, event changes, all-day events, time zones, and sleep/wake refresh.
-5. **Additional feature verification and adaptation.** Retain/adapt every accepted group: battery, connections, downloads/AirDrop, timers, lock-screen widgets/weather, statistics, clipboard history, broader media/visualizer/lyrics, color picker, Focus, and recording indicators. Test each on macOS 27 and both displays. Clearly record partial or unsupported behavior, repair/adapt where feasible, and surface material limitations instead of declaring the feature complete.
+5. **Additional feature verification and adaptation.** Build and verify the kept groups: battery, downloads/AirDrop, timers, statistics and clipboard history (connections, lock-screen widgets/weather, media extras, color picker, Focus and recording indicators were removed on November 12). Test each on macOS 27 and both displays. Clearly record partial or unsupported behavior, repair/adapt where feasible, and surface material limitations instead of declaring the feature complete.
 6. **Personal-use finish.** Appearance, hover settings, shortcuts, retention settings, keyboard accessibility, reduced motion, optional login startup, and a repeatable local build. Measure idle CPU/memory with different modules enabled, and document attachment compatibility, online providers, and cleanup limits.
 
-All accepted feature groups belong to the intended product. A first working build can arrive before every integration is verified; call its incomplete features out explicitly. These milestones sequence the work rather than narrowing the scope. Estimates should follow the source/build audit and screenshot experiment, especially because inherited lock-screen, hardware, and media integrations need validation on the user's current macOS version.
+All kept feature groups belong to the intended product. A first working build can arrive before every integration is verified; call its incomplete features out explicitly. These milestones sequence the work rather than narrowing the scope. Estimates should follow the source/build audit and screenshot experiment, especially because inherited lock-screen, hardware, and media integrations need validation on the user's current macOS version.
 
 ## Confirmed choices and remaining defaults
 
 1. Music: Spotify desktop.
 2. Placement: both displays, with one shared tray.
 3. Calendar: Apple Calendar, including synchronized Google or Outlook accounts.
-4. Scope: every additional feature group offered in the comparison is wanted.
+4. Scope: originally every additional feature group; narrowed on November 12 to battery, timers, statistics, clipboard history and downloads/AirDrop.
 5. Reuse: personal local source fork/adaptation is acceptable; no distribution is planned.
 6. Face unlock: deferred for later; no current research or implementation. Future target remains face alone, fully hands-free from sleep.
 

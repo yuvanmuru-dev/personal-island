@@ -3,16 +3,9 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var coordinator: IslandCoordinator
 
+    /// Kept features that are not built yet.
     private let plannedFeatures: [(symbol: String, title: String)] = [
-        ("camera.viewfinder", "Screenshots and file shelf"),
-        ("music.note", "Spotify and other players"),
-        ("calendar", "Calendar"),
-        ("wifi", "Bluetooth, Wi-Fi, VPN and hotspot"),
-        ("arrow.down.circle", "Downloads and AirDrop"),
-        ("lock.square", "Lock-screen widgets and weather"),
-        ("waveform", "Visualizer and lyrics"),
-        ("eyedropper", "Color picker"),
-        ("moon", "Focus and recording status")
+        ("arrow.down.circle", "Downloads and AirDrop")
     ]
 
     private var spotifyExplanation: String {
@@ -169,7 +162,7 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Coming in later previews") {
+                Section("Coming next") {
                     ForEach(plannedFeatures, id: \.title) { feature in
                         HStack(spacing: 10) {
                             Image(systemName: feature.symbol)

@@ -4,7 +4,7 @@ Updated November 11, 2026. The product requirements are in [PLAN.md](PLAN.md); t
 
 ## Implementation decisions
 
-- Keep **all accepted utilities** in the product: screenshots/file shelf, Spotify and other players, calendar, battery, connections, transfers, timers, lock-screen widgets/weather, statistics, clipboard, visualizer/lyrics, color picker, Focus, and recording indicators.
+- Keep the **accepted utilities**: screenshots/file shelf, Spotify, calendar, battery, transfers (downloads/AirDrop), timers, statistics and clipboard. On November 12 the owner removed other players, connections, lock-screen widgets/weather, visualizer/lyrics, color picker, Focus and recording indicators.
 - Use one controlled app host with deliberate component ports. Atoll is the primary reviewed reference because of its breadth; its entire startup/dependency graph is not inherited. Port individual DynamicNotch components where useful, especially floating capsule/display behavior and connection activities. Do not merge two complete app coordinators/settings systems.
 - Build the new storage/export engine as a dependency-free local Swift package, **PersonalIslandCore**, so the most sensitive cleanup rules can be tested now and then integrated into the chosen app. This does not replace the full feature scope or imply the upstream apps have already been built.
 - Preserve pinned audit snapshots. Work in the separate PersonalIslandApp source tree; retain licenses/notices and record copied files and upstream commits. Obtain complete matching upstream assets and dependency/helper source before later ports that require them.
@@ -118,23 +118,23 @@ Use EventKit for selected calendars already synchronized to Apple Calendar. Disp
 
 **Completion gate:** denial/revocation and stopped/empty sources are handled; changing a feature switch stops its work; event changes/time zones/all-day events/sleep-wake work; controls remain synchronized on both screens; sensitive text is hidden on the lock screen by default. No calendar-event writes or reminder-completion changes are needed for this agenda.
 
-## M4 — Complete every accepted utility group
+## M4 — Complete the accepted utility groups
 
-First run early compatibility checks for the highest-uncertainty pieces: actual lock-screen windowing, a rebuilt broader-media adapter, M5 GPU counters, Focus detection, and AirDrop/download observation. Use capability results to guide adaptation without silently dropping requested features.
+Rows marked removed were dropped by the owner on November 12 and are kept only as a record. The remaining uncertainty is AirDrop/download observation.
 
 | Group | Implementation work | Acceptance evidence |
 | --- | --- | --- |
 | Battery/charging | Adapt local power observers and alert routing. | Correct transitions; one alert across two presenters. |
-| Connections | Bluetooth/Wi-Fi/VPN/hotspot observation; separate online VPN-country lookup. | Connect/disconnect and unavailable-state tests; online requests stop when disabled. |
+| Connections (removed) | Bluetooth/Wi-Fi/VPN/hotspot observation; separate online VPN-country lookup. | — |
 | Downloads/AirDrop | Adapt bounded observation and explicit system sharing. | Real progress/completion/cancel events; no unsolicited transfer. |
 | Timers | Own countdown model; distinguish system Clock observation. | Pause/resume, sleep/wake, cancel and chosen restart behavior. |
-| Lock-screen widgets/weather | Port presentation after platform checks; per-widget privacy and selected-city weather. | Real locked-session checks, hidden private data, configured destinations and manual recovery. No unlock/password feature. |
+| Lock-screen widgets/weather (removed) | Port presentation after platform checks; per-widget privacy and selected-city weather. | — |
 | System statistics | Shared CPU/GPU/RAM/network/disk collectors. | Values validated against system tools where available; hidden/disabled sampling stops. |
 | Clipboard history | Opt-in observation, session retention, exclusions, byte budgets and safe image export. | Pause/clear/expiry; sensitive markers respected; original data not leaked into diagnostics; image drags work without persistent storage. |
-| Media extras | Tested additional-player adapters, lyrics, decorative and real-audio visualization modes. | Player compatibility list; lyrics request transparency; audio taps/animation stop when unused. |
-| Other utilities | Color picker, Focus status, recording indicators and scoped explicit actions. | Correct local state; denied-permission behavior; no broad process termination as a default action. |
+| Media extras (removed) | Tested additional-player adapters, lyrics, decorative and real-audio visualization modes. | — |
+| Other utilities (removed) | Color picker, Focus status, recording indicators and scoped explicit actions. | — |
 
-M4 can run in parallel lanes after shared interfaces stabilize: (A) collectors/transfers/timers, (B) media/online metadata, (C) lock-screen/privacy/clipboard/statistics. Shared coordinator, storage and policy changes require integration review rather than competing implementations.
+Shared coordinator, storage and policy changes require integration review rather than competing implementations.
 
 ## M5 — Personal-use qualification
 
@@ -145,11 +145,11 @@ M4 can run in parallel lanes after shared interfaces stabilize: (A) collectors/t
 - Add optional login startup only when enabled. Use a stable build identity and document how privacy permissions behave across rebuilds.
 - Produce a local `.app`, repeatable build instructions, dependency/source receipt and a feature-by-feature status matrix. Keep every incomplete or unavailable integration explicit.
 
-Full completion requires M5 and resolution of every accepted feature row. A passing core test or successful app build alone is insufficient.
+Full completion requires M5 and resolution of every kept feature row. A passing core test or successful app build alone is insufficient.
 
 ## Activation defaults and source control
 
-All accepted features remain available in the design, with independent switches. Initial startup has no upstream updater, extension server, AI/terminal/usage-dashboard integration, LocalSend discovery, face unlock, automatic clipboard collection, private lock-screen previews, or login item. Online lookups require configuration. Clipboard becomes session-only when enabled. Normal battery/status/timer functionality can operate locally.
+All kept features have independent switches. Initial startup has no upstream updater, extension server, AI/terminal/usage-dashboard integration, LocalSend discovery, face unlock, automatic clipboard collection, private lock-screen previews, or login item. Online lookups require configuration. Clipboard becomes session-only when enabled. Normal battery/status/timer functionality can operate locally.
 
 Version control is in the `yuvanmuru-dev/personal-island` repository, which the owner made public; personal details stay out of commits (see AGENTS.md). Keep hardening changes in reviewable commits, retain upstream notices and record source copies in a provenance manifest. Reference archives, personal content, machine-specific evidence and build outputs stay local. Public publishing, external messaging and app distribution are outside the current scope.
 

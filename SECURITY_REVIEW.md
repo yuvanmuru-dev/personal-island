@@ -143,7 +143,7 @@ No CPU, battery, memory, or network reduction has been measured. These are sourc
 
 ## Recommended implementation gates
 
-1. Keep all accepted utilities in the product scope. Choose one main source base after a build/dependency audit; Atoll remains the breadth candidate, with DynamicNotch components available for display behavior and missing features.
+1. Keep the accepted utilities in the product scope (narrowed by the owner on November 12; see PLAN.md). Choose one main source base after a build/dependency audit; Atoll remains the breadth candidate, with DynamicNotch components available for display behavior and missing features.
 2. Before personal use, fix/remove the extension file interface, remove the inherited camera/password-unlock bridge, eliminate unsafe orphan deletion, replace screenshot lifetime rules, and remove or patch the updater. Repair necessary secret storage and remove sensitive logs. Face-only unlock is deferred at the user's request and is not part of the current implementation scope.
 3. Keep weather, lyrics, artwork, and VPN location lookup separately configurable. Display the destination and data sent. Keep clipboard history and lock-screen details under explicit retention/privacy settings. Omit unrequested AI, terminal, credential-usage dashboards, and third-party extension hosting.
 4. Rebuild or separately verify embedded helpers and inspect effective signed permissions. Preserve hardened runtime; avoid global cleartext/TLS exceptions. A source fork is not proof that every included binary was built from reviewed source.

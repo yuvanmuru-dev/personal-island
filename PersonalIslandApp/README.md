@@ -3,8 +3,8 @@
 This is the first graphical integration target. It uses an explicit set of app
 sources, the local PersonalIslandCore source module, and Apple frameworks. It
 does not compile the entire upstream Atoll application or resolve its packages.
-All accepted utilities remain in the implementation roadmap; this initial host
-does not claim they are connected or working yet. Face unlock is deferred.
+Downloads/AirDrop progress is the remaining planned utility (others were removed
+from scope by the owner); this host does not claim it works yet. Face unlock is deferred.
 
 The target includes the reviewed Atoll notch shape and adapted presentation
 ideas with their attribution. The upstream license and notices are preserved in

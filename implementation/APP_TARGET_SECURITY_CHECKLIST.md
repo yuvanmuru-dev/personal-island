@@ -72,7 +72,7 @@ Use inspection tools against the exact built artifact and attach their results t
 - [ ] Verify feature disable stops timers, requests, observers, log streams, subprocesses and audio taps. Two display presenters must share collectors and one shelf.
 - [ ] Test permission denial/revocation and unavailable private integrations. Do not substitute invented zero values or simulated success.
 - [ ] Run real screenshot/attachment checks later with synthetic images. Destination apps control staging/upload timing and their copies; no messages to people are sent as tests.
-- [ ] Keep all accepted feature rows in the status matrix. A controlled host preview does not establish lock-screen, broader media, transfer, statistics or other unfinished support.
+- [ ] Keep every kept feature row in the status matrix (removed groups are recorded as removed by the owner). A controlled host preview does not establish transfer or other unfinished support.
 
 ## Receipt boundary
 
