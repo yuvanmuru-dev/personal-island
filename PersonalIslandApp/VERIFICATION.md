@@ -6,7 +6,13 @@ Subsequent user report and three supplied screenshots establish the compact isla
 
 This is the M1 integration foundation, not the finished utility. All accepted feature groups remain in the plan; face unlock stays deferred.
 
-## Menu-bar clearance update — November 12, 2026
+## Notch placement update — November 12, 2026
+
+Version 0.1.3 (4) passes 139 automated tests and the Release bundle checks. The 0.1.2 below-menu placement covered application content, so it was replaced. The compact notched window is now the camera-housing rectangle (public `auxiliaryTopLeftArea`/`auxiliaryTopRightArea` and `safeAreaInsets.top`), flush with the top edge, with no visible content. Non-notched displays use a pill inset inside the menu-bar center. Only the user-opened expanded shelf crosses the menu row. Housing widths above 320pt or malformed metadata fall back to 180pt; housing height is bounded to 64pt.
+
+The panel level is `mainMenu + 3`, so an open shelf draws over status items while opened menus still appear above it. `ignoresMouseEvents` is explicitly false so the transparent notch target receives events. After quitting/reopening 0.1.3, the user reported that it works on the MacBook built-in display. This is a user report, not an instrumented measurement. The Dell pill remains untested because the Dell is unavailable.
+
+## Menu-bar clearance update — November 12, 2026 (superseded by 0.1.3)
 
 Version 0.1.2 (3) passes 143 automated tests and the Release bundle checks. Both complete window states now stay below the protected menu/notch band; moving only content would leave an invisible click-interception rectangle. The band is the maximum of the screen safe-area top, the current visible-frame top inset and the public status-bar thickness, clamped to the screen. The latter remains reserved for auto-hidden menus. [Apple visible-frame documentation](https://developer.apple.com/documentation/appkit/nsscreen/visibleframe), [Apple status-bar thickness](https://developer.apple.com/documentation/appkit/nsstatusbar/thickness).
 
@@ -26,7 +32,7 @@ Quit the existing preview from its menu-bar icon, reopen the built app, enable E
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.1.2 (3); initial preview was 0.1.0 (1) |
+| App identity | `dev.personal.PersonalIsland`, version 0.1.3 (4); initial preview was 0.1.0 (1) |
 | App sources | Eight explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |

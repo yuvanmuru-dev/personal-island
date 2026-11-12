@@ -31,7 +31,7 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 12, 2026, Xcode 27.2 / Swift 6.4.2: **143 tests passed, zero failed** (33 storage, 47 presentation, 63 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **139 tests passed, zero failed** (33 storage, 43 presentation, 63 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
@@ -40,14 +40,14 @@ Measured production line coverage from that run:
 | Models.swift | 66/68 (97.1%) |
 | OwnedExportDirectory.swift | 196/208 (94.2%) |
 | ShelfStore.swift | 159/159 (100%) |
-| IslandGeometry.swift | 101/101 (100%) |
+| IslandGeometry.swift | 102/102 (100%) |
 | IslandPresentation.swift | 107/107 (100%) |
 
 These are line measurements for the tested core/presentation sources, not a claim that every branch, UI interaction or planned integration is tested. The new layout tests caught and fixed a tiny-display menu-bar overlap. Deterministic hover race tests are complemented by one bounded production-timer smoke test that awaits actual open/close callbacks without elapsed-time assertions.
 
 Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
 
-Ten menu-clearance regressions now check the whole compact and expanded window rectangles against the reserved system menu band, including hidden menus, menu-height precedence, different logical display sizes, Docks, invalid metadata and fully consumed screen space. These establish the pure geometry contract; actual system-menu drawing/click access still requires a running-app check.
+Version 0.1.3 replaced the below-menu-band geometry tests (which encoded a placement that covered app content) with notch-placement tests. The compact notched window must equal the camera housing and not intersect either menu/status region; expansion keeps the top anchor and contains the compact window; the external pill stays within the menu row; invalid housing metadata, implausible safe areas, invalid menu heights and invalid frames stay bounded. The presentation suite therefore went from 47 to 43 test functions. These establish the pure geometry contract; actual hover/click delivery in the housing and visible artifacts still require a running-app check.
 
 ## GitHub checks
 

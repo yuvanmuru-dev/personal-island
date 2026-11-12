@@ -12,7 +12,7 @@ Updated November 12, 2026.
 | M3 Spotify/Calendar | Not started | No permissions requested or personal accounts accessed. |
 | M4 all additional utilities | Planned | Every accepted feature group remains in scope. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 143 automated tests pass locally: 33 storage, 47 presentation and 63 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 139 automated tests pass locally: 33 storage, 43 presentation and 63 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.
@@ -23,7 +23,13 @@ The built host has a menu-bar entry, Settings/Quit, two-display presentation cod
 
 [App build and bundle inspection](PersonalIslandApp/VERIFICATION.md), [exact artifact receipt](implementation/APP_BUILD_RECEIPT.json), [source provenance](implementation/APP_SOURCE_PROVENANCE.json).
 
-## Menu-bar clearance update — November 12
+## Notch placement update — November 12
+
+Version 0.1.3 (4) replaces the 0.1.2 below-menu-bar placement, which put the island over application content (user report and screenshot). It rebuilds and passes all 139 automated tests plus Release bundle/signature checks. On a notched display the compact window is now exactly the camera-housing rectangle from the public auxiliary-area and safe-area metadata, flush with the top edge. macOS places no menus or status items there, so the compact island cannot cover menu-bar icons or apps. It draws nothing visible and serves only as the hover/click target. The 0.1.0 overlap came from 36pt wings on each side of the housing; there are none now. Non-notched displays get an 84pt pill inset inside the center of the menu bar. The expanded shelf grows down from the top and may cover the menu row only while open; it closes on pointer exit (hover-opened) or by click/close button/Escape. The panel level is above status items, it explicitly receives mouse events over its transparent notch target, and pointer reconciliation includes the top display edge.
+
+Geometry tests were replaced: the compact window equals the housing and does not intersect either menu region; expansion keeps the top anchor and contains the compact window; the pill stays within the menu row; metadata fallbacks and invalid frames stay bounded. After quitting/reopening 0.1.3, the user reported that it works on the MacBook built-in display. This is a user report covering the notch placement and interaction, not an instrumented measurement. Dell pill placement remains untested because the Dell is unavailable.
+
+## Menu-bar clearance update — November 12 (superseded by 0.1.3)
 
 Version 0.1.2 (3) rebuilds and passes all 143 automated tests plus Release bundle/signature checks. The user reported menu/Control Center items being covered by the compact island. Both compact and expanded interactive window rectangles now sit below the entire protected menu/notch band. The band conservatively uses the largest public safe-area inset, visible-frame top inset and status-bar thickness; it remains reserved when menus auto-hide. The MacBook body touches the bottom of that band, while a non-notched display keeps a small floating gap.
 

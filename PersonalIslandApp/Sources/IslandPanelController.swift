@@ -128,7 +128,6 @@ final class IslandPanelController {
     private static func layout(for screen: NSScreen) -> IslandGeometry.Layout {
         IslandGeometry.layout(for: IslandGeometry.Display(
             frame: screen.frame,
-            visibleFrame: screen.visibleFrame,
             safeAreaTop: screen.safeAreaInsets.top,
             auxiliaryTopLeft: screen.auxiliaryTopLeftArea,
             auxiliaryTopRight: screen.auxiliaryTopRightArea,
@@ -192,7 +191,14 @@ private final class IslandTrackingHostingView: NSHostingView<IslandView> {
         // reconciliation does not wait for SwiftUI's content transition/layout
         // after a resize. Both values are AppKit screen points, including
         // displays with negative origins.
-        onPointerReconciliation?(window.frame.contains(NSEvent.mouseLocation))
+        // The compact notch window touches the top of the display, where the
+        // pointer can rest exactly on the frame's maxY. CGRect.contains
+        // excludes that edge, so include it explicitly.
+        let frame = window.frame
+        let point = NSEvent.mouseLocation
+        let inside = frame.contains(point)
+            || (point.y == frame.maxY && point.x >= frame.minX && point.x < frame.maxX)
+        onPointerReconciliation?(inside)
     }
 }
 
@@ -214,7 +220,12 @@ private final class IslandPanel: NSPanel {
         isMovable = false
         isReleasedWhenClosed = false
         hasShadow = false
-        level = .statusBar
+        // Above status items, so an expanded island draws over the menu bar
+        // while open. Menus that are opened still appear above it.
+        level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 3)
+        // The compact notch content is visually empty. Without this, the window
+        // server could pass clicks through its transparent pixels.
+        ignoresMouseEvents = false
         collectionBehavior = [.fullScreenAuxiliary, .canJoinAllSpaces, .ignoresCycle, .stationary]
         acceptsMouseMovedEvents = true
         setAccessibilityLabel("Personal Island")

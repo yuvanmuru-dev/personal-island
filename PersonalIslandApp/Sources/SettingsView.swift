@@ -59,7 +59,7 @@ struct SettingsView: View {
                                     .frame(width: 20)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(display.name)
-                                    Text(display.hasNotch ? "Below the notch" : "Floating below the menu bar")
+                                    Text(display.hasNotch ? "In the notch" : "Pill in the menu bar")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }

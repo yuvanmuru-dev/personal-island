@@ -16,7 +16,7 @@ This tests the actual storage and presentation logic, measures source coverage, 
 
 ## Current status
 
-The 0.1.2 preview keeps the island below the system menu row, retains the hover-response fix, and passes 143 local automated tests plus the Release build/bundle checks. Quit/reopen the preview to check that menu icons remain visible and clickable; enable Expand on hover again to test the relocated island. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
+The 0.1.3 preview sizes the compact island to the MacBook camera housing (a pill in the menu-bar center on external displays), so it no longer covers menu-bar icons or app content, and passes 139 local automated tests plus the Release build/bundle checks. The user confirmed the notch placement works on the MacBook; the Dell pill is untested. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
 
 The controlled graphical app host builds and passes bundle/signature inspection. It uses explicit presentation sources and the local core, without the upstream package/helper/startup graph. Expanded storage, presentation and build-policy tests are included. The user has launched the preview and confirmed a visible island; both-screen placement and interactions remain unchecked. Capture, native dragging and the accepted integrations are still to be implemented.
 

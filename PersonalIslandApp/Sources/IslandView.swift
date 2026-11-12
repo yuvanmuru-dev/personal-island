@@ -17,13 +17,20 @@ struct IslandView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
             if presentation.layout.hasNotch {
-                NotchShape(topCornerRadius: 6, bottomCornerRadius: presentation.isExpanded ? 22 : 14)
-                    .fill(.black)
+                if presentation.isExpanded {
+                    NotchShape(topCornerRadius: 6, bottomCornerRadius: 22)
+                        .fill(.black)
+                } else {
+                    // The compact window is the camera housing itself. Paint
+                    // nothing visible: square black corners would show beside
+                    // the housing's rounded bottom corners.
+                    Rectangle().fill(.black.opacity(0.01))
+                }
             } else {
-                RoundedRectangle(cornerRadius: presentation.isExpanded ? 24 : 17, style: .continuous)
+                RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous)
                     .fill(.black)
                     .overlay {
-                        RoundedRectangle(cornerRadius: presentation.isExpanded ? 24 : 17, style: .continuous)
+                        RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous)
                             .strokeBorder(.white.opacity(0.13), lineWidth: 1)
                     }
             }
@@ -34,25 +41,30 @@ struct IslandView: View {
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.12), value: presentation.isExpanded)
     }
 
+    private var backgroundCornerRadius: CGFloat {
+        presentation.isExpanded ? 24 : presentation.layout.compactSize.height / 2
+    }
+
     private var compactContent: some View {
         Button {
             presentation.toggle()
         } label: {
-            HStack(spacing: 0) {
-                Image(systemName: "tray")
-                    .font(.system(size: 13, weight: .medium))
-                    .frame(width: 28)
-                Text("Shelf")
-                    .font(.system(size: 12, weight: .medium))
-                    .padding(.leading, 5)
-                Spacer(minLength: 10)
-                Text("\(coordinator.shelfItemCount)")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.65))
-                    .frame(width: 24)
+            Group {
+                if presentation.layout.hasNotch {
+                    // Under the camera housing there are no pixels to show
+                    // content; the compact island is only a hover/click target.
+                    Color.clear
+                } else {
+                    HStack(spacing: 6) {
+                        Image(systemName: "tray")
+                            .font(.system(size: 11, weight: .medium))
+                        Text("\(coordinator.shelfItemCount)")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white.opacity(0.65))
+                    }
+                }
             }
-            .padding(.horizontal, 10)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
         }
@@ -102,7 +114,7 @@ struct IslandView: View {
             }
         }
         .padding(.horizontal, 26)
-        .padding(.top, 12)
+        .padding(.top, presentation.layout.topContentInset + 12)
         .padding(.bottom, 18)
     }
 

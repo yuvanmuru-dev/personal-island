@@ -14,7 +14,12 @@ The first Release build and bundle checks pass with Xcode 27.2. See
 [VERIFICATION.md](VERIFICATION.md)
 for the exact checkpoint and untested behavior. The user subsequently opened the preview and confirmed a visible island; both-screen placement and interactions remain unchecked.
 
-## Menu-bar clearance update
+## Notch placement update
+
+Version 0.1.3 makes the compact island exactly the size of the MacBook camera housing, at the top of the screen. It shows nothing there and never covers menus, menu-bar icons or app content; hover or click it to open the shelf. External displays show a small pill in the middle of the menu bar. The open shelf may cover the menu bar until it closes. The user confirmed it works on the MacBook; the external-display pill is still untested.
+
+## Menu-bar clearance update (superseded by 0.1.3)
+
 
 Version 0.1.2 keeps the complete compact and expanded window below the system menu/notch band, so its graphics and mouse target cannot extend into the reserved menu row. The body joins the notch below that row on the MacBook; non-notched displays keep a small gap. Controls no longer include a camera spacer or repeated notch padding. The native tracking and shorter hover waits from 0.1.1 are retained. Quit/reopen the app to retest actual menu-icon visibility and click access.
 

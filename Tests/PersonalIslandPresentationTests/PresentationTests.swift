@@ -43,7 +43,6 @@ private final class ManualScheduler {
 private func testLayout() -> IslandGeometry.Layout {
     IslandGeometry.layout(for: IslandGeometry.Display(
         frame: CGRect(x: 0, y: 0, width: 1920, height: 1080),
-        visibleFrame: CGRect(x: 0, y: 0, width: 1920, height: 1056),
         safeAreaTop: 0, auxiliaryTopLeft: nil, auxiliaryTopRight: nil
     ))
 }
@@ -219,7 +218,6 @@ private func testLayout() -> IslandGeometry.Layout {
     model.onExpansionChange = { changes += 1 }
     let replacement = IslandGeometry.layout(for: IslandGeometry.Display(
         frame: CGRect(x: -1512, y: 982, width: 1512, height: 982),
-        visibleFrame: CGRect(x: -1512, y: 982, width: 1512, height: 945),
         safeAreaTop: 37, auxiliaryTopLeft: nil, auxiliaryTopRight: nil
     ))
     model.update(layout: replacement)

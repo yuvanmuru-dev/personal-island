@@ -21,8 +21,10 @@
  * b8d86a2d8118d905ffa3e2c912adc736683741bb,
  * DynamicIsland/sizing/matters.swift, getClosedNotchSize.
  * Adaptations: pure inputs, explicit per-display coordinates, no Defaults or
- * global managers; both presentations keep their entire window below the menu
- * band. Camera width is metadata, not reserved interactive space.
+ * global managers. On a notched display the compact window is exactly the
+ * camera housing, which macOS never fills with menus or status items. On other
+ * displays the compact window is a small pill centered inside the menu bar.
+ * Only the expanded state, opened by the user, extends over the menu bar.
  */
 
 import CoreGraphics
@@ -30,7 +32,6 @@ import CoreGraphics
 enum IslandGeometry {
     struct Display: Equatable {
         let frame: CGRect
-        let visibleFrame: CGRect
         let safeAreaTop: CGFloat
         let auxiliaryTopLeft: CGRect?
         let auxiliaryTopRight: CGRect?
@@ -40,9 +41,8 @@ enum IslandGeometry {
 
     struct Layout: Equatable {
         let hasNotch: Bool
-        let cameraHousingWidth: CGFloat
+        /// Height of the camera housing; expanded content starts below it.
         let topContentInset: CGFloat
-        let protectedTopInset: CGFloat
         let compactSize: CGSize
         let expandedSize: CGSize
         let displayFrame: CGRect
@@ -64,39 +64,57 @@ enum IslandGeometry {
         }
     }
 
+    /// Upper bound for a plausible camera-housing height in layout points.
+    static let maximumNotchHeight: CGFloat = 64
+    /// Fallback camera-housing width when public metadata is unusable.
+    static let fallbackNotchWidth: CGFloat = 180
+    /// Upper bound for a plausible camera-housing width in layout points.
+    static let maximumNotchWidth: CGFloat = 320
+    static let pillWidth: CGFloat = 84
+    static let pillMaximumHeight: CGFloat = 22
+    static let expandedWidth: CGFloat = 420
+    static let expandedContentHeight: CGFloat = 228
+
     static func layout(for display: Display) -> Layout {
         let frame = sanitizedFrame(display.frame)
         let maximumWidth = max(0, frame.width - min(24, frame.width / 2))
         let safeTop = positiveInset(display.safeAreaTop, limit: frame.height, fallback: 0)
-        let menuTop = positiveInset(display.menuBarHeight, limit: frame.height, fallback: 24)
-        let visibleTop = visibleTopInset(display.visibleFrame, inside: frame)
-        let protectedTopInset = max(max(safeTop, visibleTop), menuTop)
         let hasNotch = safeTop > 0
-        let cameraWidth = hasNotch ? cameraHousingWidth(for: display, inside: frame) : 0
 
-        // Protect the actual window rectangle, not just its painted controls.
-        // Even an auto-hidden menu bar keeps its explicit band reserved. If that
-        // band consumes a tiny/invalid display, there is no usable panel area.
-        let remainingHeight = max(0, frame.height - protectedTopInset)
-        let floatingMargin = hasNotch ? 0 : min(8, remainingHeight / 2)
-        let topEdge = min(frame.maxY, max(frame.minY, frame.maxY - protectedTopInset - floatingMargin))
-        let maximumHeight = max(0, topEdge - frame.minY)
+        if hasNotch {
+            // The window occupies only the physical camera housing, flush with
+            // the top edge. Nothing is drawn there by macOS, so it can never
+            // cover a menu title or status item.
+            let notchHeight = min(safeTop, maximumNotchHeight)
+            let notchWidth = min(maximumWidth, cameraHousingWidth(for: display, inside: frame))
+            let expandedWidth = min(maximumWidth, max(Self.expandedWidth, notchWidth))
+            return Layout(
+                hasNotch: true,
+                topContentInset: notchHeight,
+                compactSize: CGSize(width: notchWidth, height: notchHeight),
+                expandedSize: CGSize(
+                    width: expandedWidth,
+                    height: min(frame.height, expandedContentHeight + notchHeight)
+                ),
+                displayFrame: frame,
+                topEdge: frame.maxY
+            )
+        }
 
-        let compact = CGSize(
-            width: min(maximumWidth, max(164, min(240, cameraWidth))),
-            height: min(34, maximumHeight)
-        )
-        let expanded = CGSize(
-            width: min(420, maximumWidth),
-            height: min(228, maximumHeight)
-        )
+        // Without a notch, keep the compact pill inside the menu bar row with
+        // a small inset so it reads as a pill rather than a bar segment.
+        let menuTop = positiveInset(display.menuBarHeight, limit: frame.height, fallback: 24)
+        let inset = min(3, menuTop / 4)
+        let topEdge = frame.maxY - inset
+        let pillHeight = min(pillMaximumHeight, max(0, menuTop - 2 * inset))
         return Layout(
-            hasNotch: hasNotch,
-            cameraHousingWidth: cameraWidth,
+            hasNotch: false,
             topContentInset: 0,
-            protectedTopInset: protectedTopInset,
-            compactSize: compact,
-            expandedSize: expanded,
+            compactSize: CGSize(width: min(pillWidth, maximumWidth), height: pillHeight),
+            expandedSize: CGSize(
+                width: min(Self.expandedWidth, maximumWidth),
+                height: min(expandedContentHeight, max(0, topEdge - frame.minY))
+            ),
             displayFrame: frame,
             topEdge: topEdge
         )
@@ -125,14 +143,6 @@ enum IslandGeometry {
         return frame
     }
 
-    private static func visibleTopInset(_ visible: CGRect, inside frame: CGRect) -> CGFloat {
-        guard isFinitePositiveRect(visible) else { return 0 }
-        // Compare before subtracting to avoid overflow in malformed metadata.
-        if visible.maxY >= frame.maxY { return 0 }
-        if visible.maxY <= frame.minY { return frame.height }
-        return frame.maxY - visible.maxY
-    }
-
     private static func cameraHousingWidth(for display: Display, inside frame: CGRect) -> CGFloat {
         if let left = display.auxiliaryTopLeft, let right = display.auxiliaryTopRight,
            isFinitePositiveRect(left), isFinitePositiveRect(right),
@@ -140,9 +150,10 @@ enum IslandGeometry {
            left.height <= frame.height, right.height <= frame.height {
             let occupiedWidth = left.width + right.width
             if occupiedWidth.isFinite, occupiedWidth < frame.width {
-                return frame.width - occupiedWidth
+                let width = frame.width - occupiedWidth
+                if width <= maximumNotchWidth { return width }
             }
         }
-        return min(180, frame.width)
+        return min(fallbackNotchWidth, frame.width)
     }
 }
