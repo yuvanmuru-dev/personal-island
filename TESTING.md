@@ -31,7 +31,7 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 12, 2026, Xcode 27.2 / Swift 6.4.2: **188 tests passed, zero failed** (38 storage, 78 presentation, 72 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **222 tests passed, zero failed** (38 storage, 109 presentation, 75 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
@@ -44,12 +44,16 @@ Measured production line coverage from that run:
 | IslandPresentation.swift | 153/153 (100%) |
 | CaptureGeometry.swift | 44/44 (100%) |
 | WindowPicker.swift | 58/58 (100%) |
+| SpotifyPlayback.swift | 167/168 (99.4%) |
+| IslandSettings.swift | 33/43 (76.7%) — the uncovered lines are the real `UserDefaults` hookup, deliberately not exercised so tests never write the user's preferences |
 | CaptureFlow.swift | 30/31 (96.8%) |
 | ShelfDragFlow.swift | 46/46 (100%) |
 
 These are line measurements for the tested core/presentation sources, not a claim that every branch, UI interaction or planned integration is tested. The new layout tests caught and fixed a tiny-display menu-bar overlap. Deterministic hover race tests are complemented by one bounded production-timer smoke test that awaits actual open/close callbacks without elapsed-time assertions.
 
 Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
+
+Version 0.5.0 (M3, Spotify) adds 31 presentation regressions. Five cover command handling after the user saw a glitchy play/pause: the change is shown before sending and confirmed only after a settle delay, an older confirmation cannot overwrite a newer command, seeks move the position at once and are clamped (non-finite targets ignored), seeking without a known track length sends nothing, and an unexpected send failure re-reads the real state. Three test the deadline used for blocking platform calls, added after the Automation permission query blocked indefinitely on the user's Mac: a call that never returns falls back at the deadline, a prompt answer is used, and a late answer is discarded without double delivery. Two more ensure only one permission request is in flight (repeated presses while macOS has not answered send nothing further) and that stopping during an open request allows a fresh start. The rest and updates the build-policy suite. Four settings tests cover defaults, round trips, damaged/oversized values and per-field fallback for missing, wrong-typed and unknown fields. Seven Spotify parsing tests cover playing/paused/stopped/unknown states, missing identity versus degradable fields, invalid durations and positions with clamping, control-character stripping and length bounds, position extrapolation (including a backwards clock), and time formatting. Ten lifecycle tests use an injected fake platform: start observes once and stop removes observation, clears the track and makes later refreshes/commands no-ops; a reply arriving after stop is ignored; Spotify not running is reported without permission prompts, Apple Events or launching; permission states are reported and commands ask before sending; notifications update and quit clears the track; track info shows even when control is denied; play/pause flips immediately keeping the position; scripting failures map to statuses; and a launch or notification recovers. The build-policy suite now requires exactly the reviewed Apple Events entitlement and permission text (missing, extra, false, integer or string values and unreviewed usage descriptions are rejected), and the local re-sign passes the entitlements file. The Apple Event, notification and UI adapters are compiled and reviewed but not executed: tests never contact Spotify or request Automation permission.
 
 Version 0.4.0 adds five capture regressions: window-list parsing keeps front-to-back order and skips malformed entries (missing bounds, invalid numbers, zero size, non-finite values, unexpected shapes); the frontmost ordinary window under the pointer wins over menu-bar-layer, own-process, invisible and tiny windows; windows on negative-coordinate displays can be picked; a selected window flows through capture and admission like a region; and Core Graphics/AppKit rectangle and point conversions round-trip. The overlay key handling and ScreenCaptureKit window capture are compiled and reviewed but not executed by tests.
 

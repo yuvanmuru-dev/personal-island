@@ -27,6 +27,7 @@ final class IslandCoordinator: ObservableObject {
     @Published var expandOnHover = false {
         didSet {
             guard expandOnHover != oldValue else { return }
+            saveSettings()
             for presenter in presenters.values {
                 presenter.setHoverEnabled(expandOnHover)
             }
@@ -46,13 +47,50 @@ final class IslandCoordinator: ObservableObject {
     @Published var captureShortcutEnabled = true {
         didSet {
             guard captureShortcutEnabled != oldValue else { return }
+            saveSettings()
             updateCaptureShortcut()
         }
     }
 
     let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
+    enum ExpandedTab: Equatable { case media, shelf }
+    /// Which section the open island shows; shared by both displays.
+    @Published var expandedTab: ExpandedTab = .shelf
+    /// Turning this off stops all Spotify observation and Apple Events.
+    @Published var spotifyEnabled = false {
+        didSet {
+            guard spotifyEnabled != oldValue else { return }
+            saveSettings()
+            updateSpotify(askPermission: spotifyEnabled)
+        }
+    }
+    @Published private(set) var spotifyStatus: SpotifyStatus = .off
+    @Published private(set) var nowPlaying: NowPlaying?
+
     private var disabledDisplays: Set<CGDirectDisplayID> = []
+    private let settingsStore: IslandSettingsStore
+
+    init(settingsStore: IslandSettingsStore = .userDefaults()) {
+        self.settingsStore = settingsStore
+        let settings = settingsStore.read()
+        islandsVisible = settings.islandsVisible
+        expandOnHover = settings.expandOnHover
+        captureShortcutEnabled = settings.captureShortcutEnabled
+        disabledDisplays = Set(settings.disabledDisplays)
+        spotifyEnabled = settings.spotifyEnabled
+        expandedTab = settings.spotifyEnabled ? .media : .shelf
+    }
+
+    private func saveSettings() {
+        var settings = IslandSettings()
+        settings.islandsVisible = islandsVisible
+        settings.expandOnHover = expandOnHover
+        settings.captureShortcutEnabled = captureShortcutEnabled
+        settings.disabledDisplays = disabledDisplays.sorted()
+        settings.spotifyEnabled = spotifyEnabled
+        settingsStore.write(settings)
+    }
     private var presenters: [CGDirectDisplayID: IslandPanelController] = [:]
     private var screenObserver: (any NSObjectProtocol)?
     private var settingsWindowController: NSWindowController?
@@ -85,6 +123,14 @@ final class IslandCoordinator: ObservableObject {
         }
     ))
     private var hiddenForCapture = false
+    private lazy var spotify: SpotifyController = {
+        let controller = SpotifyController(environment: SpotifyAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            self?.spotifyStatus = controller.status
+            self?.nowPlaying = controller.nowPlaying
+        }
+        return controller
+    }()
     private lazy var dragFlow = makeDragFlow()
 
     private func makeDragFlow() -> ShelfDragFlow<ShelfItemID, PersonalIslandCore.DragSession> {
@@ -127,6 +173,7 @@ final class IslandCoordinator: ObservableObject {
         refreshDisplays()
         updateCaptureShortcut()
         startExportCleanup()
+        updateSpotify(askPermission: false)
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -142,6 +189,7 @@ final class IslandCoordinator: ObservableObject {
             self.screenObserver = nil
         }
         isRunning = false
+        spotify.stop()
         captureFlow.cancel()
         updateCaptureShortcut()
         cleanupTimer?.invalidate()
@@ -153,6 +201,7 @@ final class IslandCoordinator: ObservableObject {
 
     func setIslandsVisible(_ visible: Bool) {
         islandsVisible = visible
+        saveSettings()
         refreshDisplays()
     }
 
@@ -162,6 +211,7 @@ final class IslandCoordinator: ObservableObject {
         } else {
             disabledDisplays.insert(id)
         }
+        saveSettings()
         refreshDisplays()
     }
 
@@ -241,6 +291,7 @@ final class IslandCoordinator: ObservableObject {
     private func handle(_ outcome: CaptureFlow.Outcome) {
         switch outcome {
         case .captured:
+            expandedTab = .shelf
             peekShelfOnPointerDisplay()
         case .cancelled, .busy:
             break
@@ -282,6 +333,45 @@ final class IslandCoordinator: ObservableObject {
             captureShortcut.unregister()
             captureShortcutRegistered = false
         }
+    }
+
+    // MARK: - Spotify
+
+    private func updateSpotify(askPermission: Bool) {
+        if isRunning && spotifyEnabled {
+            expandedTab = .media
+            Task { @MainActor [weak self] in await self?.spotify.start(askPermission: askPermission) }
+        } else {
+            spotify.stop()
+            expandedTab = .shelf
+        }
+    }
+
+    func spotifyCommand(_ command: SpotifyCommand) {
+        Task { @MainActor [weak self] in await self?.spotify.perform(command) }
+    }
+
+    /// Shows the system Automation prompt if macOS has not asked yet.
+    func requestSpotifyPermission() {
+        Task { @MainActor [weak self] in await self?.spotify.refresh(askPermission: true) }
+    }
+
+    /// Explicit user action only; the feature itself never launches Spotify.
+    func openSpotify() {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: SpotifyPlayback.bundleIdentifier) else { return }
+        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+    }
+
+    func openAutomationSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    /// Re-reads the playback position when someone opens the island to look.
+    func islandDidExpand() {
+        prepareShelfIfNeeded()
+        guard spotify.isActive, expandedTab == .media else { return }
+        Task { @MainActor [weak self] in await self?.spotify.refresh() }
     }
 
     // MARK: - Shelf

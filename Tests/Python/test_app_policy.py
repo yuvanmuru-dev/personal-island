@@ -38,7 +38,12 @@ def valid_info():
         "CFBundleIdentifier": policy.BUNDLE_IDENTIFIER,
         "CFBundleExecutable": "PersonalIsland", "CFBundlePackageType": "APPL",
         "LSUIElement": True, "CFBundleVersion": "1",
+        "NSAppleEventsUsageDescription": policy.APPLE_EVENTS_USAGE,
     }
+
+
+ENTITLEMENTS = {"com.apple.security.automation.apple-events": True}
+ENTITLEMENT_BYTES = plistlib.dumps(ENTITLEMENTS)
 
 
 def bundle_entries():
@@ -78,6 +83,19 @@ class InfoPolicyTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(policy.PolicyError):
                 policy.validate_info_plist({**valid_info(), key: "untrusted value"})
 
+    def test_reviewed_permission_text_is_required_exactly(self):
+        info = valid_info()
+        del info["NSAppleEventsUsageDescription"]
+        for candidate in (info, {**info, "NSAppleEventsUsageDescription": ""},
+                          {**info, "NSAppleEventsUsageDescription": "Personal Island controls every app."}):
+            with self.subTest(candidate=candidate.get("NSAppleEventsUsageDescription")), self.assertRaises(policy.PolicyError):
+                policy.validate_info_plist(candidate)
+
+    def test_unreviewed_permission_explanations_are_rejected(self):
+        for key in ("NSContactsUsageDescription", "NSPhotoLibraryUsageDescription", "NSFutureThingUsageDescription"):
+            with self.subTest(key=key), self.assertRaises(policy.PolicyError):
+                policy.validate_info_plist({**valid_info(), key: "text"})
+
     def test_malformed_plist_shape_is_rejected(self):
         for value in ([], None, "plist", {1: "bad key"}):
             with self.subTest(value=value), self.assertRaises(policy.PolicyError):
@@ -85,24 +103,34 @@ class InfoPolicyTests(unittest.TestCase):
 
 
 class SignaturePolicyTests(unittest.TestCase):
-    def test_ad_hoc_hardened_release_accepts_empty_xml_binary_or_absent_entitlements(self):
-        for data in (plistlib.dumps({}), plistlib.dumps({}, fmt=plistlib.FMT_BINARY), b"", b"\n"):
+    def test_release_requires_exactly_the_reviewed_apple_events_entitlement(self):
+        for data in (plistlib.dumps(ENTITLEMENTS), plistlib.dumps(ENTITLEMENTS, fmt=plistlib.FMT_BINARY)):
             with self.subTest(data=data[:8]):
-                self.assertEqual(policy.validate_release_signature(SIGNATURE, data), {})
+                self.assertEqual(policy.validate_release_signature(SIGNATURE, data), ENTITLEMENTS)
 
-    def test_debug_or_privileged_entitlements_are_rejected_even_when_false(self):
+    def test_missing_entitlements_are_rejected(self):
+        # Re-signing without them would silently break Spotify control.
+        for data in (plistlib.dumps({}), b"", b"\n"):
+            with self.subTest(data=data[:8]), self.assertRaises(policy.PolicyError):
+                policy.validate_release_signature(SIGNATURE, data)
+
+    def test_debug_privileged_extra_or_mistyped_entitlements_are_rejected(self):
         for values in (
+            {**ENTITLEMENTS, "com.apple.security.get-task-allow": True},
+            {**ENTITLEMENTS, "com.apple.security.get-task-allow": False},
+            {**ENTITLEMENTS, "com.apple.security.cs.disable-library-validation": True},
+            {**ENTITLEMENTS, "com.apple.security.personal-information.calendars": True},
+            {"com.apple.security.automation.apple-events": False},
+            {"com.apple.security.automation.apple-events": 1},
+            {"com.apple.security.automation.apple-events": "YES"},
             {"com.apple.security.get-task-allow": True},
-            {"com.apple.security.get-task-allow": False},
-            {"com.apple.security.cs.disable-library-validation": True},
-            {"com.apple.security.automation.apple-events": True},
         ):
             with self.subTest(values=values), self.assertRaises(policy.PolicyError):
                 policy.validate_release_signature(SIGNATURE, plistlib.dumps(values))
 
     def test_no_hardened_runtime_fails(self):
         with self.assertRaisesRegex(policy.PolicyError, "hardened runtime"):
-            policy.validate_release_signature(SIGNATURE.replace("0x10002", "0x2"), b"")
+            policy.validate_release_signature(SIGNATURE.replace("0x10002", "0x2"), ENTITLEMENT_BYTES)
 
     def test_non_ad_hoc_or_contradictory_signature_fails(self):
         for output in (
@@ -111,7 +139,7 @@ class SignaturePolicyTests(unittest.TestCase):
             SIGNATURE + "\nSignature=adhoc",
         ):
             with self.subTest(output=output), self.assertRaises(policy.PolicyError):
-                policy.validate_release_signature(output, b"")
+                policy.validate_release_signature(output, ENTITLEMENT_BYTES)
 
     def test_local_identity_signature_passes_only_for_the_expected_authority(self):
         local = "\n".join([
@@ -120,7 +148,7 @@ class SignaturePolicyTests(unittest.TestCase):
             "Signature size=1650", "Authority=" + policy.LOCAL_SIGNING_IDENTITY,
             "Signed Time=Nov 12, 2026 at 03:10:00", "TeamIdentifier=not set",
         ])
-        self.assertEqual(policy.validate_release_signature(local, b"", policy.LOCAL_SIGNING_IDENTITY), {})
+        self.assertEqual(policy.validate_release_signature(local, ENTITLEMENT_BYTES, policy.LOCAL_SIGNING_IDENTITY), ENTITLEMENTS)
         for output, authority in (
             (local, None),  # an identity-signed build cannot pass as ad hoc
             (local, "Someone Else"),
@@ -132,18 +160,18 @@ class SignaturePolicyTests(unittest.TestCase):
             (SIGNATURE, policy.LOCAL_SIGNING_IDENTITY),  # ad hoc when an identity was used
         ):
             with self.subTest(output=output, authority=authority), self.assertRaises(policy.PolicyError):
-                policy.validate_release_signature(output, b"", authority)
+                policy.validate_release_signature(output, ENTITLEMENT_BYTES, authority)
 
     def test_ad_hoc_signature_with_an_authority_fails(self):
         with self.assertRaises(policy.PolicyError):
-            policy.validate_release_signature(SIGNATURE + "\nAuthority=Personal Island Local Signing", b"")
+            policy.validate_release_signature(SIGNATURE + "\nAuthority=Personal Island Local Signing", ENTITLEMENT_BYTES)
 
     def test_missing_duplicate_or_malformed_code_directory_fails(self):
         for output in ("", "tool error", SIGNATURE.replace("0x10002", "0xgarbage"),
                        SIGNATURE.replace("CodeDirectory", "NotCodeDirectory"),
                        SIGNATURE + "\nCodeDirectory flags=0x10002"):
             with self.subTest(output=output), self.assertRaises(policy.PolicyError):
-                policy.validate_release_signature(output, b"")
+                policy.validate_release_signature(output, ENTITLEMENT_BYTES)
 
     def test_malformed_or_non_dictionary_entitlement_payload_fails(self):
         for data in (b"malformed", b"<plist><dict>", plistlib.dumps([]), plistlib.dumps("wrong type"), "not bytes"):

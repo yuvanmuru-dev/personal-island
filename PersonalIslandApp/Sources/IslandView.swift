@@ -77,15 +77,20 @@ struct IslandView: View {
     private var expandedContent: some View {
         VStack(spacing: 0) {
             HStack(spacing: 9) {
-                Image(systemName: "tray.fill")
-                    .foregroundStyle(.white.opacity(0.72))
-                Text("Shelf")
-                    .font(.system(size: 14, weight: .semibold))
-                Text("\(coordinator.shelfItemCount)")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
+                if coordinator.spotifyEnabled {
+                    tabButton(.media, symbol: "music.note", title: "Media")
+                    tabButton(.shelf, symbol: "tray.fill", title: "Shelf", count: coordinator.shelfItemCount)
+                } else {
+                    Image(systemName: "tray.fill")
+                        .foregroundStyle(.white.opacity(0.72))
+                    Text("Shelf")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("\(coordinator.shelfItemCount)")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
-                if !coordinator.shelfItems.isEmpty {
+                if showsShelf && !coordinator.shelfItems.isEmpty {
                     headerButton("trash", label: "Clear shelf") { coordinator.clearShelf() }
                 }
                 headerButton("camera.viewfinder", label: "Capture (\(coordinator.captureShortcutName))") {
@@ -107,8 +112,14 @@ struct IslandView: View {
                 .help("Close shelf")
             }
 
-            shelfContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Group {
+                if showsShelf {
+                    shelfContent
+                } else {
+                    MediaContent(coordinator: coordinator)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if let message = coordinator.shelfMessage {
                 Text(message)
@@ -134,6 +145,38 @@ struct IslandView: View {
         .padding(.horizontal, 26)
         .padding(.top, presentation.layout.topContentInset + 12)
         .padding(.bottom, 18)
+    }
+
+    private var showsShelf: Bool {
+        !coordinator.spotifyEnabled || coordinator.expandedTab == .shelf
+    }
+
+    private func tabButton(_ tab: IslandCoordinator.ExpandedTab, symbol: String, title: String, count: Int? = nil) -> some View {
+        let selected = coordinator.expandedTab == tab
+        return Button {
+            coordinator.expandedTab = tab
+            if tab == .media { coordinator.islandDidExpand() }
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: symbol)
+                    .font(.system(size: 11, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                if let count {
+                    Text("\(count)")
+                        .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+            }
+            .padding(.horizontal, 10)
+            .frame(height: 26)
+            .foregroundStyle(.white.opacity(selected ? 0.95 : 0.5))
+            .background(.white.opacity(selected ? 0.12 : 0), in: Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     @ViewBuilder
@@ -276,5 +319,179 @@ private struct ShelfTile: View {
         .buttonStyle(.plain)
         .accessibilityLabel(label)
         .help(label)
+    }
+}
+
+/// Current Spotify track and controls. Shows why control is unavailable
+/// instead of failing silently, and never opens Spotify by itself.
+private struct MediaContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+
+    var body: some View {
+        VStack(spacing: 10) {
+            switch coordinator.spotifyStatus {
+            case .notRunning:
+                notice("Spotify isn't running", button: "Open Spotify") { coordinator.openSpotify() }
+            case .needsPermission where coordinator.nowPlaying == nil:
+                notice("Allow Personal Island to control Spotify", button: "Allow…") {
+                    coordinator.requestSpotifyPermission()
+                }
+            case .denied where coordinator.nowPlaying == nil:
+                notice("Spotify control is off in System Settings", button: "Open Settings") {
+                    coordinator.openAutomationSettings()
+                }
+            default:
+                if let track = coordinator.nowPlaying {
+                    trackView(track)
+                } else if coordinator.spotifyStatus == .unavailable {
+                    notice("Spotify didn't answer", button: "Try again") { coordinator.requestSpotifyPermission() }
+                } else {
+                    notice("Nothing playing in Spotify", button: nil) {}
+                }
+            }
+        }
+    }
+
+    private var canControl: Bool { coordinator.spotifyStatus == .ready }
+
+    @ViewBuilder
+    private func trackView(_ track: NowPlaying) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(track.title)
+                .font(.system(size: 14, weight: .semibold))
+                .lineLimit(1)
+            Text([track.artist, track.album].filter { !$0.isEmpty }.joined(separator: " — "))
+                .font(.system(size: 11.5))
+                .foregroundStyle(.white.opacity(0.6))
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+
+        // Redraws only while visible; the slider owns its own drag state so
+        // timeline ticks cannot fight a drag in progress.
+        TimelineView(.periodic(from: .now, by: 0.5)) { context in
+            PlaybackScrubber(
+                position: track.position(at: context.date),
+                duration: track.duration,
+                enabled: canControl || coordinator.spotifyStatus == .needsPermission,
+                onSeek: { coordinator.spotifyCommand(.seek($0)) }
+            )
+        }
+
+        HStack(spacing: 26) {
+            control("backward.fill", label: "Previous track") { coordinator.spotifyCommand(.previous) }
+            control(track.isPlaying ? "pause.fill" : "play.fill", label: track.isPlaying ? "Pause" : "Play", size: 18) {
+                coordinator.spotifyCommand(.playPause)
+            }
+            // Swap the symbol in place; no cross-fade or resize between states.
+            .transaction { $0.animation = nil }
+            control("forward.fill", label: "Next track") { coordinator.spotifyCommand(.next) }
+        }
+        if !canControl {
+            Text(coordinator.spotifyStatus == .denied
+                 ? "Allow control under Privacy & Security › Automation."
+                 : "Pressing a control will ask for permission.")
+                .font(.system(size: 10))
+                .foregroundStyle(.white.opacity(0.45))
+        }
+    }
+
+    private func control(_ symbol: String, label: String, size: CGFloat = 14, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: size, weight: .semibold))
+                .frame(width: 34, height: 30)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.white.opacity(coordinator.spotifyStatus == .denied ? 0.35 : 0.9))
+        .disabled(coordinator.spotifyStatus == .denied)
+        .accessibilityLabel(label)
+        .help(label)
+    }
+
+    private func notice(_ text: String, button: String?, action: @escaping () -> Void) -> some View {
+        VStack(spacing: 9) {
+            Image(systemName: "music.note")
+                .font(.system(size: 24, weight: .light))
+                .foregroundStyle(.white.opacity(0.4))
+            Text(text)
+                .font(.system(size: 13, weight: .medium))
+            if let button {
+                Button(button, action: action)
+                    .font(.system(size: 12))
+                    .buttonStyle(.bordered)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// Track position that can be dragged to seek. While dragging, the thumb
+/// follows the pointer and incoming position updates are ignored; releasing
+/// sends one seek. Arrow keys seek by five seconds for keyboard users.
+private struct PlaybackScrubber: View {
+    let position: TimeInterval
+    let duration: TimeInterval?
+    let enabled: Bool
+    let onSeek: (TimeInterval) -> Void
+    @State private var dragPosition: TimeInterval?
+
+    private var shown: TimeInterval { dragPosition ?? position }
+    private var canSeek: Bool { enabled && (duration ?? 0) > 0 }
+
+    var body: some View {
+        VStack(spacing: 4) {
+            GeometryReader { geometry in
+                let width = max(1, geometry.size.width)
+                let fraction = duration.map { $0 > 0 ? min(1, max(0, shown / $0)) : 0 } ?? 0
+                ZStack(alignment: .leading) {
+                    Capsule().fill(.white.opacity(0.18)).frame(height: 4)
+                    Capsule().fill(.white.opacity(0.85)).frame(width: width * fraction, height: 4)
+                    if canSeek {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: dragPosition == nil ? 9 : 12, height: dragPosition == nil ? 9 : 12)
+                            .offset(x: width * fraction - (dragPosition == nil ? 4.5 : 6))
+                    }
+                }
+                .frame(height: geometry.size.height)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            guard canSeek, let duration else { return }
+                            dragPosition = min(max(0, value.location.x / width), 1) * duration
+                        }
+                        .onEnded { value in
+                            guard canSeek, let duration else { return }
+                            let target = min(max(0, value.location.x / width), 1) * duration
+                            onSeek(target)
+                            // Keep the thumb where it was dropped until the
+                            // next update arrives, instead of jumping back.
+                            dragPosition = target
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                if dragPosition == target { dragPosition = nil }
+                            }
+                        }
+                )
+            }
+            .frame(height: 14)
+            HStack {
+                Text(SpotifyPlayback.timeText(shown))
+                Spacer()
+                Text(duration.map(SpotifyPlayback.timeText) ?? "")
+            }
+            .font(.system(size: 9.5, weight: .medium).monospacedDigit())
+            .foregroundStyle(.white.opacity(0.5))
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Playback position")
+        .accessibilityValue("\(SpotifyPlayback.timeText(shown)) of \(duration.map(SpotifyPlayback.timeText) ?? "unknown")")
+        .accessibilityAdjustableAction { direction in
+            guard canSeek else { return }
+            onSeek(shown + (direction == .increment ? 5 : -5))
+        }
     }
 }

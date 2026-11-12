@@ -165,6 +165,36 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "485D4332BA4F5672A847A279";
 		};
+		"D5E0377B75EF0DD1AAB82CC2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "IslandSettings.swift";
+			"sourceTree" = "<group>";
+		};
+		"AED00FB32780C15522BA51C4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D5E0377B75EF0DD1AAB82CC2";
+		};
+		"E96A4F3A6F07B266D81CC9AC" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "SpotifyPlayback.swift";
+			"sourceTree" = "<group>";
+		};
+		"2C14255DBB028362D904FB16" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E96A4F3A6F07B266D81CC9AC";
+		};
+		"34CCC7F33706ACDB6C9DFC24" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "SpotifyAdapter.swift";
+			"sourceTree" = "<group>";
+		};
+		"7EA5BA6311D46D7497211DFC" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "34CCC7F33706ACDB6C9DFC24";
+		};
 		"00AC2B8D68B96F643FAFC676" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -280,6 +310,9 @@
 				"BBB8B344FE42B255FB2664D0",
 				"FCF7C935470E2F2E7D92EA22",
 				"485D4332BA4F5672A847A279",
+				"D5E0377B75EF0DD1AAB82CC2",
+				"E96A4F3A6F07B266D81CC9AC",
+				"34CCC7F33706ACDB6C9DFC24",
 			);
 			"path" = "Sources";
 			"sourceTree" = "<group>";
@@ -347,6 +380,9 @@
 				"A9352DC9B6F1AA4DCA248F4D",
 				"0FC3D559B7DFB42A57B24CB3",
 				"C5EFBC9CC9D036BBDAF98B2D",
+				"AED00FB32780C15522BA51C4",
+				"2C14255DBB028362D904FB16",
+				"7EA5BA6311D46D7497211DFC",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};

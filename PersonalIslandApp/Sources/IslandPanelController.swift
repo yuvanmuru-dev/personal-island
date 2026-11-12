@@ -56,7 +56,7 @@ final class IslandPanelController {
         presentation.onExpansionChange = { [weak self, weak coordinator] in
             guard let self else { return }
             guard self.updateFrame() else { return }
-            if self.presentation.isExpanded { coordinator?.prepareShelfIfNeeded() }
+            if self.presentation.isExpanded { coordinator?.islandDidExpand() }
         }
     }
 

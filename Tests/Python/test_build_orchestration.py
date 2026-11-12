@@ -100,14 +100,15 @@ class LocalSigningTests(unittest.TestCase):
         self.assertEqual(run.call_count, 1)
         self.assertNotIn("/usr/bin/codesign", run.call_args.args[0])
 
-    def test_an_identity_re_signs_with_hardened_runtime_and_no_entitlements(self):
+    def test_an_identity_re_signs_with_hardened_runtime_and_the_reviewed_entitlements(self):
         results = [subprocess.CompletedProcess([], 0, stdout=self.LISTED), subprocess.CompletedProcess([], 0, stdout="")]
         with patch.object(build_app, "run", side_effect=results) as run:
             self.assertEqual(build_app.apply_local_signing(self.APP), "Personal Island Local Signing")
         arguments = run.call_args_list[1].args[0]
         self.assertEqual(arguments[:4], ["/usr/bin/codesign", "--force", "--sign", "0123456789ABCDEF0123456789ABCDEF01234567"])
         self.assertIn("runtime", arguments)
-        self.assertNotIn("--entitlements", arguments)
+        entitlements = arguments[arguments.index("--entitlements") + 1]
+        self.assertTrue(entitlements.endswith("PersonalIslandApp/PersonalIsland.entitlements"))
         self.assertEqual(arguments[-1], str(self.APP))
 
     def test_listing_or_signing_failures_stop_the_build(self):

@@ -5,6 +5,11 @@ import json
 import plistlib
 import xml.etree.ElementTree as ET
 
+if __package__:
+    from . import app_policy
+else:
+    import app_policy
+
 ROOT = Path(__file__).resolve().parent.parent
 APP = ROOT / "PersonalIslandApp"
 PROJECT = APP / "PersonalIsland.xcodeproj"
@@ -13,7 +18,7 @@ APP_FILES = [
     "IslandGeometry.swift", "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
     "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
     "RegionSelector.swift", "ScreenRegionCapture.swift", "ShelfDragFlow.swift", "ShelfDragSource.swift",
-    "WindowPicker.swift",
+    "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyAdapter.swift",
 ]
 CORE_FILES = ["Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift"]
 RESOURCES = ["Atoll-LICENSE.txt", "Atoll-NOTICE.txt", "Atoll-COPYRIGHT_ASSETS.txt", "Atoll-TRADEMARKS.txt"]
@@ -49,13 +54,14 @@ def main():
         "CFBundleDevelopmentRegion": "en", "CFBundleExecutable": "$(EXECUTABLE_NAME)",
         "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)", "CFBundleInfoDictionaryVersion": "6.0",
         "CFBundleName": "Personal Island", "CFBundleDisplayName": "Personal Island",
-        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.4.0",
-        "CFBundleVersion": "8", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
+        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.5.0",
+        "CFBundleVersion": "9", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
         "LSUIElement": True, "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication",
         "NSHumanReadableCopyright": "Personal local build. Includes attributed Atoll/boring.notch presentation code.",
+        **app_policy.REQUIRED_INFO_STRINGS,
     }
     (APP / "Info.plist").write_bytes(plistlib.dumps(info, sort_keys=True))
-    (APP / "PersonalIsland.entitlements").write_bytes(plistlib.dumps({}, sort_keys=True))
+    (APP / "PersonalIsland.entitlements").write_bytes(plistlib.dumps(app_policy.RELEASE_ENTITLEMENTS, sort_keys=True))
     objects = {}
 
     def add(object_key, isa, **fields):

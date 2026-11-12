@@ -19,6 +19,17 @@ struct SettingsView: View {
         ("moon", "Focus and recording status")
     ]
 
+    private var spotifyExplanation: String {
+        switch coordinator.spotifyStatus {
+        case .off: "Shows the current Spotify track with play, pause and skip. macOS will ask once whether Personal Island may control Spotify."
+        case .notRunning: "Spotify isn't running. The island never opens it on its own."
+        case .needsPermission: "Open the island's Media tab and choose Allow to let Personal Island control Spotify."
+        case .denied: "Control is off: allow Personal Island under Privacy & Security › Automation › Spotify."
+        case .ready: "Connected to Spotify on this Mac. Nothing is sent online."
+        case .unavailable: "Spotify didn't answer. It may still be starting."
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
@@ -44,6 +55,10 @@ struct SettingsView: View {
                     ))
                     Toggle("Expand on hover", isOn: $coordinator.expandOnHover)
                     Toggle("Capture shortcut (\(coordinator.captureShortcutName))", isOn: $coordinator.captureShortcutEnabled)
+                    Toggle("Spotify in the island", isOn: $coordinator.spotifyEnabled)
+                    Text(spotifyExplanation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     if coordinator.captureShortcutEnabled && !coordinator.captureShortcutRegistered {
                         Text("\(coordinator.captureShortcutName) is already used by another app.")
                             .font(.caption)

@@ -70,8 +70,11 @@ def apply_local_signing(app):
     identity = parse_signing_identity(listed.stdout, LOCAL_SIGNING_IDENTITY)
     if identity is None:
         return None
+    # Re-signing replaces the signature, so the reviewed entitlements must be
+    # supplied again or they would be silently dropped.
     signed = run(["/usr/bin/codesign", "--force", "--sign", identity, "--options", "runtime",
-                  "--timestamp=none", str(app)])
+                  "--timestamp=none", "--entitlements", str(ROOT / "PersonalIslandApp/PersonalIsland.entitlements"),
+                  str(app)])
     if signed.returncode:
         raise PolicyError("Local signing failed: " + signed.stdout.strip()[-300:])
     return LOCAL_SIGNING_IDENTITY

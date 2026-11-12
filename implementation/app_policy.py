@@ -36,12 +36,22 @@ FORBIDDEN_INFO_KEYS = frozenset({
     "NSCameraUsageDescription", "NSMicrophoneUsageDescription",
     "NSCalendarsUsageDescription", "NSCalendarsFullAccessUsageDescription",
     "NSRemindersUsageDescription", "NSRemindersFullAccessUsageDescription",
-    "NSAppleEventsUsageDescription", "NSAppleMusicUsageDescription",
+    "NSAppleMusicUsageDescription",
     "NSLocationUsageDescription", "NSLocationWhenInUseUsageDescription",
     "NSBluetoothAlwaysUsageDescription", "NSScreenCaptureUsageDescription",
     "NSAudioCaptureUsageDescription", "NSDesktopFolderUsageDescription",
     "NSDocumentsFolderUsageDescription", "NSDownloadsFolderUsageDescription",
 })
+# Each reviewed capability is listed with its exact value and the permission
+# text macOS shows. Anything else stays forbidden.
+APPLE_EVENTS_USAGE = (
+    "Personal Island sends Apple Events only to Spotify, when you turn on Spotify "
+    "in Settings, to show the current track and to play, pause and skip."
+)
+REQUIRED_INFO_STRINGS = {"NSAppleEventsUsageDescription": APPLE_EVENTS_USAGE}
+# Sending Apple Events under the hardened runtime requires this entitlement.
+# The Automation permission prompt still applies per target app (Spotify).
+RELEASE_ENTITLEMENTS = {"com.apple.security.automation.apple-events": True}
 MACHO_MAGICS = frozenset({
     b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe", b"\xfe\xed\xfa\xcf", b"\xcf\xfa\xed\xfe",
     b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca", b"\xca\xfe\xba\xbf", b"\xbf\xba\xfe\xca",
@@ -62,6 +72,12 @@ def validate_info_plist(info: Mapping) -> None:
     forbidden = sorted(key for key in info if key in FORBIDDEN_INFO_KEYS or key.startswith("SU"))
     if forbidden:
         raise PolicyError("Unexpected capability/update configuration: " + ", ".join(forbidden))
+    for key, text in REQUIRED_INFO_STRINGS.items():
+        if info.get(key) != text:
+            raise PolicyError("Missing or changed permission explanation: " + key)
+    unreviewed = sorted(key for key in info if key.endswith("UsageDescription") and key not in REQUIRED_INFO_STRINGS)
+    if unreviewed:
+        raise PolicyError("Unreviewed permission explanation: " + ", ".join(unreviewed))
 
 
 LOCAL_SIGNING_IDENTITY = "Personal Island Local Signing"
@@ -86,7 +102,7 @@ def parse_signing_identity(output: str, name: str = LOCAL_SIGNING_IDENTITY):
 
 def validate_release_signature(signature_output: str, entitlement_bytes: bytes,
                                expected_authority: str | None = None) -> dict:
-    """Require one hardened signature and no effective entitlements.
+    """Require one hardened signature and exactly the reviewed entitlements.
 
     Without `expected_authority` the signature must be ad-hoc. With it, the
     signature must come from exactly that one local certificate (no chain,
@@ -123,7 +139,11 @@ def validate_release_signature(signature_output: str, entitlement_bytes: bytes,
         entitlements = {}
     if not isinstance(entitlements, dict):
         raise PolicyError("Effective entitlements must be a dictionary")
-    if entitlements:
+    # Exact match: no extra keys, no missing key, and `True` must be a real
+    # boolean (plist integers compare equal to True in Python).
+    if (entitlements.keys() != RELEASE_ENTITLEMENTS.keys()
+            or any(type(entitlements[key]) is not type(value) or entitlements[key] != value
+                   for key, value in RELEASE_ENTITLEMENTS.items())):
         raise PolicyError("Release build has unexpected effective entitlements")
     return entitlements
 
