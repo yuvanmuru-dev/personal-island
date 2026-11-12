@@ -12,7 +12,7 @@ Updated November 12, 2026.
 | M3 Spotify/Calendar | Not started | No permissions requested or personal accounts accessed. |
 | M4 all additional utilities | Planned | Every accepted feature group remains in scope. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 133 automated tests pass locally: 33 storage, 37 presentation and 63 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 143 automated tests pass locally: 33 storage, 47 presentation and 63 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.
@@ -22,6 +22,12 @@ The user opened the built preview, then confirmed the empty shelf and supplied t
 The built host has a menu-bar entry, Settings/Quit, two-display presentation code and one shared shelf coordinator. This is an integration foundation: capture, native attachment dragging, Spotify/Calendar and the remaining utilities are not connected. Precise display placement and interactions have not been verified in the running app. Temporary export cleanup scheduling must also be connected in M2; the current host only initializes storage on first shelf opening and cannot create exports through its UI.
 
 [App build and bundle inspection](PersonalIslandApp/VERIFICATION.md), [exact artifact receipt](implementation/APP_BUILD_RECEIPT.json), [source provenance](implementation/APP_SOURCE_PROVENANCE.json).
+
+## Menu-bar clearance update — November 12
+
+Version 0.1.2 (3) rebuilds and passes all 143 automated tests plus Release bundle/signature checks. The user reported menu/Control Center items being covered by the compact island. Both compact and expanded interactive window rectangles now sit below the entire protected menu/notch band. The band conservatively uses the largest public safe-area inset, visible-frame top inset and status-bar thickness; it remains reserved when menus auto-hide. The MacBook body touches the bottom of that band, while a non-notched display keeps a small floating gap.
+
+Compact controls no longer reserve a camera gap inside their body, and expanded content no longer repeats the notch padding. Public geometry is refreshed on show/update/expansion; unusable layouts hide before enabling tracking. Ten new regressions cover both states, auto-hide, menu-height precedence, logical display sizes, Docks and invalid/consumed geometry. Hover timing and original-file handling are unchanged. No menu-item inspection, Accessibility permission, private API or new network behavior was added. Actual icon visibility/click access and the new hover target below the menu row await user confirmation after quitting/reopening. The screenshot remains conversation evidence and is not in Git.
 
 ## Hover response update — November 12
 

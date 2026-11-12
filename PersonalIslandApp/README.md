@@ -14,6 +14,10 @@ The first Release build and bundle checks pass with Xcode 27.2. See
 [VERIFICATION.md](VERIFICATION.md)
 for the exact checkpoint and untested behavior. The user subsequently opened the preview and confirmed a visible island; both-screen placement and interactions remain unchecked.
 
+## Menu-bar clearance update
+
+Version 0.1.2 keeps the complete compact and expanded window below the system menu/notch band, so its graphics and mouse target cannot extend into the reserved menu row. The body joins the notch below that row on the MacBook; non-notched displays keep a small gap. Controls no longer include a camera spacer or repeated notch padding. The native tracking and shorter hover waits from 0.1.1 are retained. Quit/reopen the app to retest actual menu-icon visibility and click access.
+
 ## Hover update
 
 Version 0.1.1 fixes repeated hover events extending the open/close waits. It uses a stable native tracker, shorter 80ms/120ms waits and 120ms animation; settings and hiding cancel pending hover work. Quit the old running preview and reopen the built app before retesting. Hover defaults off each session, so enable it in Settings. The updated native interaction still needs user confirmation.

@@ -10,31 +10,31 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
-      "local_sha256": "d8a1a00d67c0a35dbbf001b457142b7320e97daf15aa4b70988e5d6a79963d15",
+      "local_sha256": "fadb65049ef99899114479dd9b6d5838937320ba1f2db830c0d9a4d2caf7ce70",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/sizing/matters.swift",
       "upstream_sha256": "e9d4b3d2fc752f7908eea0e23e7fb8b7ce887fe28a6dde7a7ff835053036690a",
-      "modifications": "Adapted getClosedNotchSize measurement ideas into pure display inputs and screen-relative layout; added external floating capsule placement and size bounds. Test-driven fix: preserve menu-bar clearance by bounding panel height below its top edge; compress margins on synthetic tiny frames.",
+      "modifications": "Adapted getClosedNotchSize measurement ideas into pure display inputs and screen-relative layout; added external floating capsule placement and size bounds. Test-driven fix: preserve menu-bar clearance by bounding panel height below its top edge; compress margins on synthetic tiny frames. Menu-bar clearance: place both complete window rectangles below the maximum safe-area, visible-frame and explicit menu-height band; bound compact/expanded bodies to usable space, and reject unusable geometry. Camera width is metadata, not a content spacer.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPanelController.swift",
-      "local_sha256": "dae5d1cc3795fca38157ed0962647ebc20aded2d710799ec3fdfe7c20199cae0",
+      "local_sha256": "424a6a85a65dfc33e23d80570333df25bcf6416e7da49773459a594f6ea06460",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/components/Notch/DynamicIslandWindow.swift",
       "upstream_sha256": "07427c36598e884b0ffa7131352596881cfafa3ad40b9d501db7cc58109514cb",
-      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately.",
+      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandView.swift",
-      "local_sha256": "d06f87c75103462821e9eab7813c766886b143e4997e7d58aa214d8c0637066f",
+      "local_sha256": "785e536a853bc996876a4e5a2a62c8697942e0f094bc80b81cfa2b587ba42606",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion."
+      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding."
     },
     {
       "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
@@ -55,9 +55,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/SettingsView.swift",
-      "local_sha256": "0b367fa30eb78c1dba0b244fd787ce00d89487b762339170ffbf2cbbd28a54b4",
+      "local_sha256": "a02df861c955173da6e1a9269e446a671287df61ed31a80238e596eeb47e834c",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied."
+      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement."
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/Models.swift",

@@ -16,7 +16,7 @@ This tests the actual storage and presentation logic, measures source coverage, 
 
 ## Current status
 
-The 0.1.1 preview contains the hover-response fix and passes 133 local automated tests plus the Release build/bundle checks. Quit/reopen the preview and enable Expand on hover to retest. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
+The 0.1.2 preview keeps the island below the system menu row, retains the hover-response fix, and passes 143 local automated tests plus the Release build/bundle checks. Quit/reopen the preview to check that menu icons remain visible and clickable; enable Expand on hover again to test the relocated island. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
 
 The controlled graphical app host builds and passes bundle/signature inspection. It uses explicit presentation sources and the local core, without the upstream package/helper/startup graph. Expanded storage, presentation and build-policy tests are included. The user has launched the preview and confirmed a visible island; both-screen placement and interactions remain unchecked. Capture, native dragging and the accepted integrations are still to be implemented.
 

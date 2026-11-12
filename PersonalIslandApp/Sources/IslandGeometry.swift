@@ -21,7 +21,8 @@
  * b8d86a2d8118d905ffa3e2c912adc736683741bb,
  * DynamicIsland/sizing/matters.swift, getClosedNotchSize.
  * Adaptations: pure inputs, explicit per-display coordinates, no Defaults or
- * global managers; separate attached-notch and floating-capsule placement.
+ * global managers; both presentations keep their entire window below the menu
+ * band. Camera width is metadata, not reserved interactive space.
  */
 
 import CoreGraphics
@@ -33,16 +34,24 @@ enum IslandGeometry {
         let safeAreaTop: CGFloat
         let auxiliaryTopLeft: CGRect?
         let auxiliaryTopRight: CGRect?
+        /// AppKit layout points, including when the menu bar is auto-hidden.
+        var menuBarHeight: CGFloat = 24
     }
 
     struct Layout: Equatable {
         let hasNotch: Bool
-        let reservedNotchWidth: CGFloat
+        let cameraHousingWidth: CGFloat
         let topContentInset: CGFloat
+        let protectedTopInset: CGFloat
         let compactSize: CGSize
         let expandedSize: CGSize
         let displayFrame: CGRect
         let topEdge: CGFloat
+
+        var hasUsableArea: Bool {
+            compactSize.width > 0 && compactSize.height > 0
+                && expandedSize.width > 0 && expandedSize.height > 0
+        }
 
         func panelFrame(expanded: Bool) -> CGRect {
             let size = expanded ? expandedSize : compactSize
@@ -56,45 +65,84 @@ enum IslandGeometry {
     }
 
     static func layout(for display: Display) -> Layout {
-        let frame = display.frame
+        let frame = sanitizedFrame(display.frame)
         let maximumWidth = max(0, frame.width - min(24, frame.width / 2))
-        let topInset = max(0, min(display.safeAreaTop, 80))
-        let hasNotch = topInset > 0
-        // Size the panel to the available area below its actual top edge.
-        // Moving that edge upwards to fit would overlap a floating menu bar.
-        let availableTop = min(frame.maxY, display.visibleFrame.maxY)
-        let floatingMargin = min(8, max(0, availableTop - frame.minY) / 2)
-        let desiredTopEdge = hasNotch
-            ? frame.maxY
-            : availableTop - floatingMargin
-        let topEdge = min(frame.maxY, max(frame.minY, desiredTopEdge))
-        let maximumHeight = max(0, min(frame.height - min(16, frame.height / 2), topEdge - frame.minY))
+        let safeTop = positiveInset(display.safeAreaTop, limit: frame.height, fallback: 0)
+        let menuTop = positiveInset(display.menuBarHeight, limit: frame.height, fallback: 24)
+        let visibleTop = visibleTopInset(display.visibleFrame, inside: frame)
+        let protectedTopInset = max(max(safeTop, visibleTop), menuTop)
+        let hasNotch = safeTop > 0
+        let cameraWidth = hasNotch ? cameraHousingWidth(for: display, inside: frame) : 0
 
-        var notchWidth: CGFloat = 0
-        if hasNotch {
-            if let left = display.auxiliaryTopLeft, let right = display.auxiliaryTopRight {
-                notchWidth = max(0, frame.width - left.width - right.width)
-            }
-            if notchWidth <= 0 { notchWidth = 180 }
-            notchWidth = min(notchWidth, max(0, maximumWidth - 72))
-        }
+        // Protect the actual window rectangle, not just its painted controls.
+        // Even an auto-hidden menu bar keeps its explicit band reserved. If that
+        // band consumes a tiny/invalid display, there is no usable panel area.
+        let remainingHeight = max(0, frame.height - protectedTopInset)
+        let floatingMargin = hasNotch ? 0 : min(8, remainingHeight / 2)
+        let topEdge = min(frame.maxY, max(frame.minY, frame.maxY - protectedTopInset - floatingMargin))
+        let maximumHeight = max(0, topEdge - frame.minY)
 
         let compact = CGSize(
-            width: min(hasNotch ? notchWidth + 72 : 164, maximumWidth),
-            height: min(hasNotch ? max(topInset, 32) : 34, maximumHeight)
+            width: min(maximumWidth, max(164, min(240, cameraWidth))),
+            height: min(34, maximumHeight)
         )
         let expanded = CGSize(
             width: min(420, maximumWidth),
-            height: min(228 + (hasNotch ? topInset : 0), maximumHeight)
+            height: min(228, maximumHeight)
         )
         return Layout(
             hasNotch: hasNotch,
-            reservedNotchWidth: notchWidth,
-            topContentInset: hasNotch ? topInset : 0,
+            cameraHousingWidth: cameraWidth,
+            topContentInset: 0,
+            protectedTopInset: protectedTopInset,
             compactSize: compact,
             expandedSize: expanded,
             displayFrame: frame,
             topEdge: topEdge
         )
+    }
+
+    private static func positiveInset(_ value: CGFloat, limit: CGFloat, fallback: CGFloat) -> CGFloat {
+        let usable = value.isFinite && value > 0 ? value : fallback
+        return min(limit, usable)
+    }
+
+    private static func isFinitePositiveRect(_ rect: CGRect) -> Bool {
+        rect.origin.x.isFinite && rect.origin.y.isFinite
+            && rect.size.width.isFinite && rect.size.height.isFinite
+            && rect.size.width > 0 && rect.size.height > 0
+            && rect.maxX.isFinite && rect.maxY.isFinite
+    }
+
+    private static func sanitizedFrame(_ frame: CGRect) -> CGRect {
+        guard isFinitePositiveRect(frame) else {
+            return CGRect(
+                x: frame.origin.x.isFinite ? frame.origin.x : 0,
+                y: frame.origin.y.isFinite ? frame.origin.y : 0,
+                width: 0, height: 0
+            )
+        }
+        return frame
+    }
+
+    private static func visibleTopInset(_ visible: CGRect, inside frame: CGRect) -> CGFloat {
+        guard isFinitePositiveRect(visible) else { return 0 }
+        // Compare before subtracting to avoid overflow in malformed metadata.
+        if visible.maxY >= frame.maxY { return 0 }
+        if visible.maxY <= frame.minY { return frame.height }
+        return frame.maxY - visible.maxY
+    }
+
+    private static func cameraHousingWidth(for display: Display, inside frame: CGRect) -> CGFloat {
+        if let left = display.auxiliaryTopLeft, let right = display.auxiliaryTopRight,
+           isFinitePositiveRect(left), isFinitePositiveRect(right),
+           left.width <= frame.width, right.width <= frame.width,
+           left.height <= frame.height, right.height <= frame.height {
+            let occupiedWidth = left.width + right.width
+            if occupiedWidth.isFinite, occupiedWidth < frame.width {
+                return frame.width - occupiedWidth
+            }
+        }
+        return min(180, frame.width)
     }
 }

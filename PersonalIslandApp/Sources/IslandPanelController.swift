@@ -34,10 +34,13 @@ final class IslandPanelController {
     private let panel: IslandPanel
     private let presentation: IslandPresentation
     private let hostingView: IslandTrackingHostingView
+    private var currentScreen: NSScreen
     private var hoverEnabled: Bool
     private var isHoverTrackingActive = false
+    private var isUpdatingFrame = false
 
     init(screen: NSScreen, coordinator: IslandCoordinator) {
+        currentScreen = screen
         let layout = Self.layout(for: screen)
         hoverEnabled = coordinator.expandOnHover
         presentation = IslandPresentation(layout: layout)
@@ -52,17 +55,18 @@ final class IslandPanelController {
         }
         presentation.onExpansionChange = { [weak self, weak coordinator] in
             guard let self else { return }
-            self.updateFrame()
+            guard self.updateFrame() else { return }
             if self.presentation.isExpanded { coordinator?.prepareShelfIfNeeded() }
         }
     }
 
     func update(screen: NSScreen) {
-        presentation.update(layout: Self.layout(for: screen))
+        currentScreen = screen
         updateFrame()
     }
 
     func show() {
+        guard updateFrame() else { return }
         panel.orderFrontRegardless()
         isHoverTrackingActive = true
         hostingView.setHoverTrackingActive(true)
@@ -97,14 +101,28 @@ final class IslandPanelController {
         panel.close()
     }
 
-    private func updateFrame() {
-        panel.setFrame(
-            presentation.layout.panelFrame(expanded: presentation.isExpanded),
-            display: true
-        )
+    @discardableResult
+    private func updateFrame() -> Bool {
+        // A no-space layout suspends expansion, which can call back here while
+        // hiding. Keep that lifecycle transition finite and leave tracking off.
+        guard !isUpdatingFrame else { return presentation.layout.hasUsableArea }
+        isUpdatingFrame = true
+        defer { isUpdatingFrame = false }
+
+        // Read the current public screen/status-bar inputs on every show,
+        // expansion and display update, rather than preserving startup metrics.
+        let layout = Self.layout(for: currentScreen)
+        if layout != presentation.layout { presentation.update(layout: layout) }
+        guard layout.hasUsableArea else {
+            hide()
+            return false
+        }
+        let frame = layout.panelFrame(expanded: presentation.isExpanded)
+        if frame != panel.frame { panel.setFrame(frame, display: true) }
         // AppKit need not receive a fresh mouse event when a stationary
         // pointer changes containment because the panel has resized.
         hostingView.reconcilePointer()
+        return true
     }
 
     private static func layout(for screen: NSScreen) -> IslandGeometry.Layout {
@@ -113,7 +131,8 @@ final class IslandPanelController {
             visibleFrame: screen.visibleFrame,
             safeAreaTop: screen.safeAreaInsets.top,
             auxiliaryTopLeft: screen.auxiliaryTopLeftArea,
-            auxiliaryTopRight: screen.auxiliaryTopRightArea
+            auxiliaryTopRight: screen.auxiliaryTopRightArea,
+            menuBarHeight: NSStatusBar.system.thickness
         ))
     }
 }

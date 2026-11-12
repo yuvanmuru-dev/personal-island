@@ -6,6 +6,14 @@ Subsequent user report and three supplied screenshots establish the compact isla
 
 This is the M1 integration foundation, not the finished utility. All accepted feature groups remain in the plan; face unlock stays deferred.
 
+## Menu-bar clearance update — November 12, 2026
+
+Version 0.1.2 (3) passes 143 automated tests and the Release bundle checks. Both complete window states now stay below the protected menu/notch band; moving only content would leave an invisible click-interception rectangle. The band is the maximum of the screen safe-area top, the current visible-frame top inset and the public status-bar thickness, clamped to the screen. The latter remains reserved for auto-hidden menus. [Apple visible-frame documentation](https://developer.apple.com/documentation/appkit/nsscreen/visibleframe), [Apple status-bar thickness](https://developer.apple.com/documentation/appkit/nsstatusbar/thickness).
+
+The MacBook software body starts flush beneath that band and no longer places tray/count controls alongside the camera inside the menu row. Non-notched displays retain a small gap below it. An infeasible layout hides instead of crossing the band. Ten additional tests establish these geometry invariants, including invalid inputs and display translations. No menu-item or Accessibility inspection is performed. The global status-bar thickness is a conservative fallback, not a measurement of every menu item on each display.
+
+Actual visual placement and menu-icon click access await user retesting after quitting/reopening the app. The built-in display report and supplied screenshot identified the previous overlap; the screenshot was not copied into the repository. Hover input/delays are unchanged, but the hover target is now the visible body below the menu row.
+
 ## Hover update — November 12, 2026
 
 Version 0.1.1 (2) builds and passes all 133 automated tests and bundle checks. Hover uses one stable native tracking area, with 80ms entry and 120ms exit waits and 120ms content animation. Duplicate inputs cannot restart a deadline, and settings/hide/close cancel pending hover work. These are configured delays, not measured end-to-end latency. Native tracking is active for the panel while other apps have focus, using [Apple tracking-area options](https://developer.apple.com/documentation/appkit/nstrackingarea/options-swift.struct). Actual event delivery and perceived response await user retesting.
@@ -18,7 +26,7 @@ Quit the existing preview from its menu-bar icon, reopen the built app, enable E
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.1.1 (2); initial preview was 0.1.0 (1) |
+| App identity | `dev.personal.PersonalIsland`, version 0.1.2 (3); initial preview was 0.1.0 (1) |
 | App sources | Eight explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |

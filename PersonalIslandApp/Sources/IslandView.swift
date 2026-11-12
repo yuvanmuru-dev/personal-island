@@ -42,14 +42,10 @@ struct IslandView: View {
                 Image(systemName: "tray")
                     .font(.system(size: 13, weight: .medium))
                     .frame(width: 28)
-                if presentation.layout.hasNotch {
-                    Spacer(minLength: presentation.layout.reservedNotchWidth)
-                } else {
-                    Text("Shelf")
-                        .font(.system(size: 12, weight: .medium))
-                        .padding(.leading, 5)
-                    Spacer(minLength: 10)
-                }
+                Text("Shelf")
+                    .font(.system(size: 12, weight: .medium))
+                    .padding(.leading, 5)
+                Spacer(minLength: 10)
                 Text("\(coordinator.shelfItemCount)")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .monospacedDigit()
@@ -106,7 +102,7 @@ struct IslandView: View {
             }
         }
         .padding(.horizontal, 26)
-        .padding(.top, presentation.layout.topContentInset + 12)
+        .padding(.top, 12)
         .padding(.bottom, 18)
     }
 
