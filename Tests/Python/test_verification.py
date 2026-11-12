@@ -259,5 +259,44 @@ class VerificationTests(unittest.TestCase):
                 verify.passing_test_count(output, framework)
 
 
+
+# Fixture paths are assembled so this file itself never contains them.
+HOME = "/" + "Users/" + "someone/"
+PERSONAL = "someone" + "@" + "example.com"
+
+
+class PublishableTextTests(unittest.TestCase):
+    def test_home_paths_and_personal_emails_are_reported_with_location(self):
+        findings = verify.publishable_text_findings({
+            "README.md": "intro\nSee [plan](" + HOME + "Documents/PLAN.md)\n",
+            "TESTING.md": "Contact " + PERSONAL + " for access",
+        })
+        self.assertEqual(findings, ["README.md:2: home-folder path", "TESTING.md:1: email address"])
+
+    def test_relative_links_shared_paths_and_no_reply_addresses_pass(self):
+        self.assertEqual(verify.publishable_text_findings({
+            "README.md": "[plan](PLAN.md) and [core](../PersonalIslandCore/README.md)",
+            "notes.md": "/" + "Users/Shared/ is a system folder; /tmp and /usr/bin are fine",
+            "commit.txt": "123+someone" + "@" + "users.noreply.github.com and noreply" + "@" + "anthropic.com",
+        }), [])
+
+    def test_third_party_snapshots_and_retained_notices_are_not_rewritten(self):
+        self.assertEqual(verify.publishable_text_findings({
+            "audit/sources/atoll/ReadMe.md": "maintainer " + PERSONAL,
+            "PersonalIslandApp/Resources/Atoll-NOTICE.txt": "Copyright " + PERSONAL,
+            "LICENSE": "license text " + PERSONAL,
+        }), [])
+
+    def test_lookalike_no_reply_addresses_are_still_reported(self):
+        at = "@"
+        for address in ("someone" + at + "users.noreply.github.com.evil.example",
+                        "noreply" + at + "anthropic.com.example", "x" + at + "noreply.github.com"):
+            with self.subTest(address=address):
+                self.assertEqual(verify.publishable_text_findings({"a.md": address}), ["a.md:1: email address"])
+
+    def test_the_current_checkout_is_publishable(self):
+        verify.verify_publishable_text()
+
+
 if __name__ == "__main__":
     unittest.main()

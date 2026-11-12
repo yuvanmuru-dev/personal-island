@@ -151,7 +151,7 @@ Full completion requires M5 and resolution of every accepted feature row. A pass
 
 All accepted features remain available in the design, with independent switches. Initial startup has no upstream updater, extension server, AI/terminal/usage-dashboard integration, LocalSend discovery, face unlock, automatic clipboard collection, private lock-screen previews, or login item. Online lookups require configuration. Clipboard becomes session-only when enabled. Normal battery/status/timer functionality can operate locally.
 
-The user has authorized private version control in `yuvanmuru-dev/personal-island`. Keep hardening changes in reviewable commits, retain upstream notices and record source copies in a provenance manifest. Reference archives, personal content, machine-specific evidence and build outputs stay local. Public publishing, external messaging and app distribution are outside the current scope.
+Version control is in the `yuvanmuru-dev/personal-island` repository, which the owner made public; personal details stay out of commits (see AGENTS.md). Keep hardening changes in reviewable commits, retain upstream notices and record source copies in a provenance manifest. Reference archives, personal content, machine-specific evidence and build outputs stay local. Public publishing, external messaging and app distribution are outside the current scope.
 
 ## Immediate execution and remaining decisions
 

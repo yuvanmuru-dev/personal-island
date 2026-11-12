@@ -1,5 +1,9 @@
 # Implementation status
 
+## Repository made public — November 12
+
+The owner made the repository public. An audit of every tracked file and all 11 commits found one kind of personal detail: links in nine Markdown files used absolute home-folder paths that revealed the Mac account name. No email addresses (commits use GitHub's no-reply address), keys, certificates, screenshots, receipts or credentials were ever committed, and no files had been deleted from history. The links are now repository-relative, `verify.py` rejects home-folder paths and non-no-reply emails in tracked files, and, at the owner's request, history was rewritten so earlier commits no longer contain the path. The repository had no forks at the time. GitHub may still serve old commits by their exact identifier from caches until they are garbage-collected; removing those entirely requires a request to GitHub Support. Descriptive setup details (hardware, apps and calendars used, feature decisions) were kept by the owner's choice.
+
 Updated November 12, 2026.
 
 | Milestone | Status | Evidence / remaining work |
@@ -12,7 +16,7 @@ Updated November 12, 2026.
 | M3 Spotify/Calendar | Built and user-confirmed on the MacBook (0.5.0, 0.6.0) | Current track, seekable progress and play/pause/previous/next via Spotify's local scripting interface; user reported it works. Calendar: today's agenda and next event, read-only, with per-calendar visibility; user reported it works. Both-display sync awaits the Dell. |
 | M4 all additional utilities | Planned | Every accepted feature group remains in scope. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 241 automated tests pass locally: 38 storage, 127 presentation and 76 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 246 automated tests pass locally: 38 storage, 127 presentation and 81 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.

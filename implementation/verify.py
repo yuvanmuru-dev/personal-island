@@ -168,6 +168,51 @@ def passing_test_count(output, framework):
     return int(matches[0])
 
 
+# The repository is public. Personal details must never be committed: a
+# home-folder path reveals the Mac account name, and an email address
+# identifies a person. Commit metadata uses GitHub's no-reply address.
+HOME_PATH = re.compile(r"/Users/(?!Shared/)[A-Za-z0-9._-]+/")
+EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
+ALLOWED_EMAIL = re.compile(r"(?:\d+\+)?[A-Za-z0-9-]+@users\.noreply\.github\.com|noreply@anthropic\.com")
+# Third-party snapshots and retained upstream notices are kept byte-for-byte.
+UNSCANNED_PREFIXES = ("audit/sources/", "PersonalIslandApp/Resources/", "LICENSE", "NOTICE")
+
+
+def publishable_text_findings(files):
+    """Return "path:line: reason" for personal details in {path: text}."""
+    findings = []
+    for path, text in sorted(files.items()):
+        if path.startswith(UNSCANNED_PREFIXES):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            if HOME_PATH.search(line):
+                findings.append(f"{path}:{number}: home-folder path")
+            for match in EMAIL.finditer(line):
+                if not ALLOWED_EMAIL.fullmatch(match.group(0)):
+                    findings.append(f"{path}:{number}: email address")
+    return findings
+
+
+def verify_publishable_text():
+    """Scan tracked files. Outside a git checkout nothing can be published."""
+    listed = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if listed.returncode:
+        return
+    listed = listed.stdout.decode().split("\0")
+    files = {}
+    for name in filter(None, listed):
+        path = checked_repo_path(ROOT / name)
+        if not path.is_file():
+            continue
+        data = path.read_bytes()
+        if b"\0" in data[:8192]:
+            continue  # binary
+        files[name] = data.decode("utf-8", errors="replace")
+    findings = publishable_text_findings(files)
+    if findings:
+        raise RuntimeError("Personal details in tracked files (repository is public):\n  " + "\n  ".join(findings[:20]))
+
+
 def verify_provenance():
     document = json.loads((ROOT / "implementation/APP_SOURCE_PROVENANCE.json").read_text())
     actual = {str(path.relative_to(ROOT)) for folder in (
@@ -197,6 +242,7 @@ def main():
         checked_repo_path(OUTPUT).mkdir(parents=True, exist_ok=True)
         inputs = immutable_inputs()
         results["input_sha256"] = inputs
+        verify_publishable_text()
         verify_provenance()
         python_output = execute("build-policy", [sys.executable, "-m", "unittest", "discover",
             "-s", "Tests/Python", "-p", "test_*.py", "-v"])
