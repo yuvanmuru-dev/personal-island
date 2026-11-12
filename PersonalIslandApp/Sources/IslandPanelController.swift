@@ -56,6 +56,7 @@ final class IslandPanelController {
         presentation.onExpansionChange = { [weak self, weak coordinator] in
             guard let self else { return }
             guard self.updateFrame() else { return }
+            coordinator?.islandExpansionChanged()
             if self.presentation.isExpanded { coordinator?.islandDidExpand() }
         }
         presentation.onActivityChange = { [weak self] in self?.updateFrame() }
@@ -79,6 +80,8 @@ final class IslandPanelController {
         guard isHoverTrackingActive, panel.isVisible else { return }
         presentation.peek()
     }
+
+    var isExpanded: Bool { presentation.isExpanded }
 
     /// Briefly widens the compact island with a notice such as charging.
     func showActivity(_ activity: IslandActivity) {

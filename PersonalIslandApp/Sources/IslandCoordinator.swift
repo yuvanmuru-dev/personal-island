@@ -54,12 +54,12 @@ final class IslandCoordinator: ObservableObject {
 
     let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
-    enum ExpandedTab: Equatable { case media, calendar, timers, shelf }
+    enum ExpandedTab: Equatable { case media, calendar, timers, stats, shelf }
 
     /// Sections the open island offers, in display order.
     var availableTabs: [ExpandedTab] {
         (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : [])
-            + (timersEnabled ? [.timers] : []) + [.shelf]
+            + (timersEnabled ? [.timers] : []) + (statsEnabled ? [.stats] : []) + [.shelf]
     }
 
     /// The section actually shown, falling back if its feature was turned off.
@@ -88,7 +88,9 @@ final class IslandCoordinator: ObservableObject {
     @Published private(set) var upcomingEvent: AgendaEvent?
     @Published private(set) var calendars: [CalendarSummary] = []
     /// Which section the open island shows; shared by both displays.
-    @Published var expandedTab: ExpandedTab = .shelf
+    @Published var expandedTab: ExpandedTab = .shelf {
+        didSet { if expandedTab != oldValue { updateStatsSampling() } }
+    }
     /// Turning this off stops all Spotify observation and Apple Events.
     @Published var spotifyEnabled = false {
         didSet {
@@ -151,6 +153,18 @@ final class IslandCoordinator: ObservableObject {
             applyTimerLive()
         }
     }
+    /// Samples only while the Stats tab is on screen in an open island.
+    @Published var statsEnabled = false {
+        didSet {
+            guard statsEnabled != oldValue else { return }
+            saveSettings()
+            if statsEnabled { expandedTab = .stats }
+            if !statsEnabled && expandedTab == .stats { expandedTab = availableTabs.first ?? .shelf }
+            updateStatsSampling()
+        }
+    }
+    @Published private(set) var stats: StatsReading?
+    @Published private(set) var statsHistory = StatsHistory()
     @Published private(set) var timers: [IslandTimer] = []
     @Published private(set) var stopwatch = Stopwatch()
     var featuredTimer: IslandTimer? { timerController.featured }
@@ -174,6 +188,7 @@ final class IslandCoordinator: ObservableObject {
         hiddenCalendarIDs = Set(settings.hiddenCalendarIDs)
         batteryEnabled = settings.batteryEnabled
         timersEnabled = settings.timersEnabled
+        statsEnabled = settings.statsEnabled
         timerSound = settings.timerSound
         timerInNotch = settings.timerInNotch
         batteryLowAlerts = settings.batteryLowAlerts
@@ -193,6 +208,7 @@ final class IslandCoordinator: ObservableObject {
         settings.hiddenCalendarIDs = hiddenCalendarIDs.sorted()
         settings.batteryEnabled = batteryEnabled
         settings.timersEnabled = timersEnabled
+        settings.statsEnabled = statsEnabled
         settings.timerSound = timerSound
         settings.timerInNotch = timerInNotch
         settings.batteryLowAlerts = batteryLowAlerts
@@ -281,6 +297,15 @@ final class IslandCoordinator: ObservableObject {
         return controller
     }()
     private var timerWakeObserver: (any NSObjectProtocol)?
+    private lazy var statsController: StatsController = {
+        let controller = StatsController(environment: SystemStatsAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            self?.stats = controller.reading
+            self?.statsHistory = StatsHistory(cpu: controller.cpuHistory, memory: controller.memoryHistory,
+                                              network: controller.networkHistory, disk: controller.diskHistory)
+        }
+        return controller
+    }()
     private lazy var battery: BatteryController = {
         let controller = BatteryController(environment: BatteryAdapter.environment())
         controller.lowAlertsEnabled = batteryLowAlerts
@@ -361,6 +386,7 @@ final class IslandCoordinator: ObservableObject {
         calendarController.stop()
         battery.stop()
         updateTimers(selectTab: false)
+        updateStatsSampling()
         captureFlow.cancel()
         updateCaptureShortcut()
         cleanupTimer?.invalidate()
@@ -422,6 +448,7 @@ final class IslandCoordinator: ObservableObject {
                 presenter.setLive(isRunning && timersEnabled && timerInNotch && (!timers.isEmpty || stopwatch.isRunning))
             }
         }
+        updateStatsSampling()
     }
 
     func showSettings() {
@@ -553,6 +580,16 @@ final class IslandCoordinator: ObservableObject {
         prepareShelfIfNeeded()
         guard spotify.isActive, visibleTab == .media else { return }
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
+    }
+
+    // MARK: - System activity
+
+    func islandExpansionChanged() { updateStatsSampling() }
+
+    private func updateStatsSampling() {
+        let visible = isRunning && statsEnabled && visibleTab == .stats
+            && presenters.values.contains { $0.isExpanded }
+        if visible { statsController.start() } else { statsController.stop() }
     }
 
     // MARK: - Timers

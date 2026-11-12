@@ -197,6 +197,7 @@ struct IslandView: View {
                         switch tab {
                         case .media: tabButton(.media, symbol: "music.note", title: "Media")
                         case .calendar: tabButton(.calendar, symbol: "calendar", title: "Calendar")
+                        case .stats: tabButton(.stats, symbol: "gauge.with.dots.needle.50percent", title: "Stats")
                         case .timers: tabButton(.timers, symbol: "timer", title: "Timers",
                                                 count: coordinator.timers.isEmpty ? nil : coordinator.timers.count)
                         case .shelf: tabButton(.shelf, symbol: "tray.fill", title: "Shelf", count: coordinator.shelfItemCount)
@@ -253,6 +254,7 @@ struct IslandView: View {
                 case .media: MediaContent(coordinator: coordinator)
                 case .calendar: CalendarContent(coordinator: coordinator)
                 case .timers: TimersContent(coordinator: coordinator)
+                case .stats: StatsContent(coordinator: coordinator)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1096,5 +1098,89 @@ private struct StopwatchContent: View {
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// CPU, GPU, memory, network, disk activity and free space, each with a
+/// short graph. Readings exist only while this tab is on screen.
+private struct StatsContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
+
+    var body: some View {
+        let reading = coordinator.stats
+        let history = coordinator.statsHistory
+        LazyVGrid(columns: columns, spacing: 8) {
+            tile("CPU", symbol: "cpu", value: SystemStats.percentText(reading?.cpuPercent),
+                 detail: nil, graph: history.cpu, scale: 100, tint: .orange)
+            tile("GPU", symbol: "square.stack.3d.up", value: SystemStats.percentText(reading?.gpuPercent),
+                 detail: reading == nil || reading?.gpuPercent != nil ? nil : "Not reported", graph: [], scale: 100, tint: .purple)
+            tile("Memory", symbol: "memorychip", value: SystemStats.percentText(reading?.memoryPercent),
+                 detail: reading?.memoryUsed.map { used in
+                     "\(SystemStats.bytesText(Double(used), binary: true)) of \(SystemStats.bytesText(reading?.memoryTotal.map { Double($0) }, binary: true))"
+                 }, graph: history.memory, scale: 100, tint: .green)
+            tile("Network", symbol: "arrow.up.arrow.down", value: "↓ " + SystemStats.rateText(reading?.networkInPerSecond),
+                 detail: "↑ " + SystemStats.rateText(reading?.networkOutPerSecond), graph: history.network, scale: nil, tint: .cyan)
+            tile("Disk", symbol: "internaldrive", value: "R " + SystemStats.rateText(reading?.diskReadPerSecond),
+                 detail: "W " + SystemStats.rateText(reading?.diskWritePerSecond), graph: history.disk, scale: nil, tint: .blue)
+            tile("Storage", symbol: "externaldrive", value: SystemStats.bytesText(reading?.diskFree.map { Double($0) }),
+                 detail: reading?.diskTotal.map { "free of " + SystemStats.bytesText(Double($0)) }, graph: [], scale: nil, tint: .gray)
+        }
+        .padding(.top, 10)
+        .padding(.bottom, 4)
+    }
+
+    private func tile(_ title: String, symbol: String, value: String, detail: String?,
+                      graph: [Double], scale: Double?, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.system(size: 9.5, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 10, weight: .semibold))
+            }
+            .foregroundStyle(.white.opacity(0.55))
+            Text(value)
+                .font(.system(size: 13.5, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(detail ?? " ")
+                .font(.system(size: 9.5))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.5))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Sparkline(values: graph, scale: scale)
+                .stroke(tint, style: StrokeStyle(lineWidth: 1.3, lineCap: .round, lineJoin: .round))
+                .frame(height: 12)
+        }
+        .padding(7)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title): \(value)\(detail.map { ", " + $0 } ?? "")")
+    }
+}
+
+/// A line through the values, right-aligned so the newest is at the edge.
+private struct Sparkline: Shape {
+    let values: [Double]
+    /// Fixed top of the scale (percentages), or nil to fit the largest value.
+    let scale: Double?
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        guard values.count > 1 else { return path }
+        let top = max(scale ?? (values.max() ?? 0), 1)
+        let step = rect.width / CGFloat(SystemStats.historyLength - 1)
+        let startX = rect.maxX - step * CGFloat(values.count - 1)
+        for (index, value) in values.enumerated() {
+            let point = CGPoint(x: startX + step * CGFloat(index),
+                                y: rect.maxY - rect.height * CGFloat(min(1, max(0, value / top))))
+            if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
+        }
+        return path
     }
 }

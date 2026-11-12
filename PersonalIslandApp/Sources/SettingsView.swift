@@ -10,7 +10,6 @@ struct SettingsView: View {
         ("wifi", "Bluetooth, Wi-Fi, VPN and hotspot"),
         ("arrow.down.circle", "Downloads and AirDrop"),
         ("lock.square", "Lock-screen widgets and weather"),
-        ("chart.bar", "System statistics"),
         ("doc.on.clipboard", "Clipboard history"),
         ("waveform", "Visualizer and lyrics"),
         ("eyedropper", "Color picker"),
@@ -113,6 +112,10 @@ struct SettingsView: View {
                         Toggle("Play a sound when a timer ends", isOn: $coordinator.timerSound)
                             .padding(.leading, 16)
                     }
+                    Toggle("System activity", isOn: $coordinator.statsEnabled)
+                    Text("Adds a Stats tab with CPU, GPU, memory, network and disk activity and free space. Readings are taken once a second only while that tab is open, and are never stored or sent.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     Toggle("Battery and charging", isOn: $coordinator.batteryEnabled)
                     Text(batteryExplanation)
                         .font(.caption)

@@ -23,6 +23,7 @@ struct IslandSettings: Codable, Equatable {
     var hiddenCalendarIDs: [String] = []
     var batteryEnabled = false
     var timersEnabled = false
+    var statsEnabled = false
     var timerSound = true
     /// Show the running timer beside the notch.
     var timerInNotch = true
@@ -46,6 +47,7 @@ struct IslandSettings: Codable, Equatable {
         calendarEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .calendarEnabled)) ?? defaults.calendarEnabled
         let hidden = (try? values.decodeIfPresent([String].self, forKey: .hiddenCalendarIDs)) ?? []
         hiddenCalendarIDs = Array(Set(hidden.filter { !$0.isEmpty && $0.count <= 256 })).sorted()
+        statsEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .statsEnabled)) ?? defaults.statsEnabled
         timersEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .timersEnabled)) ?? defaults.timersEnabled
         timerSound = (try? values.decodeIfPresent(Bool.self, forKey: .timerSound)) ?? defaults.timerSound
         timerInNotch = (try? values.decodeIfPresent(Bool.self, forKey: .timerInNotch)) ?? defaults.timerInNotch

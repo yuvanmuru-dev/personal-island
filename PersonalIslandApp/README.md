@@ -26,6 +26,10 @@ Turn on "Battery and charging" in Settings. Plugging in or unplugging briefly sh
 
 Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
 
+## System activity (0.9.0)
+
+Turn on "System activity" in Settings. The open island gets a Stats tab with CPU, GPU, memory, network, disk activity and free space, each with a short graph. It only measures while that tab is open, and nothing is stored or sent.
+
 ## Timers (0.8.0)
 
 Turn on "Timers" in Settings. The open island gets a Timers tab: tap a preset or set a custom length and press Start. Run up to five at once and pause, resume or cancel each. The timer finishing first counts down beside the notch, and a sound and a "Done" notice mark the end; both can be turned off. Switch to Stopwatch at the top of the tab for a stopwatch with laps; a running stopwatch counts up beside the notch when no timer is showing. Timers and the stopwatch are cleared when you quit.
