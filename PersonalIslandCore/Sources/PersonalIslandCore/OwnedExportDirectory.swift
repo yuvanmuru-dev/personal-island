@@ -7,8 +7,11 @@ private final class DirectoryDescriptor {
     deinit { close(value) }
 }
 
-/// All mutations are relative to a verified directory descriptor. No catalog
-/// field or display name becomes a path. Used only by its owning ShelfStore.
+/// All mutations are relative to a verified directory descriptor. A file name
+/// is either derived from a generated identifier or a readable name that
+/// passed `ExportRecord.isReadableFileName`; no other catalog field or display
+/// name becomes a path, and names never contain separators. Used only by its
+/// owning ShelfStore.
 final class OwnedExportDirectory {
     private static let catalogName = "catalog.json"
     private static let maximumCatalogBytes = 4 * 1_024 * 1_024
@@ -62,13 +65,13 @@ final class OwnedExportDirectory {
         }
     }
 
-    func exportURL(for id: ExportID) -> URL {
-        url.appendingPathComponent(Self.fileName(for: id))
+    func exportURL(for record: ExportRecord) -> URL {
+        url.appendingPathComponent(record.storedFileName)
     }
 
     func validateInventory(records: [ExportRecord]) throws {
         try verifyRootIdentity()
-        let allowed = Set(records.map { Self.fileName(for: $0.id) }).union([Self.catalogName])
+        let allowed = Set(records.map(\.storedFileName)).union([Self.catalogName])
         // Use a separately opened descriptor so directory iteration does not
         // change the shared descriptor's offset on subsequent sweeps.
         let scanDescriptor = openat(descriptor, ".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
@@ -93,24 +96,24 @@ final class OwnedExportDirectory {
         guard errno == 0 else { throw Self.failure("enumerate export directory") }
     }
 
-    func exists(_ id: ExportID) throws -> Bool {
-        try regularFileInfo(name: Self.fileName(for: id)) != nil
+    func exists(_ record: ExportRecord) throws -> Bool {
+        try regularFileInfo(name: record.storedFileName) != nil
     }
 
-    func byteCount(_ id: ExportID) throws -> Int? {
-        guard let info = try regularFileInfo(name: Self.fileName(for: id)) else { return nil }
-        guard info.st_size >= 0, info.st_size <= Int.max else { throw ShelfError.unsafeFile(Self.fileName(for: id)) }
+    func byteCount(_ record: ExportRecord) throws -> Int? {
+        guard let info = try regularFileInfo(name: record.storedFileName) else { return nil }
+        guard info.st_size >= 0, info.st_size <= Int.max else { throw ShelfError.unsafeFile(record.storedFileName) }
         return Int(info.st_size)
     }
 
-    func createPNG(_ data: Data, id: ExportID) throws {
+    func createPNG(_ data: Data, for record: ExportRecord) throws {
         try verifyRootIdentity()
-        try Self.writeNewFile(data, name: Self.fileName(for: id), descriptor: descriptor)
+        try Self.writeNewFile(data, name: record.storedFileName, descriptor: descriptor)
     }
 
-    func removePNG(_ id: ExportID) throws {
+    func removePNG(_ record: ExportRecord) throws {
         try verifyRootIdentity()
-        let name = Self.fileName(for: id)
+        let name = record.storedFileName
         guard try regularFileInfo(name: name) != nil else { return }
         guard unlinkat(descriptor, name, 0) == 0 else { throw Self.failure("remove owned export") }
     }
@@ -140,10 +143,6 @@ final class OwnedExportDirectory {
               info.st_uid == geteuid(), info.st_mode & 0o777 == 0o600,
               info.st_nlink == 1 else { throw ShelfError.unsafeFile(name) }
         return info
-    }
-
-    private static func fileName(for id: ExportID) -> String {
-        id.value.uuidString.lowercased() + ".png"
     }
 
     private static func readCatalog(descriptor: Int32) throws -> ExportCatalog {

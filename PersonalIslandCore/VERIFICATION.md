@@ -1,3 +1,9 @@
+# Core verification
+
+## Readable export names — November 12, 2026
+
+The core now passes 38 synthetic tests (run by `implementation/verify.py`). New exports use a stored, pattern-validated readable name; catalog version 2; version 1 catalogs and their identifier-named files remain supported. See TESTING.md for the cases.
+
 # First core milestone verification
 
 Date: November 11, 2026. Result: **library compiled; 19 tests passed, 0 failed**.

@@ -105,29 +105,56 @@ struct ExportRecord: Codable, Equatable, Sendable {
     let sourceID: ShelfItemID
     let createdAt: Date
     var lastUsedAt: Date
+    /// Readable name chosen when the export was created. nil for exports
+    /// written before readable names (catalog version 1), which use the
+    /// generated identifier name. Only names matching `isReadableFileName`
+    /// are accepted from a catalog, so this can never express a path.
+    let fileName: String?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
-        case id, sourceID, createdAt, lastUsedAt
+        case id, sourceID, createdAt, lastUsedAt, fileName
     }
 
-    init(id: ExportID, sourceID: ShelfItemID, createdAt: Date, lastUsedAt: Date) {
+    init(id: ExportID, sourceID: ShelfItemID, createdAt: Date, lastUsedAt: Date, fileName: String? = nil) {
         self.id = id
         self.sourceID = sourceID
         self.createdAt = createdAt
         self.lastUsedAt = lastUsedAt
+        self.fileName = fileName
     }
 
     init(from decoder: any Decoder) throws {
-        try requireExactKeys(decoder, expected: Set(CodingKeys.allCases.map(\.rawValue)))
+        let legacyKeys = Set(CodingKeys.allCases.map(\.rawValue)).subtracting([CodingKeys.fileName.rawValue])
+        let isLegacy = (try? requireExactKeys(decoder, expected: legacyKeys)) != nil
+        if !isLegacy {
+            try requireExactKeys(decoder, expected: Set(CodingKeys.allCases.map(\.rawValue)))
+        }
         let values = try decoder.container(keyedBy: CodingKeys.self)
         id = try values.decode(ExportID.self, forKey: .id)
         sourceID = try values.decode(ShelfItemID.self, forKey: .sourceID)
         createdAt = try values.decode(Date.self, forKey: .createdAt)
         lastUsedAt = try values.decode(Date.self, forKey: .lastUsedAt)
+        fileName = isLegacy ? nil : try values.decode(String.self, forKey: .fileName)
         guard createdAt.timeIntervalSince1970.isFinite,
               lastUsedAt.timeIntervalSince1970.isFinite,
-              lastUsedAt >= createdAt else { throw ShelfError.invalidCatalog }
+              lastUsedAt >= createdAt,
+              fileName.map(Self.isReadableFileName) ?? true else { throw ShelfError.invalidCatalog }
     }
+
+    /// The single file this record owns inside the export directory.
+    var storedFileName: String {
+        fileName ?? id.value.uuidString.lowercased() + ".png"
+    }
+
+    /// `Screenshot YYYY-MM-DD at HH.MM.SS.png`, optionally with ` (2)`…` (9999)`.
+    /// Only ASCII digits, spaces, letters of the fixed words, dots and
+    /// parentheses: no separators, no leading dot, no traversal.
+    static func isReadableFileName(_ name: String) -> Bool {
+        name.wholeMatch(of: readableFileNamePattern) != nil
+    }
+
+    nonisolated(unsafe) private static let readableFileNamePattern =
+        /Screenshot [0-9]{4}-[0-9]{2}-[0-9]{2} at [0-9]{2}\.[0-9]{2}\.[0-9]{2}(?: \((?:[2-9]|[1-9][0-9]{1,3})\))?\.png/
 }
 
 struct ExportCatalog: Codable, Sendable {
@@ -137,8 +164,11 @@ struct ExportCatalog: Codable, Sendable {
 
     enum CodingKeys: String, CodingKey, CaseIterable { case version, storeID, records }
 
+    /// Version 2 adds readable export names; version 1 catalogs still load.
+    static let currentVersion = 2
+
     init(storeID: UUID, records: [ExportRecord]) {
-        version = 1
+        version = Self.currentVersion
         self.storeID = storeID
         self.records = records
     }
@@ -149,9 +179,11 @@ struct ExportCatalog: Codable, Sendable {
         version = try values.decode(Int.self, forKey: .version)
         storeID = try values.decode(UUID.self, forKey: .storeID)
         records = try values.decode([ExportRecord].self, forKey: .records)
-        guard version == 1,
+        guard version == 1 || version == Self.currentVersion,
+              version != 1 || records.allSatisfy({ $0.fileName == nil }),
               Set(records.map(\.id)).count == records.count,
-              Set(records.map(\.sourceID)).count == records.count else {
+              Set(records.map(\.sourceID)).count == records.count,
+              Set(records.map(\.storedFileName)).count == records.count else {
             throw ShelfError.invalidCatalog
         }
     }

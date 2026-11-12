@@ -227,6 +227,8 @@ private func concurrentlyAdmitScreenshots(limits: ShelfLimits, expectedCount: In
 
 private enum CatalogDamage: String, CaseIterable, Sendable {
     case unsupportedVersion, duplicateExportID, duplicateSourceID, reversedTimestamp
+    case traversalFileName, separatorFileName, catalogFileName, duplicateFileName, nullFileName
+    case readableNameInVersionOneCatalog
 }
 
 @Test(arguments: CatalogDamage.allCases)
@@ -247,6 +249,18 @@ private func invalidCatalogSemanticsPreserveEveryExport(_ damage: CatalogDamage)
     case .reversedTimestamp:
         let createdAt = try #require(records[0]["createdAt"] as? Double)
         records[0]["lastUsedAt"] = createdAt - 1_000
+    case .traversalFileName:
+        records[0]["fileName"] = "../original.txt"
+    case .separatorFileName:
+        records[0]["fileName"] = "Screenshot 2026-11-12 at 14.32.05/x.png"
+    case .catalogFileName:
+        records[0]["fileName"] = "catalog.json"
+    case .duplicateFileName:
+        records[1]["fileName"] = records[0]["fileName"]
+    case .nullFileName:
+        records[0]["fileName"] = NSNull()
+    case .readableNameInVersionOneCatalog:
+        object["version"] = 1
     }
     object["records"] = records
     try JSONSerialization.data(withJSONObject: object).write(to: fixture.catalog)

@@ -16,7 +16,7 @@ This tests the actual storage and presentation logic, measures source coverage, 
 
 ## Current status
 
-The 0.3.0 preview adds dragging screenshots out of the shelf (single or multi-select, with temporary PNG files cleaned up automatically) on top of 0.2.0 region capture (⌃⇧4, in-memory only) and the 0.1.3 notch-sized island, both confirmed by the user on the MacBook. It passes 178 local automated tests plus the Release build/bundle checks; the user reported drag-out works. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
+The 0.3.1 preview adds dragging screenshots out of the shelf (single or multi-select, as readable `Screenshot <date> at <time>.png` files cleaned up automatically) on top of 0.2.0 region capture (⌃⇧4, in-memory only) and the 0.1.3 notch-sized island, both confirmed by the user on the MacBook. It passes 183 local automated tests plus the Release build/bundle checks; the user reported drag-out works. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
 
 The controlled graphical app host builds and passes bundle/signature inspection. It uses explicit presentation sources and the local core, without the upstream package/helper/startup graph. Expanded storage, presentation and build-policy tests are included. The user has launched the preview and confirmed a visible island; both-screen placement and interactions remain unchecked. Capture, native dragging and the accepted integrations are still to be implemented.
 

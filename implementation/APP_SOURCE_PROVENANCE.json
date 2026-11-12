@@ -109,21 +109,21 @@
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/Models.swift",
-      "local_sha256": "b9576dc8833fca10ce1652c09fcb5a7fc75fe775fc643373381e0856063cc4ce",
+      "local_sha256": "f76ecb782ea446cb7ff5a1ccd20b71be36fd8a4af59796bd0ca77cdc33be0380",
       "origin": "new_local_implementation",
-      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
+      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target. Readable export names (0.3.1): optional stored fileName validated against the exact `Screenshot YYYY-MM-DD at HH.MM.SS[ (n)].png` pattern; catalog version 2, version 1 catalogs still load with identifier names; duplicate effective names rejected."
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/OwnedExportDirectory.swift",
-      "local_sha256": "9522052b89e99af9e53da1abb7ab621469e9880bc0293bb32e561d0e09f0e439",
+      "local_sha256": "95c59c3c586f4bda4d4b3294113f1843b3821178b07967b601d6afc8982c62ce",
       "origin": "new_local_implementation",
-      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
+      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target. File operations take the export record and use its validated stored name."
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/ShelfStore.swift",
-      "local_sha256": "4b848f421d9d7a6261be16bc66dd54fd7f0d21bfc0584ea2a5d4de532424aaa8",
+      "local_sha256": "63118c2ee7b294dc64adbe8af3b07398f935e7c84bea92ea58f6f200e1fbbe33",
       "origin": "new_local_implementation",
-      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
+      "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target. New exports named from the item's capture time in an injectable time zone, numbered for same-second captures, falling back to the identifier name if unrepresentable."
     }
   ],
   "notch_production_body_matches_upstream": true,

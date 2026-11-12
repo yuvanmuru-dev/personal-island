@@ -48,8 +48,8 @@ def main():
         "CFBundleDevelopmentRegion": "en", "CFBundleExecutable": "$(EXECUTABLE_NAME)",
         "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)", "CFBundleInfoDictionaryVersion": "6.0",
         "CFBundleName": "Personal Island", "CFBundleDisplayName": "Personal Island",
-        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.3.0",
-        "CFBundleVersion": "6", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
+        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.3.1",
+        "CFBundleVersion": "7", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
         "LSUIElement": True, "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication",
         "NSHumanReadableCopyright": "Personal local build. Includes attributed Atoll/boring.notch presentation code.",
     }

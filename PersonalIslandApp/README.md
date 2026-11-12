@@ -14,9 +14,9 @@ The first Release build and bundle checks pass with Xcode 27.2. See
 [VERIFICATION.md](VERIFICATION.md)
 for the exact checkpoint and untested behavior. The user subsequently opened the preview and confirmed a visible island; both-screen placement and interactions remain unchecked.
 
-## Dragging out (0.3.0)
+## Dragging out (0.3.0, readable names in 0.3.1)
 
-Drag a thumbnail into another app to attach it. Click thumbnails to select several, then drag any selected one to take them all. The shelf stays open while you drag, and items stay on the shelf afterwards so you can drag them again. Screenshots become temporary PNG files only when dragged; they are cleaned up automatically at least 24 hours after their last use once removed from the shelf.
+Drag a thumbnail into another app to attach it. Click thumbnails to select several, then drag any selected one to take them all. The shelf stays open while you drag, and items stay on the shelf afterwards so you can drag them again. Screenshots become temporary PNG files named like `Screenshot 2026-11-12 at 14.32.05.png` only when dragged; they are cleaned up automatically at least 24 hours after their last use once removed from the shelf.
 
 ## Region capture (0.2.0)
 

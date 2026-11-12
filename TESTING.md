@@ -31,15 +31,15 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 12, 2026, Xcode 27.2 / Swift 6.4.2: **178 tests passed, zero failed** (33 storage, 73 presentation, 72 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **183 tests passed, zero failed** (38 storage, 73 presentation, 72 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
 | File | Covered lines |
 | --- | --- |
-| Models.swift | 66/68 (97.1%) |
-| OwnedExportDirectory.swift | 196/208 (94.2%) |
-| ShelfStore.swift | 159/159 (100%) |
+| Models.swift | 89/91 (97.8%) |
+| OwnedExportDirectory.swift | 193/205 (94.1%) |
+| ShelfStore.swift | 178/179 (99.4%) |
 | IslandGeometry.swift | 102/102 (100%) |
 | IslandPresentation.swift | 153/153 (100%) |
 | CaptureGeometry.swift | 31/31 (100%) |
@@ -49,6 +49,8 @@ Measured production line coverage from that run:
 These are line measurements for the tested core/presentation sources, not a claim that every branch, UI interaction or planned integration is tested. The new layout tests caught and fixed a tiny-display menu-bar overlap. Deterministic hover race tests are complemented by one bounded production-timer smoke test that awaits actual open/close callbacks without elapsed-time assertions.
 
 Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
+
+Version 0.3.1 adds readable export names to the storage core, covered by five new storage tests and six new catalog-damage cases. They test the exact `Screenshot YYYY-MM-DD at HH.MM.SS.png` name from the capture time in a fixed time zone, numbered names for same-second captures, the configured local time zone, stored names surviving a restart in another time zone and expiring normally, a version 1 catalog with identifier-named files loading, cleaning up and coexisting with new names, and the exact accepted name pattern (traversal, separators, leading dots, colons, non-ASCII digits, bad numbering and trailing text rejected). Catalogs with traversal, separator, `catalog.json`, duplicate or null names, or readable names in a version 1 catalog, are rejected without deleting any export. The one uncovered `ShelfStore` line is the fallback for dates that cannot be named.
 
 Nine local-signing regressions cover selecting the "Personal Island Local Signing" identity (exact name only, untrusted or twice-listed identities accepted, two same-named identities rejected), the signature policy for either mode (an identity-signed build cannot pass as ad hoc, and vice versa; no extra authority, ad-hoc flag or team), and the re-signing step (ad hoc kept without an identity; hardened runtime and no entitlements with one; listing/signing failures stop the build). Subprocesses are mocked; no keychain is read.
 

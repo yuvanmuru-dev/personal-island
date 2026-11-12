@@ -8,6 +8,7 @@ public actor ShelfStore {
     private let limits: ShelfLimits
     private let exportLimits: ExportLimits
     private let now: @Sendable () -> Date
+    private let exportTimeZone: TimeZone
     private var items: [ShelfItem] = []
     private var records: [ExportRecord]
     private var activeDrags: [DragSessionID: Set<ExportID>] = [:]
@@ -16,7 +17,8 @@ public actor ShelfStore {
         exportRoot: URL,
         limits: ShelfLimits = try! ShelfLimits(),
         exportLimits: ExportLimits = try! ExportLimits(),
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        exportTimeZone: TimeZone = .current
     ) throws {
         let directory = try OwnedExportDirectory(url: exportRoot)
         self.directory = directory
@@ -24,6 +26,7 @@ public actor ShelfStore {
         self.limits = limits
         self.exportLimits = exportLimits
         self.now = now
+        self.exportTimeZone = exportTimeZone
     }
 
     public func snapshot() -> ShelfSnapshot {
@@ -70,14 +73,14 @@ public actor ShelfStore {
         var exportCount = 0
         var exportBytes = 0
         for record in records {
-            if let count = try directory.byteCount(record.id) {
+            if let count = try directory.byteCount(record) {
                 guard count <= Int.max - exportBytes else { throw ShelfError.exportCapacityExceeded }
                 exportCount += 1
                 exportBytes += count
             }
         }
         var nextRecords = records
-        var created: [ExportID] = []
+        var created: [ExportRecord] = []
         var dragItems: [DragItem] = []
         do {
             for item in requested {
@@ -87,7 +90,7 @@ public actor ShelfStore {
                 case .screenshot(let data):
                     let index = nextRecords.firstIndex { $0.sourceID == item.id }
                     let record: ExportRecord
-                    if let index, try directory.exists(nextRecords[index].id) {
+                    if let index, try directory.exists(nextRecords[index]) {
                         nextRecords[index].lastUsedAt = max(now(), nextRecords[index].lastUsedAt)
                         record = nextRecords[index]
                     } else {
@@ -98,14 +101,18 @@ public actor ShelfStore {
                         }
                         if let index { nextRecords.remove(at: index) }
                         let timestamp = now()
-                        record = ExportRecord(id: ExportID(), sourceID: item.id, createdAt: timestamp, lastUsedAt: timestamp)
-                        try directory.createPNG(data, id: record.id)
-                        created.append(record.id)
+                        record = ExportRecord(
+                            id: ExportID(), sourceID: item.id, createdAt: timestamp, lastUsedAt: timestamp,
+                            fileName: readableFileName(capturedAt: item.createdAt,
+                                                       taken: Set(nextRecords.map(\.storedFileName)))
+                        )
+                        try directory.createPNG(data, for: record)
+                        created.append(record)
                         nextRecords.append(record)
                         exportCount += 1
                         exportBytes += data.count
                     }
-                    dragItems.append(DragItem(itemID: item.id, url: directory.exportURL(for: record.id), exportID: record.id))
+                    dragItems.append(DragItem(itemID: item.id, url: directory.exportURL(for: record), exportID: record.id))
                 }
             }
             try directory.commit(nextRecords)
@@ -113,7 +120,7 @@ public actor ShelfStore {
             // Only UUID files just created by this operation are eligible.
             // Failure to remove one leaves an unknown file and a fail-closed
             // next launch, never a broad orphan-deletion sweep.
-            for id in created { try? directory.removePNG(id) }
+            for record in created { try? directory.removePNG(record) }
             throw error
         }
         records = nextRecords
@@ -147,12 +154,30 @@ public actor ShelfStore {
             !liveSources.contains($0.sourceID) && !activeExports.contains($0.id)
                 && timestamp.timeIntervalSince($0.lastUsedAt) >= Self.exportGracePeriod
         }
-        for record in expired { try directory.removePNG(record.id) }
+        for record in expired { try directory.removePNG(record) }
         let removed = Set(expired.map(\.id))
         let nextRecords = records.filter { !removed.contains($0.id) }
         try directory.commit(nextRecords)
         records = nextRecords
         return CleanupReport(removedExportCount: expired.count)
+    }
+
+    /// `Screenshot 2026-11-12 at 14.32.05.png` in the export time zone, with
+    /// ` (2)`, ` (3)`… for captures in the same second. Falls back to the
+    /// generated identifier name if the date cannot be expressed safely.
+    private func readableFileName(capturedAt date: Date, taken: Set<String>) -> String? {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = exportTimeZone
+        let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
+        guard let year = parts.year, let month = parts.month, let day = parts.day,
+              let hour = parts.hour, let minute = parts.minute, let second = parts.second else { return nil }
+        let base = String(format: "Screenshot %04d-%02d-%02d at %02d.%02d.%02d", year, month, day, hour, minute, second)
+        for suffix in 1...9_999 {
+            let name = suffix == 1 ? base + ".png" : base + " (\(suffix)).png"
+            guard ExportRecord.isReadableFileName(name) else { return nil }
+            if !taken.contains(name) { return name }
+        }
+        return nil
     }
 
     private var screenshotByteCount: Int {

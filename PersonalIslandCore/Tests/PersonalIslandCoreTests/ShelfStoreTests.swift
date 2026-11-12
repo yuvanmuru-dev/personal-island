@@ -24,7 +24,8 @@ private final class Fixture {
     deinit { try? FileManager.default.removeItem(at: base) }
 
     func store(clock: TestClock = TestClock(), limits: ShelfLimits = try! ShelfLimits()) throws -> ShelfStore {
-        try ShelfStore(exportRoot: exports, limits: limits, now: { clock.now() })
+        try ShelfStore(exportRoot: exports, limits: limits, now: { clock.now() },
+                       exportTimeZone: TimeZone(identifier: "UTC")!)
     }
 
     func assertOriginalIntact() throws {
@@ -176,13 +177,16 @@ private func createRetiredExport(fixture: Fixture, clock: TestClock) async throw
     try fixture.assertOriginalIntact()
 }
 
-@Test func exportsAndCatalogHavePrivatePermissionsAndGeneratedNames() async throws {
+@Test func exportsAndCatalogHavePrivatePermissionsAndReadableCaptureTimeNames() async throws {
     let fixture = try Fixture()
-    let store = try fixture.store()
+    let clock = TestClock()
+    let store = try fixture.store(clock: clock)
     let id = try await store.addScreenshot(encodedPNG: syntheticPNG())
+    clock.advance(90)  // the name uses the capture time, not the drag time
     let drag = try await store.beginFileDrag(itemIDs: [id])
     let export = drag.items[0].url
-    #expect(UUID(uuidString: export.deletingPathExtension().lastPathComponent) != nil)
+    // 1_800_000_000 is 2027-01-15 08:00:00 UTC.
+    #expect(export.lastPathComponent == "Screenshot 2027-01-15 at 08.00.00.png")
     #expect(export.pathExtension == "png")
     #expect(export.deletingLastPathComponent() == fixture.exports)
     let rootMode = try FileManager.default.attributesOfItem(atPath: fixture.exports.path)[.posixPermissions] as? Int
