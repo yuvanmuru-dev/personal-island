@@ -19,7 +19,7 @@ let package = Package(
                 "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift",
                 "ShelfDragSource.swift"
             ],
-            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift"]
+            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift"]
         ),
         .testTarget(
             name: "PersonalIslandPresentationTests",

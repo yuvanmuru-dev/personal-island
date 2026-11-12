@@ -39,6 +39,23 @@ enum CaptureGeometry {
         )
     }
 
+    /// Inverse of `coreGraphicsRect(fromAppKit:primaryDisplay:)`.
+    static func appKitRect(fromCoreGraphics rect: CGRect, primaryDisplay: CGRect) -> CGRect? {
+        guard isUsable(rect), isUsable(primaryDisplay) else { return nil }
+        return CGRect(
+            x: rect.minX,
+            y: primaryDisplay.maxY - rect.maxY,
+            width: rect.width,
+            height: rect.height
+        )
+    }
+
+    /// The Core Graphics global point for an AppKit global point.
+    static func coreGraphicsPoint(fromAppKit point: CGPoint, primaryDisplay: CGRect) -> CGPoint? {
+        guard point.x.isFinite, point.y.isFinite, isUsable(primaryDisplay) else { return nil }
+        return CGPoint(x: point.x, y: primaryDisplay.maxY - point.y)
+    }
+
     private static func isUsable(_ rect: CGRect) -> Bool {
         !rect.isNull && rect.origin.x.isFinite && rect.origin.y.isFinite
             && rect.width.isFinite && rect.height.isFinite

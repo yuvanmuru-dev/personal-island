@@ -11,7 +11,7 @@ struct PersonalIslandApp: App {
         MenuBarExtra("Personal Island", systemImage: "capsule") {
             Text("Personal Island · Preview")
             Divider()
-            Button("Capture Region") {
+            Button("Capture…") {
                 coordinator.captureRegion()
             }
             .keyboardShortcut("4", modifiers: [.control, .shift])

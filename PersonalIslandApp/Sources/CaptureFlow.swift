@@ -34,11 +34,11 @@ final class CaptureFlow {
         var requestPermission: @MainActor () -> Void
         var hideIslands: @MainActor () -> Void
         var restoreIslands: @MainActor () -> Void
-        /// Shows the selection UI; returns an AppKit global rect or nil.
-        var selectRegion: @MainActor () async -> CGRect?
+        /// Shows the selection UI; returns a region, window, or nil if cancelled.
+        var selectTarget: @MainActor () async -> CaptureTarget?
         var cancelSelection: @MainActor () -> Void
-        /// Returns validated PNG bytes for an AppKit global rect.
-        var captureRegion: @MainActor (CGRect) async throws -> Data
+        /// Returns validated PNG bytes for the selected target.
+        var capture: @MainActor (CaptureTarget) async throws -> Data
         var admit: @MainActor (Data) async throws -> Void
         var classify: @MainActor (any Error) -> Failure = { _ in .capture }
     }
@@ -62,10 +62,10 @@ final class CaptureFlow {
             phase = .idle
             environment.restoreIslands()
         }
-        guard let region = await environment.selectRegion() else { return .cancelled }
+        guard let target = await environment.selectTarget() else { return .cancelled }
         phase = .capturing
         do {
-            let png = try await environment.captureRegion(region)
+            let png = try await environment.capture(target)
             try await environment.admit(png)
             return .captured
         } catch {

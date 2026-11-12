@@ -81,11 +81,12 @@ private struct ShelfFull: Error {}
 private final class FakeCapturePlatform {
     var permitted = true
     var log: [String] = []
-    var selection: CGRect? = CGRect(x: 0, y: 0, width: 100, height: 100)
+    var selection: CaptureTarget? = .region(CGRect(x: 0, y: 0, width: 100, height: 100))
     var captureError: (any Error)?
     var admitError: (any Error)?
     var admitted: [Data] = []
-    var pendingSelection: CheckedContinuation<CGRect?, Never>?
+    var pendingSelection: CheckedContinuation<CaptureTarget?, Never>?
+    var captured: [CaptureTarget] = []
     var holdSelection = false
 
     func environment() -> CaptureFlow.Environment {
@@ -94,7 +95,7 @@ private final class FakeCapturePlatform {
             requestPermission: { [unowned self] in self.log.append("request") },
             hideIslands: { [unowned self] in self.log.append("hide") },
             restoreIslands: { [unowned self] in self.log.append("restore") },
-            selectRegion: { [unowned self] in
+            selectTarget: { [unowned self] in
                 self.log.append("select")
                 if self.holdSelection {
                     return await withCheckedContinuation { self.pendingSelection = $0 }
@@ -106,10 +107,14 @@ private final class FakeCapturePlatform {
                 self.pendingSelection?.resume(returning: nil)
                 self.pendingSelection = nil
             },
-            captureRegion: { [unowned self] rect in
+            capture: { [unowned self] target in
                 self.log.append("capture")
+                self.captured.append(target)
                 if let error = self.captureError { throw error }
-                return Data("png-\(Int(rect.width))".utf8)
+                switch target {
+                case .region(let rect): return Data("png-\(Int(rect.width))".utf8)
+                case .window(let id): return Data("window-\(id)".utf8)
+                }
             },
             admit: { [unowned self] data in
                 self.log.append("admit")
@@ -185,4 +190,28 @@ private final class FakeCapturePlatform {
     platform.log = []
     #expect(await flow.run() == .captured)
     #expect(platform.log == ["hide", "select", "capture", "admit", "restore"])
+}
+
+@Test @MainActor func aSelectedWindowIsCapturedAndAdmittedLikeARegion() async {
+    let platform = FakeCapturePlatform()
+    platform.selection = .window(4242)
+    let flow = CaptureFlow(environment: platform.environment())
+    #expect(await flow.run() == .captured)
+    #expect(platform.captured == [.window(4242)])
+    #expect(platform.admitted == [Data("window-4242".utf8)])
+    #expect(platform.log == ["hide", "select", "capture", "admit", "restore"])
+}
+
+// MARK: - Coordinate round trips
+
+@Test func coreGraphicsRectsFlipBackToAppKitExactly() {
+    let primary = CGRect(x: 0, y: 0, width: 1512, height: 982)
+    for rect in [CGRect(x: 0, y: 0, width: 200, height: 100), CGRect(x: -500, y: 1082, width: 450, height: 500),
+                 CGRect(x: 1600, y: -618, width: 100, height: 100)] {
+        let appKit = CaptureGeometry.appKitRect(fromCoreGraphics: rect, primaryDisplay: primary)
+        #expect(appKit.flatMap { CaptureGeometry.coreGraphicsRect(fromAppKit: $0, primaryDisplay: primary) } == rect)
+    }
+    #expect(CaptureGeometry.appKitRect(fromCoreGraphics: .zero, primaryDisplay: primary) == nil)
+    #expect(CaptureGeometry.coreGraphicsPoint(fromAppKit: CGPoint(x: 10, y: 982), primaryDisplay: primary) == CGPoint(x: 10, y: 0))
+    #expect(CaptureGeometry.coreGraphicsPoint(fromAppKit: CGPoint(x: CGFloat.nan, y: 0), primaryDisplay: primary) == nil)
 }

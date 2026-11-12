@@ -44,8 +44,8 @@ Quit the existing preview from its menu-bar icon, reopen the built app, enable E
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.3.1 (7); initial preview was 0.1.0 (1) |
-| App sources | Fifteen explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
+| App identity | `dev.personal.PersonalIsland`, version 0.4.0 (8); initial preview was 0.1.0 (1) |
+| App sources | Sixteen explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |
 | Signature | Local builds: valid signature from the user's self-signed "Personal Island Local Signing" certificate (designated requirement: bundle identifier + certificate leaf), hardened runtime present. Without that identity (CI): valid ad-hoc signature |

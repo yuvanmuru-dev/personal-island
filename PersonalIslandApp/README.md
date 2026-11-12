@@ -18,6 +18,10 @@ for the exact checkpoint and untested behavior. The user subsequently opened the
 
 Drag a thumbnail into another app to attach it. Click thumbnails to select several, then drag any selected one to take them all. The shelf stays open while you drag, and items stay on the shelf afterwards so you can drag them again. Screenshots become temporary PNG files named like `Screenshot 2026-11-12 at 14.32.05.png` only when dragged; they are cleaned up automatically at least 24 hours after their last use once removed from the shelf.
 
+## Window and screen capture (0.4.0)
+
+After ⌃⇧4, press Space to switch to window mode: the window under the pointer is highlighted, and a click captures just that window even if others overlap it. Press Space again to go back to dragging a region. Press Return to capture the whole screen the pointer is on. The overlay shows these keys at the bottom.
+
 ## Region capture (0.2.0)
 
 Press ⌃⇧4 (or use the menu-bar item or the camera button in the shelf), drag a region, and the screenshot lands in the shelf in memory only. Escape or a plain click cancels. Hover a thumbnail for Copy and Remove; the trash button clears the shelf. The first capture asks for Screen Recording permission; after granting it, quit and reopen the app. The shortcut can be turned off in Settings. Dragging screenshots into other apps comes next.

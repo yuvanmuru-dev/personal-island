@@ -31,7 +31,7 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 12, 2026, Xcode 27.2 / Swift 6.4.2: **183 tests passed, zero failed** (38 storage, 73 presentation, 72 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **188 tests passed, zero failed** (38 storage, 78 presentation, 72 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
@@ -42,13 +42,16 @@ Measured production line coverage from that run:
 | ShelfStore.swift | 178/179 (99.4%) |
 | IslandGeometry.swift | 102/102 (100%) |
 | IslandPresentation.swift | 153/153 (100%) |
-| CaptureGeometry.swift | 31/31 (100%) |
+| CaptureGeometry.swift | 44/44 (100%) |
+| WindowPicker.swift | 58/58 (100%) |
 | CaptureFlow.swift | 30/31 (96.8%) |
 | ShelfDragFlow.swift | 46/46 (100%) |
 
 These are line measurements for the tested core/presentation sources, not a claim that every branch, UI interaction or planned integration is tested. The new layout tests caught and fixed a tiny-display menu-bar overlap. Deterministic hover race tests are complemented by one bounded production-timer smoke test that awaits actual open/close callbacks without elapsed-time assertions.
 
 Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
+
+Version 0.4.0 adds five capture regressions: window-list parsing keeps front-to-back order and skips malformed entries (missing bounds, invalid numbers, zero size, non-finite values, unexpected shapes); the frontmost ordinary window under the pointer wins over menu-bar-layer, own-process, invisible and tiny windows; windows on negative-coordinate displays can be picked; a selected window flows through capture and admission like a region; and Core Graphics/AppKit rectangle and point conversions round-trip. The overlay key handling and ScreenCaptureKit window capture are compiled and reviewed but not executed by tests.
 
 Version 0.3.1 adds readable export names to the storage core, covered by five new storage tests and six new catalog-damage cases. They test the exact `Screenshot YYYY-MM-DD at HH.MM.SS.png` name from the capture time in a fixed time zone, numbered names for same-second captures, the configured local time zone, stored names surviving a restart in another time zone and expiring normally, a version 1 catalog with identifier-named files loading, cleaning up and coexisting with new names, and the exact accepted name pattern (traversal, separators, leading dots, colons, non-ASCII digits, bad numbering and trailing text rejected). Catalogs with traversal, separator, `catalog.json`, duplicate or null names, or readable names in a version 1 catalog, are rejected without deleting any export. The one uncovered `ShelfStore` line is the fallback for dates that cannot be named.
 

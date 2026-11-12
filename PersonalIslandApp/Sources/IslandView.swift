@@ -88,7 +88,7 @@ struct IslandView: View {
                 if !coordinator.shelfItems.isEmpty {
                     headerButton("trash", label: "Clear shelf") { coordinator.clearShelf() }
                 }
-                headerButton("camera.viewfinder", label: "Capture region (\(coordinator.captureShortcutName))") {
+                headerButton("camera.viewfinder", label: "Capture (\(coordinator.captureShortcutName))") {
                     presentation.collapse()
                     coordinator.captureRegion()
                 }
@@ -156,7 +156,7 @@ struct IslandView: View {
                     .foregroundStyle(.white.opacity(0.36))
                 Text("Your shelf is empty")
                     .font(.system(size: 13, weight: .medium))
-                Text("Press \(coordinator.captureShortcutName) or the camera button to capture a region.")
+                Text("Press \(coordinator.captureShortcutName), then drag a region, press Space for a window, or Return for the screen.")
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.48))
             }

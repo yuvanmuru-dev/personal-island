@@ -4,15 +4,15 @@
   "files": [
     {
       "local_path": "PersonalIslandApp/Sources/CaptureFlow.swift",
-      "local_sha256": "bf1052fe3b006ee1b2a10d8b1385d0f6640cb896a8400acb5939dddce2959d6f",
+      "local_sha256": "8c947494ab77dae2c787044af1d5192ebb876fa5ec8eb9f34d6f77b3a602318f",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Injected-environment capture lifecycle: one capture at a time, permission gating without hiding islands, hide/restore exactly once on success, cancel and failure, error classification without image contents."
+      "modifications": "Written for this personal project; no upstream file copied. Injected-environment capture lifecycle: one capture at a time, permission gating without hiding islands, hide/restore exactly once on success, cancel and failure, error classification without image contents. Window/display capture (0.4.0): selection returns a CaptureTarget (region or window) passed through to capture."
     },
     {
       "local_path": "PersonalIslandApp/Sources/CaptureGeometry.swift",
-      "local_sha256": "e4d44340f694c31b3183a66a559509c01b1b997124fe77550df63f10fe0c658c",
+      "local_sha256": "0a8e8fd209a6456f7d5495d72c85103b4d8798ac6c2c33ef80892c591d8720c2",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Pure region-selection math: drag normalization, clamping to the starting display, minimum size, AppKit-to-Core-Graphics global coordinate conversion."
+      "modifications": "Written for this personal project; no upstream file copied. Pure region-selection math: drag normalization, clamping to the starting display, minimum size, AppKit-to-Core-Graphics global coordinate conversion. Inverse Core Graphics-to-AppKit rect and point conversions for window highlighting and hit-testing."
     },
     {
       "local_path": "PersonalIslandApp/Sources/GlobalHotKey.swift",
@@ -22,9 +22,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
-      "local_sha256": "f1297a6f9ca4678402fe72f4bbbc439c4d177c0a9e189a3d9fed5682b624805c",
+      "local_sha256": "7aee66b5cc3e586ad038eec8162cf6471fdc88a23c9fb1e915cc52e6eeb89893",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running. Drag-out increment (0.3.0): selection state, drag flow wiring to ShelfStore.beginFileDrag/endDrag, shelf hold across presenters, export-capacity messages."
+      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running. Drag-out increment (0.3.0): selection state, drag flow wiring to ShelfStore.beginFileDrag/endDrag, shelf hold across presenters, export-capacity messages. Wire capture targets."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
@@ -56,9 +56,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandView.swift",
-      "local_sha256": "81524d0d6e3be4f75dd4aab8453bc3b0a9bc785db47d8341a0f5e890b34b0dff",
+      "local_sha256": "6a1584277745f02f56c3dbdd864c6084f2afc13e6acfaa6ceb4f72113a0dbc81",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line. Tile drag overlay, selection highlight and selected accessibility trait."
+      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line. Tile drag overlay, selection highlight and selected accessibility trait. Capture button and empty-state text describe region, window and screen capture."
     },
     {
       "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
@@ -73,21 +73,21 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/PersonalIslandApp.swift",
-      "local_sha256": "2e9898ae1fec77845d7951753387976cdbb66a8e23c2dd51b0345de2a22cbf46",
+      "local_sha256": "f46d6b69873b489370fdcad4d2348d54c5b395db26d0a8d86355d127fb1fdbaf",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Capture Region menu item."
+      "modifications": "Written for this personal project; no upstream file copied. Capture Region menu item. Menu item renamed Capture\u2026."
     },
     {
       "local_path": "PersonalIslandApp/Sources/RegionSelector.swift",
-      "local_sha256": "4e530ab139631c4fb87b43fda22cdbf93ad7a898121f2399b4d7252386ba0b80",
+      "local_sha256": "8f52f1e9b36477615eb6449a9128df8b7b6558bbaf429e3c5f68d43873359815",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Non-activating per-display crosshair overlay returning an AppKit global selection; Escape, right-click or a click without dragging cancels."
+      "modifications": "Written for this personal project; no upstream file copied. Non-activating per-display crosshair overlay returning an AppKit global selection; Escape, right-click or a click without dragging cancels. Space toggles window mode with frontmost-window highlight from the public window list (numbers, owners, layers, opacity, bounds only); Return selects the display under the pointer; on-overlay key hint."
     },
     {
       "local_path": "PersonalIslandApp/Sources/ScreenRegionCapture.swift",
-      "local_sha256": "3d16c2d3ca6fc399026f01050961161f700f73023ae28e600095e04597aeec63",
+      "local_sha256": "1f184ce9e8d9dccf6a2e6f38e2e339b94c82a5cfd6304e1b89d54f6756e6613d",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. On-demand ScreenCaptureKit SCScreenshotManager.captureImage(in:) region capture encoded to in-memory PNG; no disk, pasteboard, preference change or continuous stream. Screen Recording request with a settings-pane fallback; ImageIO thumbnails."
+      "modifications": "Written for this personal project; no upstream file copied. On-demand ScreenCaptureKit SCScreenshotManager.captureImage(in:) region capture encoded to in-memory PNG; no disk, pasteboard, preference change or continuous stream. Screen Recording request with a settings-pane fallback; ImageIO thumbnails. Single-window capture via SCContentFilter(desktopIndependentWindow:) at the display's point-pixel scale, without the cursor."
     },
     {
       "local_path": "PersonalIslandApp/Sources/SettingsView.swift",
@@ -106,6 +106,12 @@
       "local_sha256": "b9c5f0684496fcb0c2c2369e1af8610e8cc19c0e54dd977b455b59830f2526a2",
       "origin": "new_local_implementation",
       "modifications": "Written for this personal project; no upstream file copied. AppKit NSDraggingSource overlay for shelf tiles: click selects, drag prepares core exports then starts a native copy-only drag with a file URL and in-memory PNG data per item; ends the flow when AppKit ends the session."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/WindowPicker.swift",
+      "local_sha256": "dc8364823a7546ebcb4ac595a64801f3bff35dceb01d7a147bd91fac8d3c3d23",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. CaptureTarget enum and pure frontmost-window hit-testing over parsed CGWindowListCopyWindowInfo entries (layer 0, other processes, visible, minimum size); malformed entries skipped."
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/Models.swift",

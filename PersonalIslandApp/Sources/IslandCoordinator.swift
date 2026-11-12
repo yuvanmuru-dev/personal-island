@@ -69,9 +69,9 @@ final class IslandCoordinator: ObservableObject {
         requestPermission: { ScreenRegionCapture.requestPermission() },
         hideIslands: { [weak self] in self?.setPresentersHiddenForCapture(true) },
         restoreIslands: { [weak self] in self?.setPresentersHiddenForCapture(false) },
-        selectRegion: { [weak self] in await self?.regionSelector.select() },
+        selectTarget: { [weak self] in await self?.regionSelector.select() },
         cancelSelection: { [weak self] in self?.regionSelector.cancel() },
-        captureRegion: { region in try await ScreenRegionCapture.capture(region: region) },
+        capture: { target in try await ScreenRegionCapture.capture(target) },
         admit: { [weak self] png in
             guard let self else { throw CancellationError() }
             try await self.admitScreenshot(png)
