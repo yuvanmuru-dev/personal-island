@@ -85,9 +85,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/ScreenRegionCapture.swift",
-      "local_sha256": "1f184ce9e8d9dccf6a2e6f38e2e339b94c82a5cfd6304e1b89d54f6756e6613d",
+      "local_sha256": "3fd6f734f0a7f2d5e2a94dd757e323873ee759b69d0ae3860be90e999450a3c7",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. On-demand ScreenCaptureKit SCScreenshotManager.captureImage(in:) region capture encoded to in-memory PNG; no disk, pasteboard, preference change or continuous stream. Screen Recording request with a settings-pane fallback; ImageIO thumbnails. Single-window capture via SCContentFilter(desktopIndependentWindow:) at the display's point-pixel scale, without the cursor."
+      "modifications": "Written for this personal project; no upstream file copied. On-demand ScreenCaptureKit SCScreenshotManager.captureImage(in:) region capture encoded to in-memory PNG; no disk, pasteboard, preference change or continuous stream. Screen Recording request with a settings-pane fallback; ImageIO thumbnails. Single-window capture via SCContentFilter(desktopIndependentWindow:) at the display's point-pixel scale, without the cursor. Window capture runs outside the main actor so non-Sendable ScreenCaptureKit content never crosses isolation (Xcode 16.4 CI compatibility)."
     },
     {
       "local_path": "PersonalIslandApp/Sources/SettingsView.swift",

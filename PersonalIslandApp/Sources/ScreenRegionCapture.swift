@@ -42,8 +42,10 @@ enum ScreenRegionCapture {
 
     /// Captures one window on its own, without windows that overlap it, at
     /// its display's full pixel density. The window must still be on screen.
-    @MainActor
-    static func capture(windowID: CGWindowID) async throws -> Data {
+    /// Deliberately not main-actor isolated: ScreenCaptureKit's shareable
+    /// content is not Sendable in older SDKs (Xcode 16.4 in CI), so it is
+    /// fetched and used here and only the encoded PNG crosses back.
+    nonisolated static func capture(windowID: CGWindowID) async throws -> Data {
         try await Task.sleep(for: .milliseconds(80))
         let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: true)
         guard let window = content.windows.first(where: { $0.windowID == windowID }) else {
