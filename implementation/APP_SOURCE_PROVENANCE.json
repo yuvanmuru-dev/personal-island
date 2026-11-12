@@ -1,12 +1,12 @@
 {
-  "date": "2026-11-11",
+  "date": "2026-11-12",
   "scope": "Controlled graphical host and directly tested local presentation/storage components, not a complete Atoll fork. No DynamicNotch source has been copied into this host.",
   "files": [
     {
       "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
-      "local_sha256": "68e63ad38d8b3475c72225f56293f032dd0d15f1d12eee1d6fca8579d157264a",
+      "local_sha256": "d82b966cf9d9965afd81c4e4c13e93a3ddaeef308da1dbd19998a73cd1456bd1",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied."
+      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
@@ -21,20 +21,20 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPanelController.swift",
-      "local_sha256": "a9177223d8d3f57f677b7eb1008b7ff43da40ec00ce6e92560ba1f3ded0d35d8",
+      "local_sha256": "dae5d1cc3795fca38157ed0962647ebc20aded2d710799ec3fdfe7c20199cae0",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/components/Notch/DynamicIslandWindow.swift",
       "upstream_sha256": "07427c36598e884b0ffa7131352596881cfafa3ad40b9d501db7cc58109514cb",
-      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift.",
+      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandView.swift",
-      "local_sha256": "9c61ecb04befb20319aa4f99a2406589949bc63a1242eb8536fad0736dda57ef",
+      "local_sha256": "d06f87c75103462821e9eab7813c766886b143e4997e7d58aa214d8c0637066f",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied."
+      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion."
     },
     {
       "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
@@ -79,9 +79,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPresentation.swift",
-      "local_sha256": "baf970d3deff6ea9bf3d4eb2adca71b97c4ffeb9f1915edc4160d91c78fcf4a4",
+      "local_sha256": "a613fa63d9b802b3f4984c8ed33d89625c826b2f6a75ac068e433650a30a181a",
       "origin": "new_local_implementation",
-      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests."
+      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters."
     }
   ],
   "notch_production_body_matches_upstream": true,

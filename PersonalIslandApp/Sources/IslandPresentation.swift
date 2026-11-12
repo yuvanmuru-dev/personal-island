@@ -19,6 +19,13 @@ final class IslandPresentation: ObservableObject {
     private var pendingInteraction: AnyCancellable?
     private var pendingID: UUID?
     private var openedByHover = false
+    private var pointerInside = false
+    private var hoverEnabled = false
+
+    // A short dwell avoids opening on an incidental pass; a slightly longer
+    // exit grace lets the pointer cross an edge without flickering the shelf.
+    private static let openDelay: UInt64 = 80_000_000
+    private static let closeDelay: UInt64 = 120_000_000
 
     init(layout: IslandGeometry.Layout, scheduler: Scheduler? = nil) {
         self.layout = layout
@@ -45,20 +52,36 @@ final class IslandPresentation: ObservableObject {
     }
 
     func hoverChanged(_ inside: Bool, enabled: Bool) {
+        // Tracking-area updates and window resizing can repeat the same input.
+        // Those callbacks must not extend an already scheduled deadline.
+        guard inside != pointerInside || enabled != hoverEnabled else { return }
+        pointerInside = inside
+        hoverEnabled = enabled
         cancelPendingInteraction()
-        guard enabled else { return }
+        guard enabled else {
+            if openedByHover { collapse() }
+            return
+        }
         if inside, !isExpanded {
-            scheduleInteraction(after: 250_000_000) { [weak self] in
+            scheduleInteraction(after: Self.openDelay) { [weak self] in
                 guard let self else { return }
                 self.openedByHover = true
                 self.isExpanded = true
                 self.onExpansionChange?()
             }
         } else if !inside, isExpanded, openedByHover {
-            scheduleInteraction(after: 500_000_000) { [weak self] in
+            scheduleInteraction(after: Self.closeDelay) { [weak self] in
                 self?.collapse()
             }
         }
+    }
+
+    /// Hidden/disconnected panels must not retain pending work or an old
+    /// pointer-inside value that could suppress the next genuine entry.
+    func suspendHover() {
+        pointerInside = false
+        hoverEnabled = false
+        collapse()
     }
 
     func cancelPendingInteraction() {

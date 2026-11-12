@@ -82,7 +82,7 @@ private func testLayout() -> IslandGeometry.Layout {
     model.hoverChanged(true, enabled: true)
     #expect(!model.isExpanded)
     #expect(changes == 0)
-    #expect(scheduler.jobs.map(\.nanoseconds) == [250_000_000])
+    #expect(scheduler.jobs.map(\.nanoseconds) == [80_000_000])
     scheduler.fire(0)
     #expect(model.isExpanded)
     #expect(changes == 1)
@@ -119,7 +119,7 @@ private func testLayout() -> IslandGeometry.Layout {
     scheduler.fire(0)
     model.hoverChanged(false, enabled: true)
     #expect(model.isExpanded)
-    #expect(scheduler.jobs.map(\.nanoseconds) == [250_000_000, 500_000_000])
+    #expect(scheduler.jobs.map(\.nanoseconds) == [80_000_000, 120_000_000])
     scheduler.fire(1)
     #expect(!model.isExpanded)
 }
@@ -238,6 +238,198 @@ private func testLayout() -> IslandGeometry.Layout {
     #expect(scheduler.jobs[0].flag.isCancelled)
     scheduler.fire(0, evenIfCancelled: true)
     #expect(weakModel == nil)
+}
+
+@Test @MainActor func duplicateEnterEventsPreserveTheOriginalOpenJobAndDeadline() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes = 0
+    model.onExpansionChange = { changes += 1 }
+    model.hoverChanged(true, enabled: true)
+    model.hoverChanged(true, enabled: true)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    #expect(scheduler.jobs[0].nanoseconds == 80_000_000)
+    #expect(!scheduler.jobs[0].flag.isCancelled)
+    #expect(!model.isExpanded)
+    scheduler.fire(0)
+    #expect(model.isExpanded)
+    #expect(changes == 1)
+}
+
+@Test @MainActor func duplicateExitEventsPreserveTheOriginalCloseJobAndDeadline() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    scheduler.fire(0)
+    model.hoverChanged(false, enabled: true)
+    model.hoverChanged(false, enabled: true)
+    model.hoverChanged(false, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    #expect(scheduler.jobs[1].nanoseconds == 120_000_000)
+    #expect(!scheduler.jobs[1].flag.isCancelled)
+    #expect(model.isExpanded)
+    scheduler.fire(1)
+    #expect(!model.isExpanded)
+    #expect(changes == [true, false])
+}
+
+@Test @MainActor func disablingHoverDuringPendingCloseCollapsesOnceAndCancelsTheJob() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    scheduler.fire(0)
+    model.hoverChanged(false, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    model.hoverChanged(false, enabled: false)
+    #expect(!model.isExpanded)
+    #expect(scheduler.jobs[1].flag.isCancelled)
+    model.hoverChanged(false, enabled: false)
+    scheduler.fire(1, evenIfCancelled: true)
+    #expect(!model.isExpanded)
+    #expect(changes == [true, false])
+    #expect(scheduler.jobs.count == 2)
+}
+
+@Test @MainActor func disablingHoverPreservesAManuallyOpenedShelf() {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.toggle()
+    model.hoverChanged(true, enabled: true)
+    model.hoverChanged(true, enabled: false)
+    model.hoverChanged(false, enabled: false)
+    #expect(model.isExpanded)
+    #expect(changes == [true])
+    #expect(scheduler.jobs.isEmpty)
+}
+
+@Test @MainActor func enablingAndReenablingHoverWhileStationarySchedulesFreshOpen() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    model.hoverChanged(true, enabled: false)
+    #expect(scheduler.jobs.isEmpty)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    model.hoverChanged(true, enabled: false)
+    #expect(scheduler.jobs[0].flag.isCancelled)
+    #expect(!model.isExpanded)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    scheduler.fire(0, evenIfCancelled: true)
+    #expect(!model.isExpanded)
+    scheduler.fire(1)
+    #expect(model.isExpanded)
+    model.hoverChanged(true, enabled: true)
+    #expect(scheduler.jobs.count == 2)
+}
+
+@Test @MainActor func disablingAnExpandedHoverShelfAllowsReenableWithoutPointerMovement() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    scheduler.fire(0)
+    model.hoverChanged(true, enabled: false)
+    #expect(!model.isExpanded)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    scheduler.fire(0, evenIfCancelled: true)
+    #expect(!model.isExpanded)
+    scheduler.fire(1)
+    #expect(model.isExpanded)
+    #expect(changes == [true, false, true])
+}
+
+@Test @MainActor func manualCollapseInsideIgnoresDuplicateEnterUntilExitAndReentry() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    scheduler.fire(0)
+    model.collapse()
+    model.hoverChanged(true, enabled: true)
+    model.hoverChanged(true, enabled: true)
+    #expect(!model.isExpanded)
+    #expect(scheduler.jobs.count == 1)
+    model.hoverChanged(false, enabled: true)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    scheduler.fire(1)
+    #expect(model.isExpanded)
+}
+
+@Test @MainActor func suspendingPendingHoverOpenCancelsItAndAllowsANewInsideEvent() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    model.suspendHover()
+    #expect(scheduler.jobs[0].flag.isCancelled)
+    scheduler.fire(0, evenIfCancelled: true)
+    #expect(!model.isExpanded)
+    #expect(changes.isEmpty)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    scheduler.fire(0, evenIfCancelled: true)
+    #expect(!model.isExpanded)
+    scheduler.fire(1)
+    #expect(model.isExpanded)
+    #expect(changes == [true])
+}
+
+@Test @MainActor func suspendingExpandedHoverShelfRejectsLateCloseAfterResume() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    scheduler.fire(0)
+    model.hoverChanged(false, enabled: true)
+    try #require(scheduler.jobs.count == 2)
+    model.suspendHover()
+    #expect(!model.isExpanded)
+    #expect(scheduler.jobs[1].flag.isCancelled)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 3)
+    scheduler.fire(1, evenIfCancelled: true)
+    #expect(!model.isExpanded)
+    scheduler.fire(2)
+    #expect(model.isExpanded)
+    scheduler.fire(1, evenIfCancelled: true)
+    #expect(model.isExpanded)
+    #expect(changes == [true, false, true])
+}
+
+@Test @MainActor func suspendingAManualOpeningCollapsesOnceAndResetsHoverTracking() throws {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.toggle()
+    model.hoverChanged(true, enabled: true)
+    model.suspendHover()
+    model.suspendHover()
+    #expect(!model.isExpanded)
+    #expect(changes == [true, false])
+    #expect(scheduler.jobs.isEmpty)
+    model.hoverChanged(true, enabled: true)
+    try #require(scheduler.jobs.count == 1)
+    scheduler.fire(0)
+    #expect(model.isExpanded)
+    #expect(changes == [true, false, true])
 }
 
 /// Integration smoke test for the real Task.sleep scheduler. Unlike the manual

@@ -30,9 +30,8 @@ struct IslandView: View {
         }
         .foregroundStyle(.white)
         .preferredColorScheme(.dark)
-        .onHover { presentation.hoverChanged($0, enabled: coordinator.expandOnHover) }
         .onExitCommand { presentation.collapse() }
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: presentation.isExpanded)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.12), value: presentation.isExpanded)
     }
 
     private var compactContent: some View {

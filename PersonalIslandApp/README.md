@@ -12,7 +12,11 @@ Resources. The audit snapshots remain unchanged; they are not build checkouts.
 
 The first Release build and bundle checks pass with Xcode 27.2. See
 [VERIFICATION.md](VERIFICATION.md)
-for the exact checkpoint and untested behavior. The app has not been launched.
+for the exact checkpoint and untested behavior. The user subsequently opened the preview and confirmed a visible island; both-screen placement and interactions remain unchecked.
+
+## Hover update
+
+Version 0.1.1 fixes repeated hover events extending the open/close waits. It uses a stable native tracker, shorter 80ms/120ms waits and 120ms animation; settings and hiding cancel pending hover work. Quit the old running preview and reopen the built app before retesting. Hover defaults off each session, so enable it in Settings. The updated native interaction still needs user confirmation.
 
 ## Build
 

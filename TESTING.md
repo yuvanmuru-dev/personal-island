@@ -31,7 +31,7 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 11, 2026, Xcode 27.2 / Swift 6.4.2: **123 tests passed, zero failed** (33 storage, 27 presentation, 63 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **133 tests passed, zero failed** (33 storage, 37 presentation, 63 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
@@ -41,9 +41,11 @@ Measured production line coverage from that run:
 | OwnedExportDirectory.swift | 196/208 (94.2%) |
 | ShelfStore.swift | 159/159 (100%) |
 | IslandGeometry.swift | 51/51 (100%) |
-| IslandPresentation.swift | 91/91 (100%) |
+| IslandPresentation.swift | 107/107 (100%) |
 
 These are line measurements for the tested core/presentation sources, not a claim that every branch, UI interaction or planned integration is tested. The new layout tests caught and fixed a tiny-display menu-bar overlap. Deterministic hover race tests are complemented by one bounded production-timer smoke test that awaits actual open/close callbacks without elapsed-time assertions.
+
+Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
 
 ## GitHub checks
 

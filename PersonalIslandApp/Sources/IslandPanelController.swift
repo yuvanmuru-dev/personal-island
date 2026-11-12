@@ -33,14 +33,23 @@ import SwiftUI
 final class IslandPanelController {
     private let panel: IslandPanel
     private let presentation: IslandPresentation
+    private let hostingView: IslandTrackingHostingView
+    private var hoverEnabled: Bool
+    private var isHoverTrackingActive = false
 
     init(screen: NSScreen, coordinator: IslandCoordinator) {
         let layout = Self.layout(for: screen)
+        hoverEnabled = coordinator.expandOnHover
         presentation = IslandPresentation(layout: layout)
         panel = IslandPanel(contentRect: layout.panelFrame(expanded: false))
-        panel.contentView = NSHostingView(
+        hostingView = IslandTrackingHostingView(
             rootView: IslandView(coordinator: coordinator, presentation: presentation)
         )
+        panel.contentView = hostingView
+        hostingView.onPointerReconciliation = { [weak self] inside in
+            guard let self, self.isHoverTrackingActive else { return }
+            self.presentation.hoverChanged(inside, enabled: self.hoverEnabled)
+        }
         presentation.onExpansionChange = { [weak self, weak coordinator] in
             guard let self else { return }
             self.updateFrame()
@@ -53,16 +62,37 @@ final class IslandPanelController {
         updateFrame()
     }
 
-    func show() { panel.orderFrontRegardless() }
+    func show() {
+        panel.orderFrontRegardless()
+        isHoverTrackingActive = true
+        hostingView.setHoverTrackingActive(true)
+        hostingView.reconcilePointer()
+    }
+
+    func setHoverEnabled(_ enabled: Bool) {
+        hoverEnabled = enabled
+        if isHoverTrackingActive {
+            // A setting can change while the pointer is stationary. Deliver
+            // the current position with the new preference immediately.
+            hostingView.reconcilePointer()
+        } else {
+            presentation.suspendHover()
+        }
+    }
 
     func hide() {
-        presentation.collapse()
+        isHoverTrackingActive = false
+        hostingView.setHoverTrackingActive(false)
+        presentation.suspendHover()
         panel.orderOut(nil)
     }
 
     func close() {
-        presentation.cancelPendingInteraction()
+        isHoverTrackingActive = false
+        hostingView.setHoverTrackingActive(false)
+        hostingView.onPointerReconciliation = nil
         presentation.onExpansionChange = nil
+        presentation.suspendHover()
         panel.orderOut(nil)
         panel.close()
     }
@@ -72,6 +102,9 @@ final class IslandPanelController {
             presentation.layout.panelFrame(expanded: presentation.isExpanded),
             display: true
         )
+        // AppKit need not receive a fresh mouse event when a stationary
+        // pointer changes containment because the panel has resized.
+        hostingView.reconcilePointer()
     }
 
     private static func layout(for screen: NSScreen) -> IslandGeometry.Layout {
@@ -82,6 +115,65 @@ final class IslandPanelController {
             auxiliaryTopLeft: screen.auxiliaryTopLeftArea,
             auxiliaryTopRight: screen.auxiliaryTopRightArea
         ))
+    }
+}
+
+/// This host keeps its identity across compact/expanded SwiftUI branches. Its
+/// own tracking area is independent of SwiftUI content reconstruction and
+/// remains active while another application has keyboard focus.
+@MainActor
+private final class IslandTrackingHostingView: NSHostingView<IslandView> {
+    var onPointerReconciliation: ((Bool) -> Void)?
+    private var ownTrackingArea: NSTrackingArea?
+    private var isHoverTrackingActive = false
+
+    func setHoverTrackingActive(_ active: Bool) {
+        guard isHoverTrackingActive != active else { return }
+        isHoverTrackingActive = active
+        updateTrackingAreas()
+    }
+
+    override func updateTrackingAreas() {
+        // NSHostingView maintains tracking areas for its controls too. Never
+        // remove those or replace button hit testing with an overlay view.
+        super.updateTrackingAreas()
+        if !isHoverTrackingActive {
+            if let ownTrackingArea { removeTrackingArea(ownTrackingArea) }
+            ownTrackingArea = nil
+            return
+        }
+        if let ownTrackingArea,
+           !trackingAreas.contains(where: { $0 === ownTrackingArea }) {
+            self.ownTrackingArea = nil
+        }
+        guard ownTrackingArea == nil else { return }
+        let area = NSTrackingArea(
+            rect: .zero,
+            options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+            owner: self,
+            userInfo: nil
+        )
+        ownTrackingArea = area
+        addTrackingArea(area)
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        super.mouseEntered(with: event)
+        reconcilePointer()
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        super.mouseExited(with: event)
+        reconcilePointer()
+    }
+
+    func reconcilePointer() {
+        guard isHoverTrackingActive, let window, window.isVisible else { return }
+        // This borderless host fills the panel. Use the actual window frame so
+        // reconciliation does not wait for SwiftUI's content transition/layout
+        // after a resize. Both values are AppKit screen points, including
+        // displays with negative origins.
+        onPointerReconciliation?(window.frame.contains(NSEvent.mouseLocation))
     }
 }
 

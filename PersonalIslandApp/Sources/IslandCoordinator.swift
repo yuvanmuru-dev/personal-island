@@ -24,7 +24,14 @@ final class IslandCoordinator: ObservableObject {
     }
 
     @Published private(set) var islandsVisible = true
-    @Published var expandOnHover = false
+    @Published var expandOnHover = false {
+        didSet {
+            guard expandOnHover != oldValue else { return }
+            for presenter in presenters.values {
+                presenter.setHoverEnabled(expandOnHover)
+            }
+        }
+    }
     @Published private(set) var displays: [DisplayOption] = []
     @Published private(set) var shelfItems: [ShelfItem] = []
     @Published private(set) var shelfAvailability: ShelfAvailability = .notStarted

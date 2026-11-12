@@ -1,8 +1,16 @@
 # First graphical host verification
 
-Date: November 11, 2026. Result: **Release app built; bundle/signature inspection passed. App not launched.**
+Date: November 11, 2026. Result: **Release app built; bundle/signature inspection passed. User subsequently confirmed the island is visible after opening the preview.**
+
+Subsequent user report and three supplied screenshots establish the compact island, expanded empty shelf and Settings window on the MacBook's built-in display. The Dell is not connected and remains untested. Closing, Quit, hover/focus behavior, exact placement and runtime privacy remain unverified. Screenshots remain conversation evidence and were not copied into the repository. The build receipt's `app_launched: false` describes the build script, which does not launch the app; these later user observations are recorded separately here.
 
 This is the M1 integration foundation, not the finished utility. All accepted feature groups remain in the plan; face unlock stays deferred.
+
+## Hover update — November 12, 2026
+
+Version 0.1.1 (2) builds and passes all 133 automated tests and bundle checks. Hover uses one stable native tracking area, with 80ms entry and 120ms exit waits and 120ms content animation. Duplicate inputs cannot restart a deadline, and settings/hide/close cancel pending hover work. These are configured delays, not measured end-to-end latency. Native tracking is active for the panel while other apps have focus, using [Apple tracking-area options](https://developer.apple.com/documentation/appkit/nstrackingarea/options-swift.struct). Actual event delivery and perceived response await user retesting.
+
+Quit the existing preview from its menu-bar icon, reopen the built app, enable Expand on hover, and move the pointer onto and away from the compact island. Also repeat with another app focused, and with quick leave/re-entry. A manually opened shelf retains click-to-close behavior. No automatic app launch or relaunch was performed by verification.
 
 ## Build evidence
 
@@ -10,7 +18,7 @@ This is the M1 integration foundation, not the finished utility. All accepted fe
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.1.0 (1) |
+| App identity | `dev.personal.PersonalIsland`, version 0.1.1 (2); initial preview was 0.1.0 (1) |
 | App sources | Eight explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |

@@ -16,7 +16,9 @@ This tests the actual storage and presentation logic, measures source coverage, 
 
 ## Current status
 
-The controlled graphical app host builds and passes bundle/signature inspection. It uses explicit presentation sources and the local core, without the upstream package/helper/startup graph. Expanded storage, presentation and build-policy tests are included. It has not been launched; capture, native dragging and the accepted integrations are still to be implemented.
+The 0.1.1 preview contains the hover-response fix and passes 133 local automated tests plus the Release build/bundle checks. Quit/reopen the preview and enable Expand on hover to retest. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
+
+The controlled graphical app host builds and passes bundle/signature inspection. It uses explicit presentation sources and the local core, without the upstream package/helper/startup graph. Expanded storage, presentation and build-policy tests are included. The user has launched the preview and confirmed a visible island; both-screen placement and interactions remain unchecked. Capture, native dragging and the accepted integrations are still to be implemented.
 
 - [Build and implementation plan](BUILD_IMPLEMENTATION_PLAN.md)
 - [Product scope and decisions](PLAN.md)
