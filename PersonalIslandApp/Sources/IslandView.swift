@@ -77,9 +77,14 @@ struct IslandView: View {
     private var expandedContent: some View {
         VStack(spacing: 0) {
             HStack(spacing: 9) {
-                if coordinator.spotifyEnabled {
-                    tabButton(.media, symbol: "music.note", title: "Media")
-                    tabButton(.shelf, symbol: "tray.fill", title: "Shelf", count: coordinator.shelfItemCount)
+                if coordinator.availableTabs.count > 1 {
+                    ForEach(coordinator.availableTabs, id: \.self) { tab in
+                        switch tab {
+                        case .media: tabButton(.media, symbol: "music.note", title: "Media")
+                        case .calendar: tabButton(.calendar, symbol: "calendar", title: "Calendar")
+                        case .shelf: tabButton(.shelf, symbol: "tray.fill", title: "Shelf", count: coordinator.shelfItemCount)
+                        }
+                    }
                 } else {
                     Image(systemName: "tray.fill")
                         .foregroundStyle(.white.opacity(0.72))
@@ -113,10 +118,10 @@ struct IslandView: View {
             }
 
             Group {
-                if showsShelf {
-                    shelfContent
-                } else {
-                    MediaContent(coordinator: coordinator)
+                switch coordinator.visibleTab {
+                case .shelf: shelfContent
+                case .media: MediaContent(coordinator: coordinator)
+                case .calendar: CalendarContent(coordinator: coordinator)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -147,12 +152,10 @@ struct IslandView: View {
         .padding(.bottom, 18)
     }
 
-    private var showsShelf: Bool {
-        !coordinator.spotifyEnabled || coordinator.expandedTab == .shelf
-    }
+    private var showsShelf: Bool { coordinator.visibleTab == .shelf }
 
     private func tabButton(_ tab: IslandCoordinator.ExpandedTab, symbol: String, title: String, count: Int? = nil) -> some View {
-        let selected = coordinator.expandedTab == tab
+        let selected = coordinator.visibleTab == tab
         return Button {
             coordinator.expandedTab = tab
             if tab == .media { coordinator.islandDidExpand() }
@@ -494,4 +497,136 @@ private struct PlaybackScrubber: View {
             onSeek(shown + (direction == .increment ? 5 : -5))
         }
     }
+}
+
+/// Next event and today's agenda, read-only. Clicking an event opens it in
+/// Apple Calendar; Join appears only for validated meeting links.
+private struct CalendarContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+
+    var body: some View {
+        switch coordinator.calendarStatus {
+        case .needsAccess, .off:
+            notice("Allow Personal Island to read your calendars", button: "Allow…") {
+                coordinator.requestCalendarAccess()
+            }
+        case .denied:
+            notice("Calendar access is off in System Settings", button: "Open Settings") {
+                coordinator.openCalendarSettings()
+            }
+        case .ready:
+            TimelineView(.periodic(from: .now, by: 30)) { context in
+                agenda(now: context.date)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func agenda(now: Date) -> some View {
+        let rows = coordinator.todayEvents
+        // Once today has nothing left, show what comes next (any later day).
+        let todayDone = rows.allSatisfy { $0.end <= now }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 4) {
+                sectionLabel("Today")
+                if rows.isEmpty {
+                    Text("No events")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.45))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                } else {
+                    ForEach(rows) { event in row(event, now: now, showDay: false) }
+                }
+                if todayDone {
+                    sectionLabel("Next event")
+                    if let upcoming = coordinator.upcomingEvent {
+                        row(upcoming, now: now, showDay: true)
+                    } else {
+                        Text("Nothing in the next \(CalendarAgenda.lookaheadDays) days")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white.opacity(0.45))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text.uppercased())
+            .font(.system(size: 9, weight: .semibold, design: .rounded))
+            .tracking(0.8)
+            .foregroundStyle(.white.opacity(0.4))
+            .padding(.top, 2)
+    }
+
+    private func row(_ event: AgendaEvent, now: Date, showDay: Bool) -> some View {
+        let isNext = event.id == coordinator.nextEvent?.id || (showDay && event.id == coordinator.upcomingEvent?.id)
+        let finished = event.end <= now
+        return HStack(spacing: 8) {
+            Circle()
+                .fill(Color(.sRGB, red: event.color[safe: 0], green: event.color[safe: 1], blue: event.color[safe: 2]))
+                .frame(width: 7, height: 7)
+            Text(timeText(event, now: now, showDay: showDay))
+                .font(.system(size: 10.5, weight: .medium).monospacedDigit())
+                .foregroundStyle(.white.opacity(isNext ? 0.85 : 0.5))
+                .frame(width: showDay ? 132 : 92, alignment: .leading)
+            Text(event.title)
+                .font(.system(size: 12, weight: isNext ? .semibold : .regular))
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if isNext, event.meetingURL != nil {
+                Button("Join") { coordinator.joinMeeting(event) }
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+            }
+        }
+        .opacity(finished ? 0.45 : 1)
+        .padding(.vertical, 3)
+        .padding(.horizontal, 6)
+        .background(isNext ? Color.white.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 7))
+        .contentShape(Rectangle())
+        .onTapGesture { coordinator.openInCalendar(event) }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Opens in Calendar")
+    }
+
+    private func timeText(_ event: AgendaEvent, now: Date, showDay: Bool) -> String {
+        if showDay && event.start > now {
+            let calendar = Calendar.autoupdatingCurrent
+            let day = CalendarAgenda.dayLabel(for: event.start, now: now, calendar: calendar)
+            return day + " · " + (event.isAllDay ? "All day" : event.start.formatted(date: .omitted, time: .shortened))
+        }
+        if event.isAllDay { return "All day" }
+        if event.start <= now && event.end > now { return "Now · until \(event.end.formatted(date: .omitted, time: .shortened))" }
+        let minutes = Int(event.start.timeIntervalSince(now) / 60)
+        if minutes >= 0 && minutes < 60 && !showDay { return "in \(max(1, minutes)) min" }
+        return event.start.formatted(date: .omitted, time: .shortened)
+    }
+
+    private func notice(_ text: String, button: String?, action: @escaping () -> Void) -> some View {
+        VStack(spacing: 9) {
+            Image(systemName: "calendar")
+                .font(.system(size: 24, weight: .light))
+                .foregroundStyle(.white.opacity(0.4))
+            Text(text)
+                .font(.system(size: 13, weight: .medium))
+            if let button {
+                Button(button, action: action)
+                    .font(.system(size: 12))
+                    .buttonStyle(.bordered)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private extension Array where Element == Double {
+    subscript(safe index: Int) -> Double { indices.contains(index) ? self[index] : 0.6 }
 }

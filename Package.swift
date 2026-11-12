@@ -17,9 +17,9 @@ let package = Package(
                 "PersonalIslandApp.swift", "IslandCoordinator.swift", "IslandPanelController.swift",
                 "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
                 "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift",
-                "ShelfDragSource.swift", "SpotifyAdapter.swift"
+                "ShelfDragSource.swift", "SpotifyAdapter.swift", "CalendarAdapter.swift"
             ],
-            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift"]
+            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "CalendarAgenda.swift"]
         ),
         .testTarget(
             name: "PersonalIslandPresentationTests",

@@ -16,6 +16,9 @@ struct IslandSettings: Codable, Equatable {
     /// display; an unknown ID simply has no effect.
     var disabledDisplays: [UInt32] = []
     var spotifyEnabled = false
+    var calendarEnabled = false
+    /// Calendar identifiers the user hid; calendars added later still show.
+    var hiddenCalendarIDs: [String] = []
 
     init() {}
 
@@ -29,6 +32,9 @@ struct IslandSettings: Codable, Equatable {
         let displays = (try? values.decodeIfPresent([UInt32].self, forKey: .disabledDisplays)) ?? []
         disabledDisplays = Array(Set(displays)).sorted()
         spotifyEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .spotifyEnabled)) ?? defaults.spotifyEnabled
+        calendarEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .calendarEnabled)) ?? defaults.calendarEnabled
+        let hidden = (try? values.decodeIfPresent([String].self, forKey: .hiddenCalendarIDs)) ?? []
+        hiddenCalendarIDs = Array(Set(hidden.filter { !$0.isEmpty && $0.count <= 256 })).sorted()
     }
 }
 

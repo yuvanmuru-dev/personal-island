@@ -18,6 +18,10 @@ for the exact checkpoint and untested behavior. The user subsequently opened the
 
 Drag a thumbnail into another app to attach it. Click thumbnails to select several, then drag any selected one to take them all. The shelf stays open while you drag, and items stay on the shelf afterwards so you can drag them again. Screenshots become temporary PNG files named like `Screenshot 2026-11-12 at 14.32.05.png` only when dragged; they are cleaned up automatically at least 24 hours after their last use once removed from the shelf.
 
+## Calendar (0.6.0)
+
+Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
+
 ## Spotify (0.5.0)
 
 Turn on "Spotify in the island" in Settings. The open island gets a Media tab with the current track, a progress bar you can drag to seek, and previous/play-pause/next. macOS asks once whether Personal Island may control Spotify. Everything stays on this Mac; the island never opens Spotify by itself. Settings are now remembered between launches.

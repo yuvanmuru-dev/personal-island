@@ -195,6 +195,26 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "34CCC7F33706ACDB6C9DFC24";
 		};
+		"3C48C5552D2210A26EAEDBC5" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "CalendarAgenda.swift";
+			"sourceTree" = "<group>";
+		};
+		"791D8B951073B532C7E24763" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3C48C5552D2210A26EAEDBC5";
+		};
+		"E9CB6613BDDF3168EFF8F2D4" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "CalendarAdapter.swift";
+			"sourceTree" = "<group>";
+		};
+		"35CA35E34128411BB4DFF32F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E9CB6613BDDF3168EFF8F2D4";
+		};
 		"00AC2B8D68B96F643FAFC676" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -313,6 +333,8 @@
 				"D5E0377B75EF0DD1AAB82CC2",
 				"E96A4F3A6F07B266D81CC9AC",
 				"34CCC7F33706ACDB6C9DFC24",
+				"3C48C5552D2210A26EAEDBC5",
+				"E9CB6613BDDF3168EFF8F2D4",
 			);
 			"path" = "Sources";
 			"sourceTree" = "<group>";
@@ -383,6 +405,8 @@
 				"AED00FB32780C15522BA51C4",
 				"2C14255DBB028362D904FB16",
 				"7EA5BA6311D46D7497211DFC",
+				"791D8B951073B532C7E24763",
+				"35CA35E34128411BB4DFF32F",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};

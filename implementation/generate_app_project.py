@@ -19,6 +19,7 @@ APP_FILES = [
     "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
     "RegionSelector.swift", "ScreenRegionCapture.swift", "ShelfDragFlow.swift", "ShelfDragSource.swift",
     "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyAdapter.swift",
+    "CalendarAgenda.swift", "CalendarAdapter.swift",
 ]
 CORE_FILES = ["Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift"]
 RESOURCES = ["Atoll-LICENSE.txt", "Atoll-NOTICE.txt", "Atoll-COPYRIGHT_ASSETS.txt", "Atoll-TRADEMARKS.txt"]
@@ -54,8 +55,8 @@ def main():
         "CFBundleDevelopmentRegion": "en", "CFBundleExecutable": "$(EXECUTABLE_NAME)",
         "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)", "CFBundleInfoDictionaryVersion": "6.0",
         "CFBundleName": "Personal Island", "CFBundleDisplayName": "Personal Island",
-        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.5.0",
-        "CFBundleVersion": "9", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
+        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.6.0",
+        "CFBundleVersion": "10", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
         "LSUIElement": True, "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication",
         "NSHumanReadableCopyright": "Personal local build. Includes attributed Atoll/boring.notch presentation code.",
         **app_policy.REQUIRED_INFO_STRINGS,

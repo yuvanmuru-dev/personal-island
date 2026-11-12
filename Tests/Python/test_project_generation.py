@@ -124,6 +124,7 @@ class ProjectGenerationTests(unittest.TestCase):
             "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
             "RegionSelector.swift", "ScreenRegionCapture.swift", "ShelfDragFlow.swift", "ShelfDragSource.swift",
             "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyAdapter.swift",
+            "CalendarAgenda.swift", "CalendarAdapter.swift",
         })
         self.assertEqual(set(self.phase_files(self.target("PersonalIslandCore"), "PBXSourcesBuildPhase")), {
             "Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift",
@@ -165,8 +166,10 @@ class ProjectGenerationTests(unittest.TestCase):
             for key in ("ENABLE_RESOURCE_ACCESS_CAMERA", "ENABLE_RESOURCE_ACCESS_CONTACTS", "ENABLE_RESOURCE_ACCESS_CALENDARS",
                         "ENABLE_RESOURCE_ACCESS_AUDIO_INPUT", "ENABLE_RESOURCE_ACCESS_LOCATION"):
                 self.assertEqual(config[key], "NO")
-        self.assertEqual(plistlib.loads((self.app / "PersonalIsland.entitlements").read_bytes()),
-                         {"com.apple.security.automation.apple-events": True})
+        self.assertEqual(plistlib.loads((self.app / "PersonalIsland.entitlements").read_bytes()), {
+            "com.apple.security.automation.apple-events": True,
+            "com.apple.security.personal-information.calendars": True,
+        })
 
     def test_only_retained_notices_are_bundle_resources(self):
         self.assertEqual(set(self.phase_files(self.target("PersonalIsland"), "PBXResourcesBuildPhase")), set(app_policy.NOTICE_NAMES))
@@ -194,7 +197,9 @@ class ProjectGenerationTests(unittest.TestCase):
         self.assertEqual(info["CFBundlePackageType"], "APPL")
         self.assertFalse(set(info) & app_policy.FORBIDDEN_INFO_KEYS)
         self.assertFalse(any(key.startswith("SU") for key in info))
-        self.assertEqual({key for key in info if key.endswith("UsageDescription")}, {"NSAppleEventsUsageDescription"})
+        self.assertEqual({key for key in info if key.endswith("UsageDescription")},
+                         {"NSAppleEventsUsageDescription", "NSCalendarsFullAccessUsageDescription"})
+        self.assertEqual(info["NSCalendarsFullAccessUsageDescription"], app_policy.CALENDARS_USAGE)
         self.assertEqual(info["NSAppleEventsUsageDescription"], app_policy.APPLE_EVENTS_USAGE)
 
     def test_shared_scheme_has_no_build_pre_or_post_actions(self):

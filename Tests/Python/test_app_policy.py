@@ -39,10 +39,14 @@ def valid_info():
         "CFBundleExecutable": "PersonalIsland", "CFBundlePackageType": "APPL",
         "LSUIElement": True, "CFBundleVersion": "1",
         "NSAppleEventsUsageDescription": policy.APPLE_EVENTS_USAGE,
+        "NSCalendarsFullAccessUsageDescription": policy.CALENDARS_USAGE,
     }
 
 
-ENTITLEMENTS = {"com.apple.security.automation.apple-events": True}
+ENTITLEMENTS = {
+    "com.apple.security.automation.apple-events": True,
+    "com.apple.security.personal-information.calendars": True,
+}
 ENTITLEMENT_BYTES = plistlib.dumps(ENTITLEMENTS)
 
 
@@ -84,12 +88,18 @@ class InfoPolicyTests(unittest.TestCase):
                 policy.validate_info_plist({**valid_info(), key: "untrusted value"})
 
     def test_reviewed_permission_text_is_required_exactly(self):
-        info = valid_info()
-        del info["NSAppleEventsUsageDescription"]
-        for candidate in (info, {**info, "NSAppleEventsUsageDescription": ""},
-                          {**info, "NSAppleEventsUsageDescription": "Personal Island controls every app."}):
-            with self.subTest(candidate=candidate.get("NSAppleEventsUsageDescription")), self.assertRaises(policy.PolicyError):
-                policy.validate_info_plist(candidate)
+        for key in policy.REQUIRED_INFO_STRINGS:
+            info = valid_info()
+            del info[key]
+            for candidate in (info, {**info, key: ""}, {**info, key: "Personal Island reads everything."}):
+                with self.subTest(key=key, value=candidate.get(key)), self.assertRaises(policy.PolicyError):
+                    policy.validate_info_plist(candidate)
+
+    def test_write_capable_or_reminders_calendar_permissions_stay_forbidden(self):
+        for key in ("NSCalendarsUsageDescription", "NSCalendarsWriteOnlyAccessUsageDescription",
+                    "NSRemindersFullAccessUsageDescription"):
+            with self.subTest(key=key), self.assertRaises(policy.PolicyError):
+                policy.validate_info_plist({**valid_info(), key: "text"})
 
     def test_unreviewed_permission_explanations_are_rejected(self):
         for key in ("NSContactsUsageDescription", "NSPhotoLibraryUsageDescription", "NSFutureThingUsageDescription"):
@@ -119,10 +129,12 @@ class SignaturePolicyTests(unittest.TestCase):
             {**ENTITLEMENTS, "com.apple.security.get-task-allow": True},
             {**ENTITLEMENTS, "com.apple.security.get-task-allow": False},
             {**ENTITLEMENTS, "com.apple.security.cs.disable-library-validation": True},
-            {**ENTITLEMENTS, "com.apple.security.personal-information.calendars": True},
-            {"com.apple.security.automation.apple-events": False},
-            {"com.apple.security.automation.apple-events": 1},
-            {"com.apple.security.automation.apple-events": "YES"},
+            {**ENTITLEMENTS, "com.apple.security.personal-information.addressbook": True},
+            {**ENTITLEMENTS, "com.apple.security.personal-information.location": True},
+            {**ENTITLEMENTS, "com.apple.security.automation.apple-events": False},
+            {**ENTITLEMENTS, "com.apple.security.personal-information.calendars": 1},
+            {**ENTITLEMENTS, "com.apple.security.personal-information.calendars": "YES"},
+            {"com.apple.security.automation.apple-events": True},
             {"com.apple.security.get-task-allow": True},
         ):
             with self.subTest(values=values), self.assertRaises(policy.PolicyError):

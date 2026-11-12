@@ -44,12 +44,12 @@ Quit the existing preview from its menu-bar icon, reopen the built app, enable E
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.5.0 (9); initial preview was 0.1.0 (1) |
-| App sources | Nineteen explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
+| App identity | `dev.personal.PersonalIsland`, version 0.6.0 (10); initial preview was 0.1.0 (1) |
+| App sources | Twenty-one explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |
 | Signature | Local builds: valid signature from the user's self-signed "Personal Island Local Signing" certificate (designated requirement: bundle identifier + certificate leaf), hardened runtime present. Without that identity (CI): valid ad-hoc signature |
-| Effective Release entitlements | Exactly `com.apple.security.automation.apple-events: true` (required for Spotify control under the hardened runtime); no debugging entitlement or disabled library validation |
+| Effective Release entitlements | Exactly `com.apple.security.automation.apple-events: true` (Spotify control) and `com.apple.security.personal-information.calendars: true` (reading events), both required under the hardened runtime; no debugging entitlement or disabled library validation |
 | Linked libraries | Apple system frameworks/libraries only |
 | Runtime search paths | `/usr/lib/swift`, `@executable_path/../Frameworks` |
 | Bundle inventory | Eight files: main executable, Info.plist, PkgInfo, four unchanged Atoll notices, signature resource seal |

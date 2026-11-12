@@ -34,7 +34,7 @@ ALLOWED_RUNTIME_PATHS = frozenset({"/usr/lib/swift", "@executable_path/../Framew
 FORBIDDEN_INFO_KEYS = frozenset({
     "NSAppTransportSecurity", "CFBundleURLTypes", "SMPrivilegedExecutables",
     "NSCameraUsageDescription", "NSMicrophoneUsageDescription",
-    "NSCalendarsUsageDescription", "NSCalendarsFullAccessUsageDescription",
+    "NSCalendarsUsageDescription",
     "NSRemindersUsageDescription", "NSRemindersFullAccessUsageDescription",
     "NSAppleMusicUsageDescription",
     "NSLocationUsageDescription", "NSLocationWhenInUseUsageDescription",
@@ -48,10 +48,22 @@ APPLE_EVENTS_USAGE = (
     "Personal Island sends Apple Events only to Spotify, when you turn on Spotify "
     "in Settings, to show the current track and to play, pause and skip."
 )
-REQUIRED_INFO_STRINGS = {"NSAppleEventsUsageDescription": APPLE_EVENTS_USAGE}
+CALENDARS_USAGE = (
+    "Personal Island shows your next event and today's agenda from calendars on this Mac, "
+    "when you turn on Calendar in Settings. Events are only read, never changed or sent anywhere."
+)
+REQUIRED_INFO_STRINGS = {
+    "NSAppleEventsUsageDescription": APPLE_EVENTS_USAGE,
+    "NSCalendarsFullAccessUsageDescription": CALENDARS_USAGE,
+}
 # Sending Apple Events under the hardened runtime requires this entitlement.
 # The Automation permission prompt still applies per target app (Spotify).
-RELEASE_ENTITLEMENTS = {"com.apple.security.automation.apple-events": True}
+# Reading events under the hardened runtime requires the calendars
+# entitlement; macOS still asks the user for Calendar access separately.
+RELEASE_ENTITLEMENTS = {
+    "com.apple.security.automation.apple-events": True,
+    "com.apple.security.personal-information.calendars": True,
+}
 MACHO_MAGICS = frozenset({
     b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe", b"\xfe\xed\xfa\xcf", b"\xcf\xfa\xed\xfe",
     b"\xca\xfe\xba\xbe", b"\xbe\xba\xfe\xca", b"\xca\xfe\xba\xbf", b"\xbf\xba\xfe\xca",

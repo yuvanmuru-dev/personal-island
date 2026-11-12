@@ -18,6 +18,8 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(settings.captureShortcutEnabled)
     #expect(settings.disabledDisplays.isEmpty)
     #expect(!settings.spotifyEnabled)
+    #expect(!settings.calendarEnabled)
+    #expect(settings.hiddenCalendarIDs.isEmpty)
 }
 
 @Test func everyChoiceRoundTrips() {
@@ -28,12 +30,16 @@ private final class MemoryStorage: @unchecked Sendable {
     settings.captureShortcutEnabled = false
     settings.disabledDisplays = [3, 1]
     settings.spotifyEnabled = true
+    settings.calendarEnabled = true
+    settings.hiddenCalendarIDs = ["b", "a"]
     storage.store.write(settings)
     var expected = settings
     expected.disabledDisplays = [1, 3]
     let read = storage.store.read()
     #expect(read.islandsVisible == false && read.expandOnHover && !read.captureShortcutEnabled && read.spotifyEnabled)
     #expect(Set(read.disabledDisplays) == [1, 3])
+    #expect(read.calendarEnabled)
+    #expect(read.hiddenCalendarIDs == ["a", "b"])
     #expect(storage.writes == 1)
 }
 
@@ -55,4 +61,11 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(settings.islandsVisible)           // missing: default kept
     #expect(settings.disabledDisplays == [2, 7])
     #expect(!settings.spotifyEnabled)
+}
+
+@Test func hiddenCalendarIdentifiersAreDeduplicatedAndBounded() {
+    let storage = MemoryStorage()
+    let long = String(repeating: "x", count: 300)
+    storage.data = Data(#"{"hiddenCalendarIDs": ["b", "a", "b", "", "\#(long)"]}"#.utf8)
+    #expect(storage.store.read().hiddenCalendarIDs == ["a", "b"])
 }

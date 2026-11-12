@@ -54,7 +54,38 @@ final class IslandCoordinator: ObservableObject {
 
     let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
-    enum ExpandedTab: Equatable { case media, shelf }
+    enum ExpandedTab: Equatable { case media, calendar, shelf }
+
+    /// Sections the open island offers, in display order.
+    var availableTabs: [ExpandedTab] {
+        (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : []) + [.shelf]
+    }
+
+    /// The section actually shown, falling back if its feature was turned off.
+    var visibleTab: ExpandedTab {
+        availableTabs.contains(expandedTab) ? expandedTab : .shelf
+    }
+
+    /// Turning this off stops all calendar observation and forgets events.
+    @Published var calendarEnabled = false {
+        didSet {
+            guard calendarEnabled != oldValue else { return }
+            saveSettings()
+            updateCalendar(askAccess: calendarEnabled)
+        }
+    }
+    @Published var hiddenCalendarIDs: Set<String> = [] {
+        didSet {
+            guard hiddenCalendarIDs != oldValue else { return }
+            saveSettings()
+            calendarController.hiddenCalendarIDs = hiddenCalendarIDs
+        }
+    }
+    @Published private(set) var calendarStatus: CalendarStatus = .off
+    @Published private(set) var todayEvents: [AgendaEvent] = []
+    @Published private(set) var nextEvent: AgendaEvent?
+    @Published private(set) var upcomingEvent: AgendaEvent?
+    @Published private(set) var calendars: [CalendarSummary] = []
     /// Which section the open island shows; shared by both displays.
     @Published var expandedTab: ExpandedTab = .shelf
     /// Turning this off stops all Spotify observation and Apple Events.
@@ -79,7 +110,9 @@ final class IslandCoordinator: ObservableObject {
         captureShortcutEnabled = settings.captureShortcutEnabled
         disabledDisplays = Set(settings.disabledDisplays)
         spotifyEnabled = settings.spotifyEnabled
-        expandedTab = settings.spotifyEnabled ? .media : .shelf
+        calendarEnabled = settings.calendarEnabled
+        hiddenCalendarIDs = Set(settings.hiddenCalendarIDs)
+        expandedTab = settings.spotifyEnabled ? .media : settings.calendarEnabled ? .calendar : .shelf
     }
 
     private func saveSettings() {
@@ -89,6 +122,8 @@ final class IslandCoordinator: ObservableObject {
         settings.captureShortcutEnabled = captureShortcutEnabled
         settings.disabledDisplays = disabledDisplays.sorted()
         settings.spotifyEnabled = spotifyEnabled
+        settings.calendarEnabled = calendarEnabled
+        settings.hiddenCalendarIDs = hiddenCalendarIDs.sorted()
         settingsStore.write(settings)
     }
     private var presenters: [CGDirectDisplayID: IslandPanelController] = [:]
@@ -123,6 +158,19 @@ final class IslandCoordinator: ObservableObject {
         }
     ))
     private var hiddenForCapture = false
+    private let calendarAdapter = CalendarAdapter()
+    private lazy var calendarController: CalendarController = {
+        let controller = CalendarController(environment: calendarAdapter.environment())
+        controller.hiddenCalendarIDs = hiddenCalendarIDs
+        controller.onChange = { [weak self, unowned controller] in
+            self?.calendarStatus = controller.status
+            self?.todayEvents = controller.todayEvents
+            self?.nextEvent = controller.nextEvent
+            self?.upcomingEvent = controller.upcomingEvent
+            self?.calendars = controller.calendars
+        }
+        return controller
+    }()
     private lazy var spotify: SpotifyController = {
         let controller = SpotifyController(environment: SpotifyAdapter.environment())
         controller.onChange = { [weak self, unowned controller] in
@@ -174,6 +222,7 @@ final class IslandCoordinator: ObservableObject {
         updateCaptureShortcut()
         startExportCleanup()
         updateSpotify(askPermission: false)
+        updateCalendar(askAccess: false)
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -190,6 +239,7 @@ final class IslandCoordinator: ObservableObject {
         }
         isRunning = false
         spotify.stop()
+        calendarController.stop()
         captureFlow.cancel()
         updateCaptureShortcut()
         cleanupTimer?.invalidate()
@@ -339,11 +389,11 @@ final class IslandCoordinator: ObservableObject {
 
     private func updateSpotify(askPermission: Bool) {
         if isRunning && spotifyEnabled {
-            expandedTab = .media
+            if askPermission { expandedTab = .media }
             Task { @MainActor [weak self] in await self?.spotify.start(askPermission: askPermission) }
         } else {
             spotify.stop()
-            expandedTab = .shelf
+            if expandedTab == .media { expandedTab = availableTabs.first ?? .shelf }
         }
     }
 
@@ -370,8 +420,42 @@ final class IslandCoordinator: ObservableObject {
     /// Re-reads the playback position when someone opens the island to look.
     func islandDidExpand() {
         prepareShelfIfNeeded()
-        guard spotify.isActive, expandedTab == .media else { return }
+        guard spotify.isActive, visibleTab == .media else { return }
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
+    }
+
+    // MARK: - Calendar
+
+    private func updateCalendar(askAccess: Bool) {
+        if isRunning && calendarEnabled {
+            if askAccess { expandedTab = .calendar }
+            Task { @MainActor [weak self] in await self?.calendarController.start(askAccess: askAccess) }
+        } else {
+            calendarController.stop()
+            if expandedTab == .calendar { expandedTab = availableTabs.first ?? .shelf }
+        }
+    }
+
+    /// Shows the system Calendar prompt if macOS has not asked yet.
+    func requestCalendarAccess() {
+        Task { @MainActor [weak self] in await self?.calendarController.requestAccess() }
+    }
+
+    func openCalendarSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    func openInCalendar(_ event: AgendaEvent) { CalendarAdapter.openInCalendar(event) }
+
+    /// Opens a validated https meeting link (see CalendarAgenda.meetingLink).
+    func joinMeeting(_ event: AgendaEvent) {
+        guard let url = event.meetingURL, url.scheme == "https" else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    func setCalendar(_ id: String, visible: Bool) {
+        if visible { hiddenCalendarIDs.remove(id) } else { hiddenCalendarIDs.insert(id) }
     }
 
     // MARK: - Shelf

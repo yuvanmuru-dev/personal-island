@@ -30,6 +30,15 @@ struct SettingsView: View {
         }
     }
 
+    private var calendarExplanation: String {
+        switch coordinator.calendarStatus {
+        case .off: "Shows your next event and today's agenda from calendars on this Mac, read-only. macOS will ask for Calendar access; it only offers full access, but Personal Island never changes events."
+        case .needsAccess: "Open the island's Calendar tab and choose Allow."
+        case .denied: "Calendar access is off: allow Personal Island under Privacy & Security › Calendars."
+        case .ready: "Reading calendars on this Mac. Nothing is changed or sent online. Choose which calendars to show:"
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
@@ -59,6 +68,27 @@ struct SettingsView: View {
                     Text(spotifyExplanation)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    Toggle("Calendar in the island", isOn: $coordinator.calendarEnabled)
+                    Text(calendarExplanation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if coordinator.calendarStatus == .ready {
+                        ForEach(coordinator.calendars) { calendar in
+                            Toggle(isOn: Binding(
+                                get: { !coordinator.hiddenCalendarIDs.contains(calendar.id) },
+                                set: { coordinator.setCalendar(calendar.id, visible: $0) }
+                            )) {
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(Color(.sRGB, red: calendar.color[0], green: calendar.color[1], blue: calendar.color[2]))
+                                        .frame(width: 8, height: 8)
+                                    Text(calendar.title)
+                                    Text(calendar.source).foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.leading, 16)
+                        }
+                    }
                     if coordinator.captureShortcutEnabled && !coordinator.captureShortcutRegistered {
                         Text("\(coordinator.captureShortcutName) is already used by another app.")
                             .font(.caption)
