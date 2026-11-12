@@ -16,9 +16,10 @@ let package = Package(
             exclude: [
                 "PersonalIslandApp.swift", "IslandCoordinator.swift", "IslandPanelController.swift",
                 "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
-                "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift"
+                "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift",
+                "ShelfDragSource.swift"
             ],
-            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift"]
+            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift"]
         ),
         .testTarget(
             name: "PersonalIslandPresentationTests",

@@ -6,6 +6,12 @@ Subsequent user report and three supplied screenshots establish the compact isla
 
 This is the M1 integration foundation, not the finished utility. All accepted feature groups remain in the plan; face unlock stays deferred.
 
+## M2 drag-out increment — November 12, 2026
+
+Version 0.3.0 (6) passes 178 automated tests (169 before the local-signing checks were added) and the Release bundle checks; the build emitted no compiler warnings for app sources. New sources: pure `ShelfDragFlow` (unit-tested, 100% line coverage) and the `ShelfDragSource` AppKit adapter (compiled and reviewed, not executed by tests). The drag offers `.copy` only to other applications and carries a `public.file-url` to an app-owned temporary export plus `public.png` data. SwiftUI's `DragSession` type in the macOS 27 SDK collides with the core's type name, so the app qualifies it as `PersonalIslandCore.DragSession`.
+
+Runtime checks for the user: drag one screenshot into a Discord desktop message box, a new Mail message and a Messages conversation without sending; select two or three thumbnails and drag them together; cancel a drag by dropping back on the shelf or pressing Escape, then drag again; confirm the shelf stays open while dragging and closes afterwards when hover-opened. Note which apps attach a file and which insert the image. Do not send messages to people as a test. The user subsequently reported that drag-out works; per-destination details were not itemized.
+
 ## M2 region capture increment — November 12, 2026
 
 Version 0.2.0 (5) passes 156 automated tests and the Release bundle checks; the build emitted no compiler warnings for app sources. Five new local sources: pure `CaptureGeometry` and `CaptureFlow` (unit-tested), and the `GlobalHotKey` (Carbon), `RegionSelector` (AppKit overlay) and `ScreenRegionCapture` (ScreenCaptureKit/ImageIO) adapters, which are compiled and source-reviewed but not exercised by automated tests. Linked frameworks remain Apple system frameworks; Release entitlements remain empty and Info.plist still carries no privacy usage-description keys (macOS does not require one for Screen Recording).
@@ -38,11 +44,11 @@ Quit the existing preview from its menu-bar icon, reopen the built app, enable E
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.2.0 (5); initial preview was 0.1.0 (1) |
-| App sources | Thirteen explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
+| App identity | `dev.personal.PersonalIsland`, version 0.3.0 (6); initial preview was 0.1.0 (1) |
+| App sources | Fifteen explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |
-| Signature | Valid ad-hoc local signature; hardened runtime present |
+| Signature | Local builds: valid signature from the user's self-signed "Personal Island Local Signing" certificate (designated requirement: bundle identifier + certificate leaf), hardened runtime present. Without that identity (CI): valid ad-hoc signature |
 | Effective Release entitlements | Empty dictionary; no debugging entitlement or disabled library validation |
 | Linked libraries | Apple system frameworks/libraries only |
 | Runtime search paths | `/usr/lib/swift`, `@executable_path/../Frameworks` |
@@ -73,8 +79,8 @@ The storage core now passes 33 synthetic regression tests with the selected tool
 
 ## Next integration work
 
-- Region capture, shelf admission/removal, Copy and thumbnails are built (0.2.0); the user reported they work on the MacBook. Add native AppKit attachment dragging with temporary PNG exports next.
-- Export cleanup is scheduled at launch and every 30 minutes (0.2.0). The UI still cannot create exports until dragging lands.
+- Region capture, shelf admission/removal, Copy and thumbnails are built (0.2.0); the user reported they work on the MacBook. Native dragging with temporary PNG exports is built (0.3.0) and awaits destination checks.
+- Export cleanup is scheduled at launch and every 30 minutes (0.2.0). Dragging now creates exports, so this cleanup is active.
 - Verify actual MacBook/Dell placement, hot-plugging, Spaces, hover/focus, keyboard access and reduced motion.
 - Test synthetic attachments in destination composers, including canceled/repeated drags and delayed drafts. Do not infer send completion from drag completion.
 - Add Spotify, Calendar and each remaining accepted utility through independently controlled adapters.

@@ -166,6 +166,8 @@ struct IslandView: View {
                     ForEach(coordinator.shelfItems, id: \.id) { item in
                         ShelfTile(
                             item: item,
+                            coordinator: coordinator,
+                            isSelected: coordinator.selectedItemIDs.contains(item.id),
                             thumbnail: coordinator.thumbnails[item.id],
                             symbol: symbol(for: item),
                             label: label(for: item),
@@ -207,10 +209,13 @@ struct IslandView: View {
     }
 }
 
-/// One shelf item: thumbnail, capture time, and Copy/Remove on hover. The
+/// One shelf item: thumbnail, capture time, and Copy/Remove on hover. Click
+/// to select; drag to send the selection (or this item) to another app. The
 /// controls stay reachable by keyboard and accessibility without hovering.
 private struct ShelfTile: View {
     let item: ShelfItem
+    let coordinator: IslandCoordinator
+    let isSelected: Bool
     let thumbnail: NSImage?
     let symbol: String
     let label: String
@@ -237,8 +242,11 @@ private struct ShelfTile: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
+                        .strokeBorder(isSelected ? Color.accentColor : .white.opacity(0.12),
+                                      lineWidth: isSelected ? 2 : 1)
                 }
+                .overlay { ShelfDragSource(itemID: item.id, coordinator: coordinator) }
+                .help("Drag into another app. Click to select several.")
 
                 HStack(spacing: 4) {
                     tileButton("doc.on.doc", label: "Copy \(label.lowercased())", action: onCopy)
@@ -254,6 +262,7 @@ private struct ShelfTile: View {
         .onHover { hovering = $0 }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(label)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func tileButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {

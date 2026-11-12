@@ -22,9 +22,9 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
-      "local_sha256": "ecfc9f368b8bcf57a30cb132c951a373aa70df54ec5e511670bc84c862bf97f9",
+      "local_sha256": "f1297a6f9ca4678402fe72f4bbbc439c4d177c0a9e189a3d9fed5682b624805c",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running."
+      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running. Drag-out increment (0.3.0): selection state, drag flow wiring to ShelfStore.beginFileDrag/endDrag, shelf hold across presenters, export-capacity messages."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
@@ -39,26 +39,26 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPanelController.swift",
-      "local_sha256": "af7e14fe7d5922f3b7016cc736e3eeaf4e6c4c35f71ea5d1a16bffdb1f76843e",
+      "local_sha256": "cbf1e7382a1d103380064396aa7ae4788ad9e631f5211babace38fb5cf49e019",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/components/Notch/DynamicIslandWindow.swift",
       "upstream_sha256": "07427c36598e884b0ffa7131352596881cfafa3ad40b9d501db7cc58109514cb",
-      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window. Notch placement (0.1.3): panel level above status items so an open island draws over the menu row; explicit mouse-event receipt for the visually empty notch target; pointer reconciliation includes the display's top edge. Peek entry point for post-capture acknowledgement.",
+      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window. Notch placement (0.1.3): panel level above status items so an open island draws over the menu row; explicit mouse-event receipt for the visually empty notch target; pointer reconciliation includes the display's top edge. Peek entry point for post-capture acknowledgement. Hold entry point that reconciles the pointer before release.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPresentation.swift",
-      "local_sha256": "0a6d90dcdc6037db40375d87aaf5a5dc1167dd8edfd0a71bfa326d56a6c293d1",
+      "local_sha256": "6b2b6ef9bc345038ff961737e5b1501bf79722978fb5aa32642fad4509390cc4",
       "origin": "new_local_implementation",
-      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters. Peek state: opens briefly, held while the pointer is on it regardless of hover setting, closes after pointer exit, never disturbs an open shelf."
+      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters. Peek state: opens briefly, held while the pointer is on it regardless of hover setting, closes after pointer exit, never disturbs an open shelf. Hold state for outgoing drags: pointer exit and hover changes deferred while held, re-evaluated on release; reset on suspend."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandView.swift",
-      "local_sha256": "b05048adf594733a79ff484377d656835315641d00471958523bea52a8d37aa9",
+      "local_sha256": "81524d0d6e3be4f75dd4aab8453bc3b0a9bc785db47d8341a0f5e890b34b0dff",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line."
+      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line. Tile drag overlay, selection highlight and selected accessibility trait."
     },
     {
       "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
@@ -94,6 +94,18 @@
       "local_sha256": "71eb7f2e19a24c2bef5b01c12aa817435b0d770316065f5ca7cb3b6c72d2da77",
       "origin": "new_local_implementation",
       "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement. Capture-shortcut switch and conflict notice."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/ShelfDragFlow.swift",
+      "local_sha256": "c40275d3f6c9345ec87d7d590bf93ab1315629cf5fbd32cf48f77257fc74715f",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Generic drag lifecycle: one outgoing drag at a time; every prepared core drag session ended exactly once after drop, cancellation, failed start or mouse release during preparation; shelf held open meanwhile; failures reported without contents."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/ShelfDragSource.swift",
+      "local_sha256": "b9c5f0684496fcb0c2c2369e1af8610e8cc19c0e54dd977b455b59830f2526a2",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. AppKit NSDraggingSource overlay for shelf tiles: click selects, drag prepares core exports then starts a native copy-only drag with a file URL and in-memory PNG data per item; ends the flow when AppKit ends the session."
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/Models.swift",

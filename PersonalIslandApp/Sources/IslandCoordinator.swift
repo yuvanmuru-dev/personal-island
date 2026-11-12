@@ -39,6 +39,8 @@ final class IslandCoordinator: ObservableObject {
     @Published private(set) var shelfMessage: String?
     @Published private(set) var thumbnails: [ShelfItemID: NSImage] = [:]
     @Published private(set) var isCapturing = false
+    /// Items a drag carries together. Order follows the shelf.
+    @Published private(set) var selectedItemIDs: Set<ShelfItemID> = []
     @Published private(set) var captureShortcutRegistered = false
     /// Turning this off unregisters the shortcut immediately.
     @Published var captureShortcutEnabled = true {
@@ -83,6 +85,38 @@ final class IslandCoordinator: ObservableObject {
         }
     ))
     private var hiddenForCapture = false
+    private lazy var dragFlow = makeDragFlow()
+
+    private func makeDragFlow() -> ShelfDragFlow<ShelfItemID, PersonalIslandCore.DragSession> {
+        ShelfDragFlow(environment: .init(
+            begin: { [weak self] ids in
+                guard let self else { throw CancellationError() }
+                return try await self.beginCoreDrag(ids)
+            },
+            end: { [weak self] session in
+                try await self?.endCoreDrag(session)
+            },
+            hold: { [weak self] held in
+                guard let self else { return }
+                for presenter in self.presenters.values { presenter.setHeld(held) }
+            },
+            report: { [weak self] error in
+                self?.shelfMessage = (error as? ShelfError) == .exportCapacityExceeded
+                    ? "Too many temporary files are in use. Try again later."
+                    : "The screenshot could not be prepared for dragging."
+            }
+        ))
+    }
+
+    private func beginCoreDrag(_ ids: [ShelfItemID]) async throws -> PersonalIslandCore.DragSession {
+        guard let coreStore else { throw ShelfError.emptyDrag }
+        return try await coreStore.beginFileDrag(itemIDs: ids)
+    }
+
+    private func endCoreDrag(_ session: PersonalIslandCore.DragSession) async throws {
+        try await coreStore?.endDrag(session.id)
+    }
+
     private static let cleanupInterval: TimeInterval = 30 * 60
 
     var shelfItemCount: Int { shelfItems.count }
@@ -252,6 +286,40 @@ final class IslandCoordinator: ObservableObject {
 
     // MARK: - Shelf
 
+    func toggleShelfSelection(_ id: ShelfItemID) {
+        if selectedItemIDs.contains(id) {
+            selectedItemIDs.remove(id)
+        } else {
+            selectedItemIDs.insert(id)
+        }
+    }
+
+    /// Drags the selection if the dragged tile is part of it, otherwise just
+    /// that tile. `start` begins the platform drag once files are ready.
+    func beginShelfDrag(
+        from id: ShelfItemID,
+        start: @escaping @MainActor (PersonalIslandCore.DragSession, [ShelfItemID: NSImage], [ShelfItemID: Data]) -> Bool
+    ) {
+        let ids = selectedItemIDs.contains(id)
+            ? shelfItems.map(\.id).filter { selectedItemIDs.contains($0) }
+            : [id]
+        var pngData: [ShelfItemID: Data] = [:]
+        for item in shelfItems where ids.contains(item.id) {
+            if case .screenshot(let png) = item.payload { pngData[item.id] = png }
+        }
+        let images = thumbnails
+        shelfMessage = nil
+        Task { @MainActor [weak self] in
+            await self?.dragFlow.request(ids) { session in start(session, images, pngData) }
+        }
+    }
+
+    func shelfDragMouseReleased() { dragFlow.mouseReleasedBeforeStart() }
+
+    func shelfDragEnded() {
+        Task { @MainActor [weak self] in await self?.dragFlow.dragEnded() }
+    }
+
     private func admitScreenshot(_ png: Data) async throws {
         let store = try await shelfStore()
         try await store.addScreenshot(encodedPNG: png)
@@ -304,6 +372,7 @@ final class IslandCoordinator: ObservableObject {
         }
         shelfItems = items
         thumbnails = next
+        selectedItemIDs.formIntersection(items.map(\.id))
     }
 
     // MARK: - Export cleanup

@@ -14,6 +14,10 @@ The first Release build and bundle checks pass with Xcode 27.2. See
 [VERIFICATION.md](VERIFICATION.md)
 for the exact checkpoint and untested behavior. The user subsequently opened the preview and confirmed a visible island; both-screen placement and interactions remain unchecked.
 
+## Dragging out (0.3.0)
+
+Drag a thumbnail into another app to attach it. Click thumbnails to select several, then drag any selected one to take them all. The shelf stays open while you drag, and items stay on the shelf afterwards so you can drag them again. Screenshots become temporary PNG files only when dragged; they are cleaned up automatically at least 24 hours after their last use once removed from the shelf.
+
 ## Region capture (0.2.0)
 
 Press ⌃⇧4 (or use the menu-bar item or the camera button in the shelf), drag a region, and the screenshot lands in the shelf in memory only. Escape or a plain click cancels. Hover a thumbnail for Copy and Remove; the trash button clears the shelf. The first capture asks for Screen Recording permission; after granting it, quit and reopen the app. The shortcut can be turned off in Settings. Dragging screenshots into other apps comes next.
@@ -46,9 +50,17 @@ references, custom shell build phases, copied helper executables, updater,
 extension hosting, or AI/terminal/password-unlock modules.
 
 The build script uses a workspace-local output directory, builds Release for
-Apple silicon, applies an ad-hoc signature with hardened runtime, and records
+Apple silicon with hardened runtime, and records
 bundle/signature/link inspection. It does not launch or install the app. This
 signing configuration is for personal local use, not notarized distribution.
+
+Signing: if the login keychain contains exactly one code-signing identity named
+"Personal Island Local Signing" (a self-signed certificate made with Keychain
+Access → Certificate Assistant → Create a Certificate, Identity Type Self
+Signed Root, Certificate Type Code Signing), the build re-signs with it so
+macOS keeps privacy permissions such as Screen Recording across rebuilds.
+Without it the app is signed ad hoc and permissions must be re-granted after
+each rebuild.
 
 Open PersonalIsland.xcodeproj in Xcode to inspect the source and targets.
 Choosing Run in Xcode or opening the built app is a separate first launch;

@@ -31,7 +31,7 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 12, 2026, Xcode 27.2 / Swift 6.4.2: **156 tests passed, zero failed** (33 storage, 60 presentation, 63 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **178 tests passed, zero failed** (33 storage, 73 presentation, 72 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
@@ -41,13 +41,18 @@ Measured production line coverage from that run:
 | OwnedExportDirectory.swift | 196/208 (94.2%) |
 | ShelfStore.swift | 159/159 (100%) |
 | IslandGeometry.swift | 102/102 (100%) |
-| IslandPresentation.swift | 130/130 (100%) |
+| IslandPresentation.swift | 153/153 (100%) |
 | CaptureGeometry.swift | 31/31 (100%) |
 | CaptureFlow.swift | 30/31 (96.8%) |
+| ShelfDragFlow.swift | 46/46 (100%) |
 
 These are line measurements for the tested core/presentation sources, not a claim that every branch, UI interaction or planned integration is tested. The new layout tests caught and fixed a tiny-display menu-bar overlap. Deterministic hover race tests are complemented by one bounded production-timer smoke test that awaits actual open/close callbacks without elapsed-time assertions.
 
 Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
+
+Nine local-signing regressions cover selecting the "Personal Island Local Signing" identity (exact name only, untrusted or twice-listed identities accepted, two same-named identities rejected), the signature policy for either mode (an identity-signed build cannot pass as ad hoc, and vice versa; no extra authority, ad-hoc flag or team), and the re-signing step (ad hoc kept without an identity; hardened runtime and no entitlements with one; listing/signing failures stop the build). Subprocesses are mocked; no keychain is read.
+
+Version 0.3.0 adds 13 drag regressions. Seven test the drag lifecycle with a fake platform: a dropped drag ends its core session exactly once and releases the shelf; a drag that cannot start, or whose mouse is released during export preparation, still ends its prepared session without starting; concurrent requests are ignored without preparing exports; empty requests do nothing; preparation failure reports and needs no end; an end failure is reported and the flow recovers. Six test holding the shelf open during a drag: pointer exit is deferred and re-evaluated on release, a pointer still inside keeps it open, a pending peek close is cancelled and rescheduled, hover turned off meanwhile closes a hover-opened shelf, a manual opening stays open, and suspension clears the hold. The AppKit drag source is compiled and reviewed but not executed by tests; no drag, pasteboard write or destination app is involved.
 
 Version 0.2.0 adds 17 capture regressions. Seven test region selection (any drag direction, clamping to the starting display, negative-origin displays, whole-point rounding, clicks/tiny/invalid input) and AppKit-to-Core-Graphics conversion for displays left of, below and above the primary. Five test the capture lifecycle with an injected fake platform: success hides and restores islands exactly once and admits once; missing permission requests access without hiding or capturing; cancellation, capture failure and full-shelf failure restore islands; a second request during selection is rejected and cancel ends the first. Five test the post-capture peek: it closes after its duration, never disturbs an open shelf, is held while the pointer is on it regardless of the hover setting, and click/suspend cancel its timer. The ScreenCaptureKit, overlay, hot-key and pasteboard adapters are compiled and reviewed but not executed by tests: the suite never requests Screen Recording, registers a global shortcut or opens windows.
 

@@ -20,6 +20,7 @@ final class IslandPresentation: ObservableObject {
     private var pendingID: UUID?
     private var openedByHover = false
     private var openedByPeek = false
+    private(set) var isHeld = false
     private var pointerInside = false
     private var hoverEnabled = false
 
@@ -62,6 +63,9 @@ final class IslandPresentation: ObservableObject {
         guard inside != pointerInside || enabled != hoverEnabled else { return }
         pointerInside = inside
         hoverEnabled = enabled
+        // A drag from the shelf keeps it open; release re-evaluates the
+        // pointer and setting that were recorded meanwhile.
+        if isHeld { return }
         cancelPendingInteraction()
         if openedByPeek {
             // A peek is held open while the pointer is on it, whatever the
@@ -103,9 +107,29 @@ final class IslandPresentation: ObservableObject {
         scheduleInteraction(after: nanoseconds) { [weak self] in self?.collapse() }
     }
 
+    /// While held (an outgoing drag), pointer exit and hover changes do not
+    /// close the shelf. On release, an automatically opened shelf closes if
+    /// the pointer is outside or hover was turned off meanwhile; a manually
+    /// opened shelf stays open.
+    func setHeld(_ held: Bool) {
+        guard held != isHeld else { return }
+        isHeld = held
+        if held {
+            cancelPendingInteraction()
+            return
+        }
+        guard isExpanded else { return }
+        if openedByHover && !hoverEnabled {
+            collapse()
+        } else if !pointerInside && (openedByHover || openedByPeek) {
+            scheduleInteraction(after: Self.closeDelay) { [weak self] in self?.collapse() }
+        }
+    }
+
     /// Hidden/disconnected panels must not retain pending work or an old
     /// pointer-inside value that could suppress the next genuine entry.
     func suspendHover() {
+        isHeld = false
         pointerInside = false
         hoverEnabled = false
         collapse()

@@ -113,6 +113,31 @@ class SignaturePolicyTests(unittest.TestCase):
             with self.subTest(output=output), self.assertRaises(policy.PolicyError):
                 policy.validate_release_signature(output, b"")
 
+    def test_local_identity_signature_passes_only_for_the_expected_authority(self):
+        local = "\n".join([
+            "Executable=" + EXECUTABLE,
+            "CodeDirectory v=20500 size=1852 flags=0x10000(runtime) hashes=47+7 location=embedded",
+            "Signature size=1650", "Authority=" + policy.LOCAL_SIGNING_IDENTITY,
+            "Signed Time=Nov 12, 2026 at 03:10:00", "TeamIdentifier=not set",
+        ])
+        self.assertEqual(policy.validate_release_signature(local, b"", policy.LOCAL_SIGNING_IDENTITY), {})
+        for output, authority in (
+            (local, None),  # an identity-signed build cannot pass as ad hoc
+            (local, "Someone Else"),
+            (local.replace("flags=0x10000(runtime)", "flags=0x2(adhoc)"), policy.LOCAL_SIGNING_IDENTITY),
+            (local.replace("flags=0x10000(runtime)", "flags=0x10002(adhoc,runtime)"), policy.LOCAL_SIGNING_IDENTITY),
+            (local + "\nSignature=adhoc", policy.LOCAL_SIGNING_IDENTITY),
+            (local + "\nAuthority=Apple Root CA", policy.LOCAL_SIGNING_IDENTITY),
+            (local.replace("TeamIdentifier=not set", "TeamIdentifier=ABCDE12345"), policy.LOCAL_SIGNING_IDENTITY),
+            (SIGNATURE, policy.LOCAL_SIGNING_IDENTITY),  # ad hoc when an identity was used
+        ):
+            with self.subTest(output=output, authority=authority), self.assertRaises(policy.PolicyError):
+                policy.validate_release_signature(output, b"", authority)
+
+    def test_ad_hoc_signature_with_an_authority_fails(self):
+        with self.assertRaises(policy.PolicyError):
+            policy.validate_release_signature(SIGNATURE + "\nAuthority=Personal Island Local Signing", b"")
+
     def test_missing_duplicate_or_malformed_code_directory_fails(self):
         for output in ("", "tool error", SIGNATURE.replace("0x10002", "0xgarbage"),
                        SIGNATURE.replace("CodeDirectory", "NotCodeDirectory"),
@@ -124,6 +149,41 @@ class SignaturePolicyTests(unittest.TestCase):
         for data in (b"malformed", b"<plist><dict>", plistlib.dumps([]), plistlib.dumps("wrong type"), "not bytes"):
             with self.subTest(data=data), self.assertRaises(policy.PolicyError):
                 policy.validate_release_signature(SIGNATURE, data)
+
+
+HASH_A = "A" * 40
+HASH_B = "0123456789ABCDEF0123456789ABCDEF01234567"
+
+
+class SigningIdentityTests(unittest.TestCase):
+    def listing(self, *entries):
+        lines = ["Policy: Code Signing", "  Matching identities"]
+        lines += [f'  {index}) {digest} "{name}"{suffix}' for index, (digest, name, suffix) in enumerate(entries, 1)]
+        lines += [f"     {len(entries)} identities found"]
+        return "\n".join(lines) + "\n"
+
+    def test_exact_name_selects_its_hash_even_when_untrusted_or_listed_twice(self):
+        output = self.listing((HASH_A, "Apple Development: someone", ""),
+                              (HASH_B, policy.LOCAL_SIGNING_IDENTITY, " (CSSMERR_TP_NOT_TRUSTED)"))
+        output += self.listing((HASH_B, policy.LOCAL_SIGNING_IDENTITY, ""))
+        self.assertEqual(policy.parse_signing_identity(output), HASH_B)
+
+    def test_absent_or_similar_names_select_nothing(self):
+        for output in ("", "     0 valid identities found\n",
+                       self.listing((HASH_A, policy.LOCAL_SIGNING_IDENTITY + " 2", "")),
+                       self.listing((HASH_A, "personal island local signing", "")),
+                       self.listing((HASH_A[:39], policy.LOCAL_SIGNING_IDENTITY, ""))):
+            with self.subTest(output=output):
+                self.assertIsNone(policy.parse_signing_identity(output))
+
+    def test_two_identities_with_the_same_name_are_rejected(self):
+        output = self.listing((HASH_A, policy.LOCAL_SIGNING_IDENTITY, ""), (HASH_B, policy.LOCAL_SIGNING_IDENTITY, ""))
+        with self.assertRaisesRegex(policy.PolicyError, "More than one"):
+            policy.parse_signing_identity(output)
+
+    def test_non_text_inspection_fails(self):
+        with self.assertRaises(policy.PolicyError):
+            policy.parse_signing_identity(b"bytes")
 
 
 class LinkagePolicyTests(unittest.TestCase):

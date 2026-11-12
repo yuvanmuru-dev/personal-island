@@ -79,6 +79,13 @@ final class IslandPanelController {
         presentation.peek()
     }
 
+    /// Keeps the shelf open during an outgoing drag. On release, the pointer
+    /// position is re-read first because tracking events pause during a drag.
+    func setHeld(_ held: Bool) {
+        if !held { hostingView.reconcilePointer() }
+        presentation.setHeld(held)
+    }
+
     func setHoverEnabled(_ enabled: Bool) {
         hoverEnabled = enabled
         if isHoverTrackingActive {

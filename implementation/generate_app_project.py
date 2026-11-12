@@ -12,7 +12,7 @@ APP_FILES = [
     "PersonalIslandApp.swift", "IslandCoordinator.swift", "IslandPanelController.swift",
     "IslandGeometry.swift", "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
     "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
-    "RegionSelector.swift", "ScreenRegionCapture.swift",
+    "RegionSelector.swift", "ScreenRegionCapture.swift", "ShelfDragFlow.swift", "ShelfDragSource.swift",
 ]
 CORE_FILES = ["Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift"]
 RESOURCES = ["Atoll-LICENSE.txt", "Atoll-NOTICE.txt", "Atoll-COPYRIGHT_ASSETS.txt", "Atoll-TRADEMARKS.txt"]
@@ -48,8 +48,8 @@ def main():
         "CFBundleDevelopmentRegion": "en", "CFBundleExecutable": "$(EXECUTABLE_NAME)",
         "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)", "CFBundleInfoDictionaryVersion": "6.0",
         "CFBundleName": "Personal Island", "CFBundleDisplayName": "Personal Island",
-        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.2.0",
-        "CFBundleVersion": "5", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
+        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.3.0",
+        "CFBundleVersion": "6", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
         "LSUIElement": True, "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication",
         "NSHumanReadableCopyright": "Personal local build. Includes attributed Atoll/boring.notch presentation code.",
     }

@@ -64,8 +64,33 @@ def validate_info_plist(info: Mapping) -> None:
         raise PolicyError("Unexpected capability/update configuration: " + ", ".join(forbidden))
 
 
-def validate_release_signature(signature_output: str, entitlement_bytes: bytes) -> dict:
-    """Require one ad-hoc hardened signature and no effective entitlements.
+LOCAL_SIGNING_IDENTITY = "Personal Island Local Signing"
+_IDENTITY_LINE = re.compile(r'^\s*\d+\)\s+([0-9A-F]{40})\s+"([^"\n]*)"(?:\s+\([^\n]*\))?\s*$')
+
+
+def parse_signing_identity(output: str, name: str = LOCAL_SIGNING_IDENTITY):
+    """Return the SHA-1 of the single code-signing identity named exactly `name`.
+
+    `security find-identity -p codesigning` may list an identity in more than
+    one section, so equal hashes collapse. Two different identities with the
+    same name are ambiguous and rejected rather than guessed between.
+    """
+    if not isinstance(output, str):
+        raise PolicyError("Signing identity inspection must be text")
+    hashes = {match.group(1) for line in output.splitlines()
+              if (match := _IDENTITY_LINE.match(line)) and match.group(2) == name}
+    if len(hashes) > 1:
+        raise PolicyError("More than one signing identity is named " + name)
+    return next(iter(hashes), None)
+
+
+def validate_release_signature(signature_output: str, entitlement_bytes: bytes,
+                               expected_authority: str | None = None) -> dict:
+    """Require one hardened signature and no effective entitlements.
+
+    Without `expected_authority` the signature must be ad-hoc. With it, the
+    signature must come from exactly that one local certificate (no chain,
+    no team), so macOS privacy permissions persist across local rebuilds.
 
     An empty entitlements output is valid when codesign reports no entitlement
     blob. A present blob must be a well-formed, empty plist dictionary.
@@ -79,7 +104,13 @@ def validate_release_signature(signature_output: str, entitlement_bytes: bytes) 
     if not flag_value & 0x10000:
         raise PolicyError("Release signature is missing hardened runtime")
     signatures = re.findall(r"^Signature=(.+)$", signature_output, re.MULTILINE)
-    if signatures != ["adhoc"] or not flag_value & 0x2:
+    authorities = re.findall(r"^Authority=(.+)$", signature_output, re.MULTILINE)
+    teams = re.findall(r"^TeamIdentifier=(.+)$", signature_output, re.MULTILINE)
+    if expected_authority is None:
+        if signatures != ["adhoc"] or not flag_value & 0x2 or authorities:
+            raise PolicyError("Unexpected signing identity for the local build")
+    elif (signatures or flag_value & 0x2 or authorities != [expected_authority]
+          or teams != ["not set"]):
         raise PolicyError("Unexpected signing identity for the local build")
     if not isinstance(entitlement_bytes, bytes):
         raise PolicyError("Entitlements inspection must supply bytes")
