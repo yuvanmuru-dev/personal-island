@@ -6,6 +6,12 @@ Subsequent user report and three supplied screenshots establish the compact isla
 
 This is the M1 integration foundation, not the finished utility. All accepted feature groups remain in the plan; face unlock stays deferred.
 
+## M2 region capture increment — November 12, 2026
+
+Version 0.2.0 (5) passes 156 automated tests and the Release bundle checks; the build emitted no compiler warnings for app sources. Five new local sources: pure `CaptureGeometry` and `CaptureFlow` (unit-tested), and the `GlobalHotKey` (Carbon), `RegionSelector` (AppKit overlay) and `ScreenRegionCapture` (ScreenCaptureKit/ImageIO) adapters, which are compiled and source-reviewed but not exercised by automated tests. Linked frameworks remain Apple system frameworks; Release entitlements remain empty and Info.plist still carries no privacy usage-description keys (macOS does not require one for Screen Recording).
+
+Runtime checks for the user: press ⌃⇧4 with another app focused and confirm it keeps focus afterwards; drag a region on each display, including across the display boundary (selection is clamped to the starting display); Escape and a plain click cancel; the islands and overlay are absent from the thumbnail; Copy pastes the full image elsewhere; Remove/Clear update both displays; the first capture shows the Screen Recording request, after which the app must be quit and reopened. The user subsequently reported that capture works on the MacBook; this is a user report without itemized results. Image pixel dimensions at each display's scaling have not been measured, and the Dell remains untested.
+
 ## Notch placement update — November 12, 2026
 
 Version 0.1.3 (4) passes 139 automated tests and the Release bundle checks. The 0.1.2 below-menu placement covered application content, so it was replaced. The compact notched window is now the camera-housing rectangle (public `auxiliaryTopLeftArea`/`auxiliaryTopRightArea` and `safeAreaInsets.top`), flush with the top edge, with no visible content. Non-notched displays use a pill inset inside the menu-bar center. Only the user-opened expanded shelf crosses the menu row. Housing widths above 320pt or malformed metadata fall back to 180pt; housing height is bounded to 64pt.
@@ -32,8 +38,8 @@ Quit the existing preview from its menu-bar icon, reopen the built app, enable E
 | --- | --- |
 | Selected tools | Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2 |
 | Configuration | Release, arm64, minimum macOS 15.2 |
-| App identity | `dev.personal.PersonalIsland`, version 0.1.3 (4); initial preview was 0.1.0 (1) |
-| App sources | Eight explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
+| App identity | `dev.personal.PersonalIsland`, version 0.2.0 (5); initial preview was 0.1.0 (1) |
+| App sources | Thirteen explicit local Swift files plus three local core sources in a statically linked framework target; presentation state extracted for direct tests |
 | External package resolution | None; no package references, dependency plugins or upstream build scripts in this host |
 | Build result | `BUILD SUCCEEDED`, command exit 0 |
 | Signature | Valid ad-hoc local signature; hardened runtime present |
@@ -67,8 +73,8 @@ The storage core now passes 33 synthetic regression tests with the selected tool
 
 ## Next integration work
 
-- Add region capture, image validation, shelf admission/removal and native AppKit attachment dragging.
-- Schedule safe export cleanup at launch and periodically before enabling exports. The present UI cannot create exports and does not schedule cleanup.
+- Region capture, shelf admission/removal, Copy and thumbnails are built (0.2.0); the user reported they work on the MacBook. Add native AppKit attachment dragging with temporary PNG exports next.
+- Export cleanup is scheduled at launch and every 30 minutes (0.2.0). The UI still cannot create exports until dragging lands.
 - Verify actual MacBook/Dell placement, hot-plugging, Spaces, hover/focus, keyboard access and reduced motion.
 - Test synthetic attachments in destination composers, including canceled/repeated drags and delayed drafts. Do not infer send completion from drag completion.
 - Add Spotify, Calendar and each remaining accepted utility through independently controlled adapters.

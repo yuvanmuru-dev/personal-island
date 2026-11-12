@@ -460,3 +460,77 @@ func defaultSchedulerDeliversHoverOpenAndCloseWithoutGUI() async {
     #expect(closed == false)
     #expect(!model.isExpanded)
 }
+
+// MARK: - Peek after capture
+
+@Test @MainActor func peekOpensOnceAndClosesAfterItsDuration() {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    var changes: [Bool] = []
+    model.onExpansionChange = { [weak model] in changes.append(model?.isExpanded ?? false) }
+    model.peek()
+    #expect(model.isExpanded)
+    #expect(scheduler.jobs.count == 1)
+    #expect(scheduler.jobs[0].nanoseconds == IslandPresentation.peekDuration)
+    scheduler.fire(0)
+    #expect(!model.isExpanded)
+    #expect(changes == [true, false])
+}
+
+@Test @MainActor func peekNeverDisturbsAnAlreadyOpenShelf() {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    model.toggle()
+    model.peek()
+    #expect(model.isExpanded)
+    #expect(scheduler.jobs.isEmpty)
+    // The manual opening still ignores pointer exit.
+    model.hoverChanged(false, enabled: true)
+    #expect(model.isExpanded)
+}
+
+@Test @MainActor func pointerOnAPeekHoldsItOpenEvenWithHoverDisabled() {
+    for hover in [false, true] {
+        let scheduler = ManualScheduler()
+        let model = scheduler.presentation()
+        model.peek()
+        model.hoverChanged(true, enabled: hover)
+        #expect(scheduler.jobs[0].flag.isCancelled)
+        scheduler.fire(0, evenIfCancelled: true)
+        #expect(model.isExpanded)
+        model.hoverChanged(false, enabled: hover)
+        #expect(model.isExpanded)
+        #expect(scheduler.jobs.count == 2)
+        scheduler.fire(1)
+        #expect(!model.isExpanded)
+    }
+}
+
+@Test @MainActor func clickingAPeekClosesItAndItsTimerCannotReopenOrCloseLater() {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    model.peek()
+    model.toggle()
+    #expect(!model.isExpanded)
+    #expect(scheduler.jobs[0].flag.isCancelled)
+    model.toggle()
+    scheduler.fire(0, evenIfCancelled: true)
+    #expect(model.isExpanded)
+    // A manual reopening is no longer a peek: pointer exit leaves it open.
+    model.hoverChanged(true, enabled: false)
+    model.hoverChanged(false, enabled: false)
+    #expect(model.isExpanded)
+}
+
+@Test @MainActor func suspendingAPeekClosesItAndResetsPeekState() {
+    let scheduler = ManualScheduler()
+    let model = scheduler.presentation()
+    model.peek()
+    model.suspendHover()
+    #expect(!model.isExpanded)
+    #expect(scheduler.jobs[0].flag.isCancelled)
+    model.toggle()
+    model.hoverChanged(true, enabled: true)
+    model.hoverChanged(false, enabled: true)
+    #expect(model.isExpanded)
+}

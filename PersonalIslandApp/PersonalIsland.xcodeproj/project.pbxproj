@@ -85,6 +85,56 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "951CB47EC0E8D9E934B0139C";
 		};
+		"1D967398D625EBC356755E1D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "CaptureGeometry.swift";
+			"sourceTree" = "<group>";
+		};
+		"EF3211412D2036DF7002C382" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1D967398D625EBC356755E1D";
+		};
+		"CA5AD83B9333EB13701B46FA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "CaptureFlow.swift";
+			"sourceTree" = "<group>";
+		};
+		"4BEAE55F11935A3479F2ED2A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CA5AD83B9333EB13701B46FA";
+		};
+		"2683400FA53A3A76D5C83463" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "GlobalHotKey.swift";
+			"sourceTree" = "<group>";
+		};
+		"00123B78403E52D5039084D7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2683400FA53A3A76D5C83463";
+		};
+		"BBD865E7C25EC5D89C09ACA7" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "RegionSelector.swift";
+			"sourceTree" = "<group>";
+		};
+		"35080ABD85D6FA2D32D6CBB0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BBD865E7C25EC5D89C09ACA7";
+		};
+		"18BC4AF59207BBAFC944E996" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "ScreenRegionCapture.swift";
+			"sourceTree" = "<group>";
+		};
+		"C96CC1BED32F9522E2449130" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "18BC4AF59207BBAFC944E996";
+		};
 		"00AC2B8D68B96F643FAFC676" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -192,6 +242,11 @@
 				"8E15CA1F7A32039E971DCA70",
 				"86924807E37A8FB5FF6B4A38",
 				"951CB47EC0E8D9E934B0139C",
+				"1D967398D625EBC356755E1D",
+				"CA5AD83B9333EB13701B46FA",
+				"2683400FA53A3A76D5C83463",
+				"BBD865E7C25EC5D89C09ACA7",
+				"18BC4AF59207BBAFC944E996",
 			);
 			"path" = "Sources";
 			"sourceTree" = "<group>";
@@ -251,6 +306,11 @@
 				"C833EE415DB566D538F1CE64",
 				"BACCAE13893A67F0AD92F96D",
 				"5A945BDBF0847FD5E307F5CE",
+				"EF3211412D2036DF7002C382",
+				"4BEAE55F11935A3479F2ED2A",
+				"00123B78403E52D5039084D7",
+				"35080ABD85D6FA2D32D6CBB0",
+				"C96CC1BED32F9522E2449130",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import PersonalIslandCore
 
@@ -84,6 +85,14 @@ struct IslandView: View {
                     .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundStyle(.secondary)
                 Spacer()
+                if !coordinator.shelfItems.isEmpty {
+                    headerButton("trash", label: "Clear shelf") { coordinator.clearShelf() }
+                }
+                headerButton("camera.viewfinder", label: "Capture region (\(coordinator.captureShortcutName))") {
+                    presentation.collapse()
+                    coordinator.captureRegion()
+                }
+                .disabled(coordinator.isCapturing)
                 Button {
                     presentation.collapse()
                 } label: {
@@ -100,6 +109,15 @@ struct IslandView: View {
 
             shelfContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if let message = coordinator.shelfMessage {
+                Text(message)
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.orange.opacity(0.9))
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 4)
+            }
 
             HStack {
                 Text("PREVIEW")
@@ -138,7 +156,7 @@ struct IslandView: View {
                     .foregroundStyle(.white.opacity(0.36))
                 Text("Your shelf is empty")
                     .font(.system(size: 13, weight: .medium))
-                Text("Capture and dragging are coming next.")
+                Text("Press \(coordinator.captureShortcutName) or the camera button to capture a region.")
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.48))
             }
@@ -146,19 +164,32 @@ struct IslandView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 12) {
                     ForEach(coordinator.shelfItems, id: \.id) { item in
-                        VStack(spacing: 8) {
-                            Image(systemName: symbol(for: item))
-                                .font(.system(size: 26, weight: .light))
-                            Text(label(for: item))
-                                .font(.system(size: 10))
-                        }
-                        .frame(width: 80, height: 88)
-                        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
+                        ShelfTile(
+                            item: item,
+                            thumbnail: coordinator.thumbnails[item.id],
+                            symbol: symbol(for: item),
+                            label: label(for: item),
+                            onCopy: { coordinator.copyShelfItem(item.id) },
+                            onRemove: { coordinator.removeShelfItem(item.id) }
+                        )
                     }
                 }
             }
             .scrollIndicators(.hidden)
         }
+    }
+
+    private func headerButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.75))
+                .frame(width: 26, height: 26)
+                .background(.white.opacity(0.08), in: Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .help(label)
     }
 
     private func symbol(for item: ShelfItem) -> String {
@@ -173,5 +204,68 @@ struct IslandView: View {
         case .screenshot: "Screenshot"
         case .fileReference: "File"
         }
+    }
+}
+
+/// One shelf item: thumbnail, capture time, and Copy/Remove on hover. The
+/// controls stay reachable by keyboard and accessibility without hovering.
+private struct ShelfTile: View {
+    let item: ShelfItem
+    let thumbnail: NSImage?
+    let symbol: String
+    let label: String
+    let onCopy: () -> Void
+    let onRemove: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        VStack(spacing: 5) {
+            ZStack(alignment: .topTrailing) {
+                Group {
+                    if let thumbnail {
+                        Image(nsImage: thumbnail)
+                            .resizable()
+                            .interpolation(.medium)
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Image(systemName: symbol)
+                            .font(.system(size: 24, weight: .light))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+                .frame(width: 96, height: 66)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
+                }
+
+                HStack(spacing: 4) {
+                    tileButton("doc.on.doc", label: "Copy \(label.lowercased())", action: onCopy)
+                    tileButton("xmark", label: "Remove \(label.lowercased())", action: onRemove)
+                }
+                .padding(4)
+                .opacity(hovering ? 1 : 0)
+            }
+            Text(item.createdAt, style: .time)
+                .font(.system(size: 9.5, weight: .medium))
+                .foregroundStyle(.white.opacity(0.5))
+        }
+        .onHover { hovering = $0 }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(label)
+    }
+
+    private func tileButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 20, height: 20)
+                .background(.black.opacity(0.65), in: Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .help(label)
     }
 }

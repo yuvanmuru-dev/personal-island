@@ -11,6 +11,11 @@ struct PersonalIslandApp: App {
         MenuBarExtra("Personal Island", systemImage: "capsule") {
             Text("Personal Island · Preview")
             Divider()
+            Button("Capture Region") {
+                coordinator.captureRegion()
+            }
+            .keyboardShortcut("4", modifiers: [.control, .shift])
+            .disabled(coordinator.isCapturing)
             Button(coordinator.islandsVisible ? "Hide Islands" : "Show Islands") {
                 coordinator.setIslandsVisible(!coordinator.islandsVisible)
             }

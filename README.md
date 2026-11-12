@@ -16,7 +16,7 @@ This tests the actual storage and presentation logic, measures source coverage, 
 
 ## Current status
 
-The 0.1.3 preview sizes the compact island to the MacBook camera housing (a pill in the menu-bar center on external displays), so it no longer covers menu-bar icons or app content, and passes 139 local automated tests plus the Release build/bundle checks. The user confirmed the notch placement works on the MacBook; the Dell pill is untested. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
+The 0.2.0 preview adds region capture into the shelf (⌃⇧4, custom overlay, in-memory only) with thumbnails, Copy and Remove, on top of the 0.1.3 notch-sized island the user confirmed on the MacBook. It passes 156 local automated tests plus the Release build/bundle checks; the user reported capture works on the MacBook, and dragging out of the shelf is next. See [verification and remaining runtime checks](PersonalIslandApp/VERIFICATION.md).
 
 The controlled graphical app host builds and passes bundle/signature inspection. It uses explicit presentation sources and the local core, without the upstream package/helper/startup graph. Expanded storage, presentation and build-policy tests are included. The user has launched the preview and confirmed a visible island; both-screen placement and interactions remain unchecked. Capture, native dragging and the accepted integrations are still to be implemented.
 

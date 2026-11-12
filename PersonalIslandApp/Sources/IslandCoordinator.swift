@@ -35,6 +35,20 @@ final class IslandCoordinator: ObservableObject {
     @Published private(set) var displays: [DisplayOption] = []
     @Published private(set) var shelfItems: [ShelfItem] = []
     @Published private(set) var shelfAvailability: ShelfAvailability = .notStarted
+    /// Short status text, e.g. a capture failure. Never contains image data.
+    @Published private(set) var shelfMessage: String?
+    @Published private(set) var thumbnails: [ShelfItemID: NSImage] = [:]
+    @Published private(set) var isCapturing = false
+    @Published private(set) var captureShortcutRegistered = false
+    /// Turning this off unregisters the shortcut immediately.
+    @Published var captureShortcutEnabled = true {
+        didSet {
+            guard captureShortcutEnabled != oldValue else { return }
+            updateCaptureShortcut()
+        }
+    }
+
+    let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
     private var disabledDisplays: Set<CGDirectDisplayID> = []
     private var presenters: [CGDirectDisplayID: IslandPanelController] = [:]
@@ -42,12 +56,43 @@ final class IslandCoordinator: ObservableObject {
     private var settingsWindowController: NSWindowController?
     private var coreStore: ShelfStore?
     private var coreInitialization: Task<ShelfStore, any Error>?
+    private var isRunning = false
+    private var cleanupTimer: Timer?
+    private let regionSelector = RegionSelector()
+    private lazy var captureShortcut = GlobalHotKey(.captureRegion) { [weak self] in
+        self?.captureRegion()
+    }
+    private lazy var captureFlow = CaptureFlow(environment: CaptureFlow.Environment(
+        hasPermission: { ScreenRegionCapture.hasPermission() },
+        requestPermission: { ScreenRegionCapture.requestPermission() },
+        hideIslands: { [weak self] in self?.setPresentersHiddenForCapture(true) },
+        restoreIslands: { [weak self] in self?.setPresentersHiddenForCapture(false) },
+        selectRegion: { [weak self] in await self?.regionSelector.select() },
+        cancelSelection: { [weak self] in self?.regionSelector.cancel() },
+        captureRegion: { region in try await ScreenRegionCapture.capture(region: region) },
+        admit: { [weak self] png in
+            guard let self else { throw CancellationError() }
+            try await self.admitScreenshot(png)
+        },
+        classify: { error in
+            switch error as? ShelfError {
+            case .capacityExceeded?: .shelfFull
+            case .some: .shelfUnavailable
+            case nil: .capture
+            }
+        }
+    ))
+    private var hiddenForCapture = false
+    private static let cleanupInterval: TimeInterval = 30 * 60
 
     var shelfItemCount: Int { shelfItems.count }
 
     func start() {
         guard screenObserver == nil else { return }
+        isRunning = true
         refreshDisplays()
+        updateCaptureShortcut()
+        startExportCleanup()
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -62,6 +107,11 @@ final class IslandCoordinator: ObservableObject {
             NotificationCenter.default.removeObserver(screenObserver)
             self.screenObserver = nil
         }
+        isRunning = false
+        captureFlow.cancel()
+        updateCaptureShortcut()
+        cleanupTimer?.invalidate()
+        cleanupTimer = nil
         for presenter in presenters.values { presenter.close() }
         presenters.removeAll()
         coreInitialization?.cancel()
@@ -103,7 +153,7 @@ final class IslandCoordinator: ObservableObject {
         }
 
         for (id, screen) in screens {
-            guard islandsVisible, !disabledDisplays.contains(id) else {
+            guard islandsVisible, !hiddenForCapture, !disabledDisplays.contains(id) else {
                 presenters[id]?.hide()
                 continue
             }
@@ -138,8 +188,153 @@ final class IslandCoordinator: ObservableObject {
         settingsWindowController?.window?.makeKeyAndOrderFront(nil)
     }
 
-    /// The app shell initializes only its own export storage, on demand. No
-    /// capture, pasteboard, media, calendar, or network adapter is constructed.
+    // MARK: - Capture
+
+    /// Starts one region capture. Repeated requests while one is running are
+    /// ignored. Screen Recording access is requested only from here.
+    func captureRegion() {
+        guard isRunning, !isCapturing else { return }
+        isCapturing = true
+        shelfMessage = nil
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let outcome = await self.captureFlow.run()
+            self.isCapturing = false
+            self.handle(outcome)
+        }
+    }
+
+    private func handle(_ outcome: CaptureFlow.Outcome) {
+        switch outcome {
+        case .captured:
+            peekShelfOnPointerDisplay()
+        case .cancelled, .busy:
+            break
+        case .permissionNeeded:
+            shelfMessage = "Allow Personal Island under Screen Recording in System Settings, then quit and reopen it."
+            peekShelfOnPointerDisplay()
+        case .failed(.shelfFull):
+            shelfMessage = "The shelf is full. Remove a screenshot to capture another."
+            peekShelfOnPointerDisplay()
+        case .failed(.shelfUnavailable):
+            shelfMessage = "The temporary shelf is unavailable."
+            peekShelfOnPointerDisplay()
+        case .failed(.capture):
+            shelfMessage = "The screenshot could not be taken."
+            peekShelfOnPointerDisplay()
+        }
+    }
+
+    private func setPresentersHiddenForCapture(_ hidden: Bool) {
+        hiddenForCapture = hidden
+        if hidden {
+            for presenter in presenters.values { presenter.hide() }
+        } else if isRunning {
+            refreshDisplays()
+        }
+    }
+
+    private func peekShelfOnPointerDisplay() {
+        let pointer = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(pointer) } ?? NSScreen.screens.first
+        guard let number = screen?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber else { return }
+        presenters[number.uint32Value]?.peek()
+    }
+
+    private func updateCaptureShortcut() {
+        if isRunning && captureShortcutEnabled {
+            captureShortcutRegistered = captureShortcut.register()
+        } else {
+            captureShortcut.unregister()
+            captureShortcutRegistered = false
+        }
+    }
+
+    // MARK: - Shelf
+
+    private func admitScreenshot(_ png: Data) async throws {
+        let store = try await shelfStore()
+        try await store.addScreenshot(encodedPNG: png)
+        await refreshShelf(from: store)
+    }
+
+    func removeShelfItem(_ id: ShelfItemID) {
+        guard let coreStore else { return }
+        Task { @MainActor [weak self] in
+            await coreStore.remove([id])
+            await self?.refreshShelf(from: coreStore)
+        }
+    }
+
+    /// Releases screenshot memory. Retained exports follow their grace period;
+    /// original imported files are never touched.
+    func clearShelf() {
+        guard let coreStore else { return }
+        shelfMessage = nil
+        Task { @MainActor [weak self] in
+            await coreStore.clear()
+            await self?.refreshShelf(from: coreStore)
+        }
+    }
+
+    /// Explicit user action: puts the image on the general pasteboard.
+    func copyShelfItem(_ id: ShelfItemID) {
+        guard let item = shelfItems.first(where: { $0.id == id }) else { return }
+        let pasteboard = NSPasteboard.general
+        switch item.payload {
+        case .screenshot(let png):
+            pasteboard.clearContents()
+            pasteboard.setData(png, forType: .png)
+        case .fileReference(let reference):
+            pasteboard.clearContents()
+            pasteboard.writeObjects([reference.url as NSURL])
+        }
+    }
+
+    private func refreshShelf(from store: ShelfStore) async {
+        let items = await store.snapshot().items
+        var next: [ShelfItemID: NSImage] = [:]
+        for item in items {
+            if let existing = thumbnails[item.id] {
+                next[item.id] = existing
+            } else if case .screenshot(let png) = item.payload,
+                      let image = ScreenRegionCapture.thumbnail(for: png) {
+                next[item.id] = image
+            }
+        }
+        shelfItems = items
+        thumbnails = next
+    }
+
+    // MARK: - Export cleanup
+
+    /// Cleanup runs once the store opens at launch and then periodically while
+    /// the app runs. It only removes expired files this app created.
+    private func startExportCleanup() {
+        prepareShelfIfNeeded()
+        cleanupTimer?.invalidate()
+        let timer = Timer(timeInterval: Self.cleanupInterval, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.sweepExports() }
+        }
+        timer.tolerance = 60
+        RunLoop.main.add(timer, forMode: .common)
+        cleanupTimer = timer
+    }
+
+    private func sweepExports() {
+        guard isRunning, let coreStore else { return }
+        Task { @MainActor [weak self] in
+            do {
+                _ = try await coreStore.sweepExpiredExports()
+            } catch {
+                self?.shelfMessage = "Temporary file cleanup stopped because of unexpected files. Nothing was deleted."
+            }
+        }
+    }
+
+    /// The app shell initializes only its own export storage. No pasteboard,
+    /// media, calendar, or network adapter is constructed; capture adapters
+    /// run only on an explicit capture request.
     func prepareShelfIfNeeded(retry: Bool = false) {
         guard shelfAvailability == .notStarted || (retry && shelfAvailability == .unavailable) else { return }
         shelfAvailability = .preparing
@@ -147,8 +342,9 @@ final class IslandCoordinator: ObservableObject {
             guard let self else { return }
             do {
                 let store = try await self.shelfStore()
-                self.shelfItems = await store.snapshot().items
+                await self.refreshShelf(from: store)
                 self.shelfAvailability = .ready
+                self.sweepExports()
             } catch {
                 self.shelfAvailability = .unavailable
             }

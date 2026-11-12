@@ -19,6 +19,7 @@ final class IslandPresentation: ObservableObject {
     private var pendingInteraction: AnyCancellable?
     private var pendingID: UUID?
     private var openedByHover = false
+    private var openedByPeek = false
     private var pointerInside = false
     private var hoverEnabled = false
 
@@ -26,6 +27,8 @@ final class IslandPresentation: ObservableObject {
     // exit grace lets the pointer cross an edge without flickering the shelf.
     private static let openDelay: UInt64 = 80_000_000
     private static let closeDelay: UInt64 = 120_000_000
+    /// How long a peek (e.g. after a capture) stays open without interaction.
+    static let peekDuration: UInt64 = 3_000_000_000
 
     init(layout: IslandGeometry.Layout, scheduler: Scheduler? = nil) {
         self.layout = layout
@@ -39,6 +42,7 @@ final class IslandPresentation: ObservableObject {
     func toggle() {
         cancelPendingInteraction()
         openedByHover = false
+        openedByPeek = false
         isExpanded.toggle()
         onExpansionChange?()
     }
@@ -46,6 +50,7 @@ final class IslandPresentation: ObservableObject {
     func collapse() {
         cancelPendingInteraction()
         openedByHover = false
+        openedByPeek = false
         guard isExpanded else { return }
         isExpanded = false
         onExpansionChange?()
@@ -58,6 +63,14 @@ final class IslandPresentation: ObservableObject {
         pointerInside = inside
         hoverEnabled = enabled
         cancelPendingInteraction()
+        if openedByPeek {
+            // A peek is held open while the pointer is on it, whatever the
+            // hover setting, and closes shortly after the pointer leaves.
+            if !inside {
+                scheduleInteraction(after: Self.closeDelay) { [weak self] in self?.collapse() }
+            }
+            return
+        }
         guard enabled else {
             if openedByHover { collapse() }
             return
@@ -74,6 +87,20 @@ final class IslandPresentation: ObservableObject {
                 self?.collapse()
             }
         }
+    }
+
+    /// Briefly opens the shelf to acknowledge an event such as a capture. It
+    /// never disturbs a shelf that is already open, closes by itself unless
+    /// the pointer is on it, and a click or Escape closes it like any other.
+    func peek(for nanoseconds: UInt64 = IslandPresentation.peekDuration) {
+        guard !isExpanded else { return }
+        cancelPendingInteraction()
+        openedByHover = false
+        openedByPeek = true
+        isExpanded = true
+        onExpansionChange?()
+        guard !pointerInside else { return }
+        scheduleInteraction(after: nanoseconds) { [weak self] in self?.collapse() }
     }
 
     /// Hidden/disconnected panels must not retain pending work or an old

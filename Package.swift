@@ -15,9 +15,10 @@ let package = Package(
             path: "PersonalIslandApp/Sources",
             exclude: [
                 "PersonalIslandApp.swift", "IslandCoordinator.swift", "IslandPanelController.swift",
-                "IslandView.swift", "SettingsView.swift", "NotchShape.swift"
+                "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
+                "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift"
             ],
-            sources: ["IslandGeometry.swift", "IslandPresentation.swift"]
+            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift"]
         ),
         .testTarget(
             name: "PersonalIslandPresentationTests",

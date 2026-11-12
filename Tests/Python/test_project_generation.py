@@ -121,7 +121,8 @@ class ProjectGenerationTests(unittest.TestCase):
         self.assertEqual(set(self.phase_files(self.target("PersonalIsland"), "PBXSourcesBuildPhase")), {
             "PersonalIslandApp.swift", "IslandCoordinator.swift", "IslandPanelController.swift",
             "IslandGeometry.swift", "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
-            "IslandPresentation.swift",
+            "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
+            "RegionSelector.swift", "ScreenRegionCapture.swift",
         })
         self.assertEqual(set(self.phase_files(self.target("PersonalIslandCore"), "PBXSourcesBuildPhase")), {
             "Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift",

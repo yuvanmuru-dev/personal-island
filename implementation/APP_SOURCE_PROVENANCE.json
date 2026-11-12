@@ -3,10 +3,28 @@
   "scope": "Controlled graphical host and directly tested local presentation/storage components, not a complete Atoll fork. No DynamicNotch source has been copied into this host.",
   "files": [
     {
-      "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
-      "local_sha256": "d82b966cf9d9965afd81c4e4c13e93a3ddaeef308da1dbd19998a73cd1456bd1",
+      "local_path": "PersonalIslandApp/Sources/CaptureFlow.swift",
+      "local_sha256": "bf1052fe3b006ee1b2a10d8b1385d0f6640cb896a8400acb5939dddce2959d6f",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately."
+      "modifications": "Written for this personal project; no upstream file copied. Injected-environment capture lifecycle: one capture at a time, permission gating without hiding islands, hide/restore exactly once on success, cancel and failure, error classification without image contents."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/CaptureGeometry.swift",
+      "local_sha256": "e4d44340f694c31b3183a66a559509c01b1b997124fe77550df63f10fe0c658c",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Pure region-selection math: drag normalization, clamping to the starting display, minimum size, AppKit-to-Core-Graphics global coordinate conversion."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/GlobalHotKey.swift",
+      "local_sha256": "3e3ef78ab58fbff905b2de5020be57c381fb25a8663c5211134fabefa9e15999",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Carbon RegisterEventHotKey wrapper for the Control-Shift-4 capture shortcut; receives only its own combination, no Accessibility or Input Monitoring permission; explicit register/unregister."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandCoordinator.swift",
+      "local_sha256": "ecfc9f368b8bcf57a30cb132c951a373aa70df54ec5e511670bc84c862bf97f9",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Propagate hover preference changes to existing display presenters immediately. M2 capture increment (0.2.0): capture shortcut lifecycle tied to start/stop and its setting; capture flow wiring, island hide/restore, peek after capture, Copy/Remove/Clear, thumbnails, status messages, and export cleanup at launch and every 30 minutes while running."
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandGeometry.swift",
@@ -21,20 +39,26 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/IslandPanelController.swift",
-      "local_sha256": "25c1747da57bdc7a69b43f6830e29bd626da520b43c4e5f5f4737e7fa2bc3927",
+      "local_sha256": "af7e14fe7d5922f3b7016cc736e3eeaf4e6c4c35f71ea5d1a16bffdb1f76843e",
       "origin": "adapted",
       "repository": "https://github.com/Ebullioscopic/Atoll",
       "commit": "b8d86a2d8118d905ffa3e2c912adc736683741bb",
       "upstream_path": "DynamicIsland/components/Notch/DynamicIslandWindow.swift",
       "upstream_sha256": "07427c36598e884b0ffa7131352596881cfafa3ad40b9d501db7cc58109514cb",
-      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window. Notch placement (0.1.3): panel level above status items so an open island draws over the menu row; explicit mouse-event receipt for the visually empty notch target; pointer reconciliation includes the display's top edge.",
+      "modifications": "Adapted nonactivating panel configuration; replaced upstream managers with per-display presenter and shared local coordinator; removed capture/defaults registration and global services. Extracted original local presentation state into separately tested IslandPresentation.swift. Hover responsiveness: one stable native tracking host per panel, reconcile the actual cursor after events/show/resize, stop tracking before hide/close, and apply preference changes immediately. Refresh public screen/status-bar geometry on show/update/expansion and hide an unusable layout before activating native tracking; menu-row pixels contain no island window. Notch placement (0.1.3): panel level above status items so an open island draws over the menu row; explicit mouse-event receipt for the visually empty notch target; pointer reconciliation includes the display's top edge. Peek entry point for post-capture acknowledgement.",
       "license": "GPL-3.0-or-later; retained headers and upstream notices"
     },
     {
-      "local_path": "PersonalIslandApp/Sources/IslandView.swift",
-      "local_sha256": "3e560dc1024583a7290a6fe421b0882cea275bfd279b769ec410499e07874394",
+      "local_path": "PersonalIslandApp/Sources/IslandPresentation.swift",
+      "local_sha256": "0a6d90dcdc6037db40375d87aaf5a5dc1167dd8edfd0a71bfa326d56a6c293d1",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing."
+      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters. Peek state: opens briefly, held while the pointer is on it regardless of hover setting, closes after pointer exit, never disturbs an open shelf."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/IslandView.swift",
+      "local_sha256": "b05048adf594733a79ff484377d656835315641d00471958523bea52a8d37aa9",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Native presenter owns hover events; SwiftUI content animation shortened to 120ms, respecting Reduce Motion. Move compact tray/Shelf/count content below the system menu band and remove camera-gap and extra notch-height content padding. Notch placement (0.1.3): compact notch state draws no visible content; non-notched compact state is a tray/count pill; expanded content is inset below the camera housing. Shelf tiles with thumbnails, time, Copy/Remove; Capture and Clear header buttons; status message line."
     },
     {
       "local_path": "PersonalIslandApp/Sources/NotchShape.swift",
@@ -49,15 +73,27 @@
     },
     {
       "local_path": "PersonalIslandApp/Sources/PersonalIslandApp.swift",
-      "local_sha256": "5c37fd3c49ea49f62b35cf6694c441731cc88c5c98a1a184522bd4d80ca57d3b",
+      "local_sha256": "2e9898ae1fec77845d7951753387976cdbb66a8e23c2dd51b0345de2a22cbf46",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied."
+      "modifications": "Written for this personal project; no upstream file copied. Capture Region menu item."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/RegionSelector.swift",
+      "local_sha256": "4e530ab139631c4fb87b43fda22cdbf93ad7a898121f2399b4d7252386ba0b80",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. Non-activating per-display crosshair overlay returning an AppKit global selection; Escape, right-click or a click without dragging cancels."
+    },
+    {
+      "local_path": "PersonalIslandApp/Sources/ScreenRegionCapture.swift",
+      "local_sha256": "3d16c2d3ca6fc399026f01050961161f700f73023ae28e600095e04597aeec63",
+      "origin": "new_local_implementation",
+      "modifications": "Written for this personal project; no upstream file copied. On-demand ScreenCaptureKit SCScreenshotManager.captureImage(in:) region capture encoded to in-memory PNG; no disk, pasteboard, preference change or continuous stream. Screen Recording request with a settings-pane fallback; ImageIO thumbnails."
     },
     {
       "local_path": "PersonalIslandApp/Sources/SettingsView.swift",
-      "local_sha256": "095256dd291fe0385a691da8429ef81cb1eaf1bb212a91f0850a3d981f688d40",
+      "local_sha256": "71eb7f2e19a24c2bef5b01c12aa817435b0d770316065f5ca7cb3b6c72d2da77",
       "origin": "new_local_implementation",
-      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement."
+      "modifications": "Written for this personal project; no upstream file copied. Describe below-notch and below-menu-bar display placement. Describe in-notch and menu-bar pill placement. Capture-shortcut switch and conflict notice."
     },
     {
       "local_path": "PersonalIslandCore/Sources/PersonalIslandCore/Models.swift",
@@ -76,12 +112,6 @@
       "local_sha256": "4b848f421d9d7a6261be16bc66dd54fd7f0d21bfc0584ea2a5d4de532424aaa8",
       "origin": "new_local_implementation",
       "modifications": "Dependency-free storage/export ownership core, shared unchanged by the Swift package and app framework target."
-    },
-    {
-      "local_path": "PersonalIslandApp/Sources/IslandPresentation.swift",
-      "local_sha256": "a613fa63d9b802b3f4984c8ed33d89625c826b2f6a75ac068e433650a30a181a",
-      "origin": "new_local_implementation",
-      "modifications": "Extracted locally written presentation state from panel controller; injectable cancellable delay scheduler and stale-callback guard for deterministic race tests. Hover responsiveness: deduplicate unchanged pointer/preference inputs; use 80ms entry and 120ms exit waits; immediately cancel disabled hover work and reset hidden presenters."
     }
   ],
   "notch_production_body_matches_upstream": true,

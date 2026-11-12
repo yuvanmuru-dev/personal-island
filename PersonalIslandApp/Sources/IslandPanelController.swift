@@ -73,6 +73,12 @@ final class IslandPanelController {
         hostingView.reconcilePointer()
     }
 
+    /// Briefly opens this display's shelf, e.g. after a capture.
+    func peek() {
+        guard isHoverTrackingActive, panel.isVisible else { return }
+        presentation.peek()
+    }
+
     func setHoverEnabled(_ enabled: Bool) {
         hoverEnabled = enabled
         if isHoverTrackingActive {

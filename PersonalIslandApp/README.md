@@ -14,6 +14,10 @@ The first Release build and bundle checks pass with Xcode 27.2. See
 [VERIFICATION.md](VERIFICATION.md)
 for the exact checkpoint and untested behavior. The user subsequently opened the preview and confirmed a visible island; both-screen placement and interactions remain unchecked.
 
+## Region capture (0.2.0)
+
+Press ⌃⇧4 (or use the menu-bar item or the camera button in the shelf), drag a region, and the screenshot lands in the shelf in memory only. Escape or a plain click cancels. Hover a thumbnail for Copy and Remove; the trash button clears the shelf. The first capture asks for Screen Recording permission; after granting it, quit and reopen the app. The shortcut can be turned off in Settings. Dragging screenshots into other apps comes next.
+
 ## Notch placement update
 
 Version 0.1.3 makes the compact island exactly the size of the MacBook camera housing, at the top of the screen. It shows nothing there and never covers menus, menu-bar icons or app content; hover or click it to open the shelf. External displays show a small pill in the middle of the menu bar. The open shelf may cover the menu bar until it closes. The user confirmed it works on the MacBook; the external-display pill is still untested.

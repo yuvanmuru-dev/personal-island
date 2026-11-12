@@ -43,6 +43,12 @@ struct SettingsView: View {
                         set: { coordinator.setIslandsVisible($0) }
                     ))
                     Toggle("Expand on hover", isOn: $coordinator.expandOnHover)
+                    Toggle("Capture shortcut (\(coordinator.captureShortcutName))", isOn: $coordinator.captureShortcutEnabled)
+                    if coordinator.captureShortcutEnabled && !coordinator.captureShortcutRegistered {
+                        Text("\(coordinator.captureShortcutName) is already used by another app.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                     Text("Click an island to open its shelf. Escape closes it when the island has keyboard focus.")
                         .font(.caption)
                         .foregroundStyle(.secondary)

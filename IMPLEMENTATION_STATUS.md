@@ -8,11 +8,11 @@ Updated November 12, 2026.
 | Build/implementation plan | Written | BUILD_IMPLEMENTATION_PLAN.md defines M0–M5 and all accepted features. |
 | M0 safe storage/export core | Built with expanded regression tests | Dependency-free library compiled; 33 synthetic tests pass, including concurrent requests, batch rollback and damaged metadata. Native adapters, filesystem fault injection and abrupt-process recovery testing remain. See TESTING.md and PersonalIslandCore/VERIFICATION.md. |
 | M1 controlled app source/build | Built; initial MacBook interface confirmed | Release Apple silicon app builds with Xcode 27.2. Explicit app/core sources, no remote packages or helpers, valid ad-hoc signature with hardened runtime and empty Release entitlements. User report/screenshots confirm the compact island, expanded empty shelf and Settings on the built-in display. Dell/shared-display behavior, closing/Quit and broader interactions remain unchecked. See PersonalIslandApp/VERIFICATION.md. |
-| M2 two-display screenshot preview | Not started | Requires capture and AppKit drag adapters plus actual destination/display checks. |
+| M2 two-display screenshot preview | In progress: region capture increment built | 0.2.0 adds ⌃⇧4/menu/button region capture with a custom overlay and ScreenCaptureKit, in-memory PNG admission to the shared shelf, thumbnails with Copy/Remove/Clear, a post-capture peek, and export cleanup at launch and every 30 minutes. User reported capture works on the MacBook. Remaining: native dragging/exports to Discord, Mail and Messages, window/display capture, fidelity checks at MacBook/Dell scaling, and display-change edge cases. |
 | M3 Spotify/Calendar | Not started | No permissions requested or personal accounts accessed. |
 | M4 all additional utilities | Planned | Every accepted feature group remains in scope. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 139 automated tests pass locally: 33 storage, 43 presentation and 63 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Private repository and automated checks | Local verification passed; automatic checks configured | Private yuvanmuru-dev/personal-island repository. 156 automated tests pass locally: 33 storage, 60 presentation and 63 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.
@@ -22,6 +22,14 @@ The user opened the built preview, then confirmed the empty shelf and supplied t
 The built host has a menu-bar entry, Settings/Quit, two-display presentation code and one shared shelf coordinator. This is an integration foundation: capture, native attachment dragging, Spotify/Calendar and the remaining utilities are not connected. Precise display placement and interactions have not been verified in the running app. Temporary export cleanup scheduling must also be connected in M2; the current host only initializes storage on first shelf opening and cannot create exports through its UI.
 
 [App build and bundle inspection](PersonalIslandApp/VERIFICATION.md), [exact artifact receipt](implementation/APP_BUILD_RECEIPT.json), [source provenance](implementation/APP_SOURCE_PROVENANCE.json).
+
+## M2 region capture increment — November 12
+
+Version 0.2.0 (5) rebuilds and passes all 156 automated tests plus Release bundle/signature checks. The user chose Control-Shift-4 and a custom overlay. The flow is: shortcut, menu item or camera button → islands hide → dimmed crosshair overlay on every display (Escape, right-click or a click without dragging cancels) → `SCScreenshotManager.captureImage(in:)` for the selected rectangle → in-memory PNG admitted to the shared `ShelfStore` (20 images / 128 MiB, no silent eviction) → islands return and the shelf on the pointer's display peeks for 3 seconds. Nothing is written to disk or the pasteboard by capture, and system screenshot preferences are untouched.
+
+The shortcut uses the Carbon hot-key API, which receives only that combination and needs no Accessibility or Input Monitoring permission; the Settings switch unregisters it immediately, and Quit unregisters it. Screen Recording is requested only on the first capture; if already answered, the Screen Recording settings pane opens and nothing is changed there automatically. Because the app is ad-hoc signed, macOS may ask again after rebuilds. Copy is an explicit action that writes PNG data to the general pasteboard. Export cleanup now runs when the store opens at launch and every 30 minutes while running; an unexpected file stops cleanup without deleting anything and shows a message.
+
+After running 0.2.0, the user reported that capture works on the MacBook. This is a user report, not an instrumented measurement; individual checks (focus retention, overlay absence, Copy, cancellation) were not itemized. Capture fidelity at Dell scaling remains untested. Dragging out of the shelf is the next increment, so there are still no exports to clean.
 
 ## Notch placement update — November 12
 
