@@ -21,7 +21,7 @@ struct IslandView: View {
                 if presentation.isExpanded {
                     NotchShape(topCornerRadius: 6, bottomCornerRadius: 22)
                         .fill(.black)
-                } else if presentation.activity != nil {
+                } else if presentation.isWidened {
                     // Wings beside the housing join it seamlessly in black.
                     NotchShape(topCornerRadius: 6, bottomCornerRadius: 12)
                         .fill(.black)
@@ -45,6 +45,7 @@ struct IslandView: View {
         .onExitCommand { presentation.collapse() }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.12), value: presentation.isExpanded)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: presentation.activity)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: presentation.showsLive)
     }
 
     private var backgroundCornerRadius: CGFloat {
@@ -58,6 +59,10 @@ struct IslandView: View {
             Group {
                 if let activity = presentation.activity {
                     activityContent(activity)
+                } else if presentation.showsLive, let timer = coordinator.featuredTimer {
+                    liveTimerContent(timer)
+                } else if presentation.showsLive, coordinator.stopwatch.isRunning {
+                    liveStopwatchContent(coordinator.stopwatch)
                 } else if presentation.layout.hasNotch {
                     // Under the camera housing there are no pixels to show
                     // content; the compact island is only a hover/click target.
@@ -78,32 +83,73 @@ struct IslandView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(presentation.activity.map(Self.activityDescription)
-            ?? "Open shelf, \(coordinator.shelfItemCount) items")
+            ?? (presentation.showsLive && coordinator.featuredTimer != nil ? "Timer running. Open island"
+                : presentation.showsLive && coordinator.stopwatch.isRunning ? "Stopwatch running. Open island"
+                : "Open shelf, \(coordinator.shelfItemCount) items"))
         .help("Open shelf")
     }
 
-    /// Icon on the left wing, percentage on the right; the center stays clear
+    /// Something on the left wing, text on the right; the center stays clear
     /// for the camera housing (or holds the pill's spacing).
-    private func activityContent(_ activity: BatteryActivity) -> some View {
+    private func wings<Leading: View>(@ViewBuilder leading: () -> Leading, trailing: Text, tint: Color) -> some View {
+        let notch = presentation.layout.hasNotch
         let wing = presentation.layout.activityWingWidth
         return HStack(spacing: 0) {
-            BatteryGlyph(percent: activity.percent, charging: Self.showsBolt(activity), tint: Self.tint(activity))
-                .frame(width: presentation.layout.hasNotch ? wing : nil)
-                .frame(maxWidth: presentation.layout.hasNotch ? nil : .infinity)
-            if presentation.layout.hasNotch {
+            leading()
+                .frame(width: notch ? wing : nil)
+                .frame(maxWidth: notch ? nil : .infinity)
+            if notch {
                 Spacer(minLength: presentation.layout.compactSize.width)
             }
-            Text(Self.activityText(activity))
+            trailing
                 .font(.system(size: 11.5, weight: .semibold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(Self.tint(activity))
+                .foregroundStyle(tint)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-                .frame(width: presentation.layout.hasNotch ? wing : nil)
-                .frame(maxWidth: presentation.layout.hasNotch ? nil : .infinity)
+                .frame(width: notch ? wing : nil)
+                .frame(maxWidth: notch ? nil : .infinity)
         }
-        .padding(.horizontal, presentation.layout.hasNotch ? 0 : 8)
+        .padding(.horizontal, notch ? 0 : 8)
         .transition(.opacity)
+    }
+
+    @ViewBuilder
+    private func activityContent(_ activity: IslandActivity) -> some View {
+        switch activity {
+        case .battery(let battery):
+            wings(leading: {
+                BatteryGlyph(percent: battery.percent, charging: Self.showsBolt(battery), tint: Self.tint(battery))
+            }, trailing: Text(Self.activityText(battery)), tint: Self.tint(battery))
+        case .timerDone:
+            wings(leading: {
+                Image(systemName: "bell.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .symbolEffect(.bounce, options: .repeat(3))
+            }, trailing: Text("Done"), tint: .orange)
+        }
+    }
+
+    /// A running stopwatch: its icon and the elapsed time.
+    private func liveStopwatchContent(_ stopwatch: Stopwatch) -> some View {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            wings(leading: {
+                Image(systemName: "stopwatch")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.cyan)
+            }, trailing: Text(IslandTimers.stopwatchShortText(stopwatch.elapsed(at: context.date))), tint: .cyan)
+        }
+    }
+
+    /// A running timer: a small progress ring and the time left.
+    private func liveTimerContent(_ timer: IslandTimer) -> some View {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            wings(leading: {
+                TimerRing(progress: timer.progress(at: context.date), paused: timer.isPaused, size: 14)
+            }, trailing: Text(IslandTimers.clockText(timer.remaining(at: context.date))),
+            tint: timer.isPaused ? .white.opacity(0.55) : .orange)
+        }
     }
 
     private static func showsBolt(_ activity: BatteryActivity) -> Bool {
@@ -127,7 +173,14 @@ struct IslandView: View {
         }
     }
 
-    static func activityDescription(_ activity: BatteryActivity) -> String {
+    static func activityDescription(_ activity: IslandActivity) -> String {
+        switch activity {
+        case .battery(let battery): batteryDescription(battery)
+        case .timerDone(let duration): "\(IslandTimers.lengthText(duration)) timer done"
+        }
+    }
+
+    static func batteryDescription(_ activity: BatteryActivity) -> String {
         switch activity {
         case .pluggedIn(let p): "Charging, \(p) percent"
         case .unplugged(let p): "On battery, \(p) percent"
@@ -144,6 +197,8 @@ struct IslandView: View {
                         switch tab {
                         case .media: tabButton(.media, symbol: "music.note", title: "Media")
                         case .calendar: tabButton(.calendar, symbol: "calendar", title: "Calendar")
+                        case .timers: tabButton(.timers, symbol: "timer", title: "Timers",
+                                                count: coordinator.timers.isEmpty ? nil : coordinator.timers.count)
                         case .shelf: tabButton(.shelf, symbol: "tray.fill", title: "Shelf", count: coordinator.shelfItemCount)
                         }
                     }
@@ -197,6 +252,7 @@ struct IslandView: View {
                 case .shelf: shelfContent
                 case .media: MediaContent(coordinator: coordinator)
                 case .calendar: CalendarContent(coordinator: coordinator)
+                case .timers: TimersContent(coordinator: coordinator)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -249,8 +305,12 @@ struct IslandView: View {
             HStack(spacing: 5) {
                 Image(systemName: symbol)
                     .font(.system(size: 11, weight: .semibold))
-                Text(title)
-                    .font(.system(size: 13, weight: .semibold))
+                // With many sections, only the selected one is labeled so the
+                // header still fits beside the battery and buttons.
+                if selected || coordinator.availableTabs.count <= 3 {
+                    Text(title)
+                        .font(.system(size: 13, weight: .semibold))
+                }
                 if let count {
                     Text("\(count)")
                         .font(.system(size: 10.5, weight: .medium, design: .rounded))
@@ -266,6 +326,7 @@ struct IslandView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(title)
         .accessibilityAddTraits(selected ? .isSelected : [])
+        .help(title)
     }
 
     @ViewBuilder
@@ -788,5 +849,252 @@ private struct BatteryGlyph: View {
         case ...50: return .yellow
         default: return .green
         }
+    }
+}
+
+/// A ring that empties as the timer runs down.
+private struct TimerRing: View {
+    let progress: Double
+    let paused: Bool
+    let size: CGFloat
+
+    var body: some View {
+        let width = max(1.5, size / 9)
+        ZStack {
+            Circle().stroke(.white.opacity(0.18), lineWidth: width)
+            Circle()
+                .trim(from: 0, to: max(0, 1 - progress))
+                .stroke(paused ? Color.white.opacity(0.5) : .orange,
+                        style: StrokeStyle(lineWidth: width, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            if paused {
+                Image(systemName: "pause.fill")
+                    .font(.system(size: size * 0.38, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Timers (running and paused, presets, custom length) or the stopwatch.
+private struct TimersContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+    @State private var customMinutes = 20
+    @State private var showsStopwatch: Bool?
+
+    /// Opens on the stopwatch if it is in use and no timer is.
+    private var stopwatchSelected: Bool {
+        showsStopwatch ?? (coordinator.timers.isEmpty && coordinator.stopwatch.isActive)
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Picker("", selection: Binding(get: { stopwatchSelected }, set: { showsStopwatch = $0 })) {
+                Text("Timers").tag(false)
+                Text("Stopwatch").tag(true)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .controlSize(.small)
+            .frame(width: 190)
+            .padding(.top, 8)
+            if stopwatchSelected {
+                StopwatchContent(coordinator: coordinator)
+            } else {
+                timersBody
+            }
+        }
+    }
+
+    private var timersBody: some View {
+        VStack(spacing: 8) {
+            if coordinator.timers.isEmpty {
+                Spacer(minLength: 0)
+                Text("Start a timer")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.5))
+            } else {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 6) {
+                        ForEach(coordinator.timers) { timer in row(timer) }
+                    }
+                }
+            }
+            Spacer(minLength: 0)
+            presets
+            custom
+        }
+        .padding(.top, 2)
+        .padding(.bottom, 6)
+    }
+
+    private func row(_ timer: IslandTimer) -> some View {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            HStack(spacing: 10) {
+                TimerRing(progress: timer.progress(at: context.date), paused: timer.isPaused, size: 22)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(IslandTimers.clockText(timer.remaining(at: context.date)))
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(timer.isPaused ? .white.opacity(0.55) : .white)
+                    Text("\(IslandTimers.lengthText(timer.duration)) timer\(timer.isPaused ? " · Paused" : "")")
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+                Spacer()
+                roundButton(timer.isPaused ? "play.fill" : "pause.fill", label: timer.isPaused ? "Resume" : "Pause") {
+                    if timer.isPaused { coordinator.resumeTimer(timer.id) } else { coordinator.pauseTimer(timer.id) }
+                }
+                roundButton("xmark", label: "Cancel timer") { coordinator.cancelTimer(timer.id) }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("\(IslandTimers.lengthText(timer.duration)) timer, \(IslandTimers.clockText(timer.remaining(at: context.date))) left\(timer.isPaused ? ", paused" : "")")
+        }
+    }
+
+    private var presets: some View {
+        HStack(spacing: 5) {
+            ForEach(IslandTimers.presetMinutes, id: \.self) { minutes in
+                Button {
+                    coordinator.startTimer(minutes: minutes)
+                } label: {
+                    Text(minutes >= 60 ? "\(minutes / 60)h" : "\(minutes)m")
+                        .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 24)
+                        .background(.white.opacity(0.1), in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Start \(IslandTimers.lengthText(Double(minutes) * 60)) timer")
+            }
+        }
+        .disabled(!coordinator.canAddTimer)
+        .opacity(coordinator.canAddTimer ? 1 : 0.4)
+    }
+
+    private var custom: some View {
+        HStack(spacing: 8) {
+            Text(coordinator.canAddTimer ? "Custom" : "Up to \(IslandTimers.maximumCount) timers")
+                .font(.system(size: 11.5))
+                .foregroundStyle(.white.opacity(0.55))
+            Spacer()
+            roundButton("minus", label: "One minute less") { step(-1) }
+                .disabled(customMinutes <= IslandTimers.customMinutes.lowerBound)
+            Text(IslandTimers.lengthText(Double(customMinutes) * 60))
+                .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .frame(minWidth: 74)
+            roundButton("plus", label: "One minute more") { step(1) }
+                .disabled(customMinutes >= IslandTimers.customMinutes.upperBound)
+            Button("Start") { coordinator.startTimer(minutes: customMinutes) }
+                .font(.system(size: 12, weight: .semibold))
+                .buttonStyle(.plain)
+                .padding(.horizontal, 12)
+                .frame(height: 24)
+                .background(.orange.opacity(coordinator.canAddTimer ? 0.85 : 0.3), in: Capsule())
+                .disabled(!coordinator.canAddTimer)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func step(_ delta: Int) {
+        // Small steps near the start, larger ones for longer timers.
+        let size = customMinutes + (delta > 0 ? 0 : -1) >= 60 ? 5 : 1
+        let next = customMinutes + delta * size
+        customMinutes = min(IslandTimers.customMinutes.upperBound, max(IslandTimers.customMinutes.lowerBound, next))
+    }
+
+    private func roundButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 10, weight: .bold))
+                .frame(width: 24, height: 24)
+                .background(.white.opacity(0.1), in: Circle())
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .help(label)
+    }
+}
+
+/// Elapsed time with tenths, Start/Pause, Lap and Reset, and recent laps.
+private struct StopwatchContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+
+    var body: some View {
+        let stopwatch = coordinator.stopwatch
+        VStack(spacing: 6) {
+            HStack(alignment: .center, spacing: 12) {
+                TimelineView(.periodic(from: .now, by: 0.1)) { context in
+                    Text(IslandTimers.stopwatchText(stopwatch.elapsed(at: context.date)))
+                        .font(.system(size: 30, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(stopwatch.isRunning || !stopwatch.isActive ? .white : .white.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityLabel("Stopwatch \(IslandTimers.stopwatchShortText(stopwatch.elapsed(at: context.date)))")
+                }
+                pill(stopwatch.isRunning ? "Lap" : "Reset", tint: .white.opacity(0.14)) {
+                    if stopwatch.isRunning { coordinator.lapStopwatch() } else { coordinator.resetStopwatch() }
+                }
+                .disabled(!stopwatch.isActive)
+                .opacity(stopwatch.isActive ? 1 : 0.4)
+                pill(stopwatch.isRunning ? "Pause" : stopwatch.isActive ? "Resume" : "Start",
+                     tint: stopwatch.isRunning ? .orange.opacity(0.85) : .green.opacity(0.75)) {
+                    if stopwatch.isRunning { coordinator.pauseStopwatch() } else { coordinator.startStopwatch() }
+                }
+            }
+            if stopwatch.lapMarks.isEmpty {
+                Spacer(minLength: 0)
+            } else {
+                laps(stopwatch)
+            }
+        }
+        .padding(.bottom, 4)
+    }
+
+    /// Most recent first; the fastest and slowest are marked once there are
+    /// at least three laps.
+    private func laps(_ stopwatch: Stopwatch) -> some View {
+        let lengths = stopwatch.lapLengths
+        let fastest = lengths.count >= 3 ? lengths.min() : nil
+        let slowest = lengths.count >= 3 ? lengths.max() : nil
+        return ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 2) {
+                ForEach(Array(lengths.enumerated()).reversed(), id: \.offset) { index, length in
+                    HStack {
+                        Text("Lap \(index + 1)")
+                            .foregroundStyle(.white.opacity(0.55))
+                        Spacer()
+                        Text(IslandTimers.stopwatchText(length))
+                            .foregroundStyle(length == fastest ? .green : length == slowest ? .orange : .white)
+                        Text(IslandTimers.stopwatchText(stopwatch.lapMarks[index]))
+                            .foregroundStyle(.white.opacity(0.4))
+                            .frame(width: 70, alignment: .trailing)
+                    }
+                    .font(.system(size: 11.5, design: .rounded))
+                    .monospacedDigit()
+                    .padding(.horizontal, 8)
+                    .frame(height: 20)
+                }
+            }
+        }
+    }
+
+    private func pill(_ title: String, tint: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 62, height: 28)
+                .background(tint, in: Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }

@@ -54,11 +54,12 @@ final class IslandCoordinator: ObservableObject {
 
     let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
-    enum ExpandedTab: Equatable { case media, calendar, shelf }
+    enum ExpandedTab: Equatable { case media, calendar, timers, shelf }
 
     /// Sections the open island offers, in display order.
     var availableTabs: [ExpandedTab] {
-        (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : []) + [.shelf]
+        (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : [])
+            + (timersEnabled ? [.timers] : []) + [.shelf]
     }
 
     /// The section actually shown, falling back if its feature was turned off.
@@ -132,6 +133,28 @@ final class IslandCoordinator: ObservableObject {
             battery.chargedAlertEnabled = batteryChargedAlert
         }
     }
+    /// Turning this off cancels every timer and its wake-up.
+    @Published var timersEnabled = false {
+        didSet {
+            guard timersEnabled != oldValue else { return }
+            saveSettings()
+            updateTimers(selectTab: timersEnabled)
+        }
+    }
+    @Published var timerSound = true {
+        didSet { if timerSound != oldValue { saveSettings() } }
+    }
+    @Published var timerInNotch = true {
+        didSet {
+            guard timerInNotch != oldValue else { return }
+            saveSettings()
+            applyTimerLive()
+        }
+    }
+    @Published private(set) var timers: [IslandTimer] = []
+    @Published private(set) var stopwatch = Stopwatch()
+    var featuredTimer: IslandTimer? { timerController.featured }
+    var canAddTimer: Bool { timersEnabled && timerController.canAdd }
     @Published private(set) var batteryStatus: BatteryStatus = .off
     @Published private(set) var power: PowerSnapshot?
 
@@ -150,6 +173,9 @@ final class IslandCoordinator: ObservableObject {
         calendarEnabled = settings.calendarEnabled
         hiddenCalendarIDs = Set(settings.hiddenCalendarIDs)
         batteryEnabled = settings.batteryEnabled
+        timersEnabled = settings.timersEnabled
+        timerSound = settings.timerSound
+        timerInNotch = settings.timerInNotch
         batteryLowAlerts = settings.batteryLowAlerts
         batteryChargedAlert = settings.batteryChargedAlert
         expandedTab = settings.spotifyEnabled ? .media : settings.calendarEnabled ? .calendar : .shelf
@@ -166,6 +192,9 @@ final class IslandCoordinator: ObservableObject {
         settings.calendarEnabled = calendarEnabled
         settings.hiddenCalendarIDs = hiddenCalendarIDs.sorted()
         settings.batteryEnabled = batteryEnabled
+        settings.timersEnabled = timersEnabled
+        settings.timerSound = timerSound
+        settings.timerInNotch = timerInNotch
         settings.batteryLowAlerts = batteryLowAlerts
         settings.batteryChargedAlert = batteryChargedAlert
         settingsStore.write(settings)
@@ -231,6 +260,27 @@ final class IslandCoordinator: ObservableObject {
         }
         return loader
     }()
+    private lazy var timerController: TimerController = {
+        let controller = TimerController(environment: .init(
+            now: { Date() },
+            schedule: { date, action in
+                let timer = Timer(fire: date, interval: 0, repeats: false) { _ in
+                    MainActor.assumeIsolated { action() }
+                }
+                timer.tolerance = 0.2
+                RunLoop.main.add(timer, forMode: .common)
+                return AnyCancellable { timer.invalidate() }
+            }
+        ))
+        controller.onChange = { [weak self, unowned controller] in
+            self?.timers = controller.timers
+            self?.stopwatch = controller.stopwatch
+            self?.applyTimerLive()
+        }
+        controller.onFinish = { [weak self] timer in self?.timerFinished(timer) }
+        return controller
+    }()
+    private var timerWakeObserver: (any NSObjectProtocol)?
     private lazy var battery: BatteryController = {
         let controller = BatteryController(environment: BatteryAdapter.environment())
         controller.lowAlertsEnabled = batteryLowAlerts
@@ -241,7 +291,7 @@ final class IslandCoordinator: ObservableObject {
         }
         controller.onActivity = { [weak self] activity in
             guard let self, !self.hiddenForCapture else { return }
-            for presenter in self.presenters.values { presenter.showActivity(activity) }
+            for presenter in self.presenters.values { presenter.showActivity(.battery(activity)) }
         }
         return controller
     }()
@@ -290,6 +340,7 @@ final class IslandCoordinator: ObservableObject {
         updateSpotify(askPermission: false)
         updateCalendar(askAccess: false)
         updateBattery()
+        updateTimers(selectTab: false)
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -309,6 +360,7 @@ final class IslandCoordinator: ObservableObject {
         artworkLoader.stop()
         calendarController.stop()
         battery.stop()
+        updateTimers(selectTab: false)
         captureFlow.cancel()
         updateCaptureShortcut()
         cleanupTimer?.invalidate()
@@ -367,6 +419,7 @@ final class IslandCoordinator: ObservableObject {
                 let presenter = IslandPanelController(screen: screen, coordinator: self)
                 presenters[id] = presenter
                 presenter.show()
+                presenter.setLive(isRunning && timersEnabled && timerInNotch && (!timers.isEmpty || stopwatch.isRunning))
             }
         }
     }
@@ -500,6 +553,55 @@ final class IslandCoordinator: ObservableObject {
         prepareShelfIfNeeded()
         guard spotify.isActive, visibleTab == .media else { return }
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
+    }
+
+    // MARK: - Timers
+
+    private func updateTimers(selectTab: Bool) {
+        if isRunning && timersEnabled {
+            if selectTab { expandedTab = .timers }
+            if timerWakeObserver == nil {
+                // Timers keep counting during sleep; finish anything due on wake.
+                timerWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+                    forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+                ) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.timerController.reconcile() }
+                }
+            }
+        } else {
+            if let timerWakeObserver {
+                NSWorkspace.shared.notificationCenter.removeObserver(timerWakeObserver)
+                self.timerWakeObserver = nil
+            }
+            timerController.stop()
+            if expandedTab == .timers { expandedTab = availableTabs.first ?? .shelf }
+        }
+        applyTimerLive()
+    }
+
+    func startTimer(minutes: Int) {
+        guard isRunning, timersEnabled else { return }
+        timerController.start(seconds: TimeInterval(minutes) * 60)
+    }
+
+    func startStopwatch() { if isRunning && timersEnabled { timerController.startStopwatch() } }
+    func pauseStopwatch() { timerController.pauseStopwatch() }
+    func lapStopwatch() { timerController.lapStopwatch() }
+    func resetStopwatch() { timerController.resetStopwatch() }
+
+    func pauseTimer(_ id: UUID) { timerController.pause(id) }
+    func resumeTimer(_ id: UUID) { timerController.resume(id) }
+    func cancelTimer(_ id: UUID) { timerController.cancel(id) }
+
+    private func applyTimerLive() {
+        let live = isRunning && timersEnabled && timerInNotch && (!timers.isEmpty || stopwatch.isRunning)
+        for presenter in presenters.values { presenter.setLive(live) }
+    }
+
+    private func timerFinished(_ timer: IslandTimer) {
+        if timerSound { NSSound(named: "Glass")?.play() }
+        guard !hiddenForCapture else { return }
+        for presenter in presenters.values { presenter.showActivity(.timerDone(duration: timer.duration)) }
     }
 
     // MARK: - Battery

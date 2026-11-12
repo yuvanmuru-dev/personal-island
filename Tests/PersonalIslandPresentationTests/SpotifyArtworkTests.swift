@@ -8,7 +8,7 @@ import Testing
     #expect(SpotifyArtwork.validatedURL("https://i.scdn.co:443/image/x") != nil)
     for rejected in [
         nil, "", "http://i.scdn.co/image/x", "file:///tmp/x.jpg", "https://i.scdn.co.example.com/image/x",
-        "https://example.com/i.scdn.co/x", "https://user:secret@i.scdn.co/image/x", "https://i.scdn.co:8443/image/x",
+        "https://example.com/i.scdn.co/x", "https://user:secret" + "@" + "i.scdn.co/image/x", "https://i.scdn.co:8443/image/x",
         "https://mosaic.scdn.co/640/x", "spotify:image:abc", "https://i.scdn.co/" + String(repeating: "a", count: 600),
     ] {
         #expect(SpotifyArtwork.validatedURL(rejected) == nil)

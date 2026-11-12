@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -293,6 +294,21 @@ class PublishableTextTests(unittest.TestCase):
                         "noreply" + at + "anthropic.com.example", "x" + at + "noreply.github.com"):
             with self.subTest(address=address):
                 self.assertEqual(verify.publishable_text_findings({"a.md": address}), ["a.md:1: email address"])
+
+    def test_new_files_not_yet_added_are_checked_but_ignored_files_are_not(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            (root / ".gitignore").write_text("local-notes.md\n")
+            (root / "local-notes.md").write_text("ignored " + PERSONAL)
+            (root / "NewTests.swift").write_text("let url = \"" + PERSONAL + "\"")
+            with patch.object(verify, "ROOT", root):
+                with self.assertRaises(RuntimeError) as raised:
+                    verify.verify_publishable_text()
+                self.assertIn("NewTests.swift:1: email address", str(raised.exception))
+                self.assertNotIn("local-notes.md", str(raised.exception))
+                (root / "NewTests.swift").write_text("let url = \"https://i.scdn.co/image/x\"")
+                verify.verify_publishable_text()
 
     def test_the_current_checkout_is_publishable(self):
         verify.verify_publishable_text()

@@ -194,8 +194,11 @@ def publishable_text_findings(files):
 
 
 def verify_publishable_text():
-    """Scan tracked files. Outside a git checkout nothing can be published."""
-    listed = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    """Scan tracked files and new files not yet added (but not ignored ones),
+    so a check before committing covers what the commit will publish.
+    Outside a git checkout nothing can be published."""
+    listed = subprocess.run(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+                            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if listed.returncode:
         return
     listed = listed.stdout.decode().split("\0")
@@ -210,7 +213,7 @@ def verify_publishable_text():
         files[name] = data.decode("utf-8", errors="replace")
     findings = publishable_text_findings(files)
     if findings:
-        raise RuntimeError("Personal details in tracked files (repository is public):\n  " + "\n  ".join(findings[:20]))
+        raise RuntimeError("Personal details in files to be published (repository is public):\n  " + "\n  ".join(findings[:20]))
 
 
 def verify_provenance():

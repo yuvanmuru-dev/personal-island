@@ -22,6 +22,7 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(settings.hiddenCalendarIDs.isEmpty)
     #expect(!settings.batteryEnabled && settings.batteryLowAlerts && settings.batteryChargedAlert)
     #expect(!settings.spotifyArtworkEnabled)
+    #expect(!settings.timersEnabled && settings.timerSound && settings.timerInNotch)
 }
 
 @Test func everyChoiceRoundTrips() {
@@ -36,6 +37,9 @@ private final class MemoryStorage: @unchecked Sendable {
     settings.hiddenCalendarIDs = ["b", "a"]
     settings.batteryEnabled = true
     settings.spotifyArtworkEnabled = true
+    settings.timersEnabled = true
+    settings.timerSound = false
+    settings.timerInNotch = false
     settings.batteryLowAlerts = false
     settings.batteryChargedAlert = false
     storage.store.write(settings)
@@ -48,6 +52,7 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(read.hiddenCalendarIDs == ["a", "b"])
     #expect(read.batteryEnabled && !read.batteryLowAlerts && !read.batteryChargedAlert)
     #expect(read.spotifyArtworkEnabled)
+    #expect(read.timersEnabled && !read.timerSound && !read.timerInNotch)
     #expect(storage.writes == 1)
 }
 

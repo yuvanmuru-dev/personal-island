@@ -222,12 +222,12 @@ private func notchLayout() -> IslandGeometry.Layout {
     let model = jobs.presentation()
     var resizes = 0
     model.onActivityChange = { resizes += 1 }
-    model.showActivity(.pluggedIn(percent: 40))
-    model.showActivity(.unplugged(percent: 40))
-    #expect(model.activity == .unplugged(percent: 40))
+    model.showActivity(.battery(.pluggedIn(percent: 40)))
+    model.showActivity(.battery(.unplugged(percent: 40)))
+    #expect(model.activity == .battery(.unplugged(percent: 40)))
     #expect(resizes == 1)
     jobs.fire(0, evenIfCancelled: true)   // stale timer must not end the newer notice
-    #expect(model.activity == .unplugged(percent: 40))
+    #expect(model.activity == .battery(.unplugged(percent: 40)))
     jobs.fire(1)
     #expect(model.activity == nil)
     #expect(resizes == 2)
@@ -236,13 +236,13 @@ private func notchLayout() -> IslandGeometry.Layout {
 @Test @MainActor func openingTheIslandEndsANoticeAndNoticesWaitWhileOpen() {
     let jobs = Jobs()
     let model = jobs.presentation()
-    model.showActivity(.low(percent: 20))
+    model.showActivity(.battery(.low(percent: 20)))
     model.toggle()
     #expect(model.isExpanded && model.activity == nil)
-    model.showActivity(.charged(percent: 100))
+    model.showActivity(.battery(.charged(percent: 100)))
     #expect(model.activity == nil)
     model.collapse()
-    model.showActivity(.charged(percent: 100))
+    model.showActivity(.battery(.charged(percent: 100)))
     model.suspendHover()   // hidden or disconnected display
     #expect(model.activity == nil)
 }

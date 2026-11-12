@@ -1,6 +1,21 @@
 import Combine
 import Foundation
 
+/// A short notice shown beside the notch.
+enum IslandActivity: Equatable {
+    case battery(BatteryActivity)
+    /// A countdown reached zero; its original length in seconds.
+    case timerDone(duration: TimeInterval)
+
+    /// How long the notice stays, in nanoseconds.
+    var displayDuration: UInt64 {
+        switch self {
+        case .battery: IslandPresentation.activityDuration
+        case .timerDone: 8_000_000_000
+        }
+    }
+}
+
 /// UI-independent state shared by a single display presenter. The scheduler is
 /// injectable so cancellation and pointer/click races can be tested without
 /// wall-clock sleeps, application windows, or global input monitoring.
@@ -15,7 +30,10 @@ final class IslandPresentation: ObservableObject {
     @Published private(set) var layout: IslandGeometry.Layout
     /// A short notice shown in the widened compact island. Never shown while
     /// the island is open; opening it ends the notice.
-    @Published private(set) var activity: BatteryActivity?
+    @Published private(set) var activity: IslandActivity?
+    /// Something ongoing (a running timer) keeps the compact island widened
+    /// when no notice is showing.
+    @Published private(set) var showsLive = false
     var onExpansionChange: (() -> Void)?
     /// Called when a notice starts or ends, so the window can resize.
     var onActivityChange: (() -> Void)?
@@ -38,7 +56,7 @@ final class IslandPresentation: ObservableObject {
     /// How long a peek (e.g. after a capture) stays open without interaction.
     static let peekDuration: UInt64 = 3_000_000_000
     /// How long a notice such as "charging" stays beside the notch.
-    static let activityDuration: UInt64 = 3_000_000_000
+    nonisolated static let activityDuration: UInt64 = 3_000_000_000
 
     init(layout: IslandGeometry.Layout, scheduler: Scheduler? = nil) {
         self.layout = layout
@@ -150,12 +168,13 @@ final class IslandPresentation: ObservableObject {
 
     /// Shows a notice for a few seconds. A newer notice replaces the current
     /// one and restarts the timer. Ignored while the island is open.
-    func showActivity(_ activity: BatteryActivity, for nanoseconds: UInt64 = IslandPresentation.activityDuration) {
+    func showActivity(_ activity: IslandActivity, for nanoseconds: UInt64? = nil) {
         guard !isExpanded else { return }
+        let nanoseconds = nanoseconds ?? activity.displayDuration
         activityTimer?.cancel()
         let id = UUID()
         activityID = id
-        let changed = self.activity == nil
+        let changed = !isWidened
         self.activity = activity
         activityTimer = scheduler(nanoseconds) { [weak self] in
             guard let self, self.activityID == id else { return }
@@ -164,13 +183,24 @@ final class IslandPresentation: ObservableObject {
         if changed { onActivityChange?() }
     }
 
+    /// Whether the compact island currently uses the wider activity frame.
+    var isWidened: Bool { !isExpanded && (activity != nil || showsLive) }
+
+    func setLive(_ live: Bool) {
+        guard live != showsLive else { return }
+        let before = isWidened
+        showsLive = live
+        if isWidened != before { onActivityChange?() }
+    }
+
     func endActivity() {
         activityTimer?.cancel()
         activityTimer = nil
         activityID = nil
         guard activity != nil else { return }
+        let before = isWidened
         activity = nil
-        onActivityChange?()
+        if isWidened != before { onActivityChange?() }
     }
 
     func cancelPendingInteraction() {

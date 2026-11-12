@@ -81,10 +81,13 @@ final class IslandPanelController {
     }
 
     /// Briefly widens the compact island with a notice such as charging.
-    func showActivity(_ activity: BatteryActivity) {
+    func showActivity(_ activity: IslandActivity) {
         guard isHoverTrackingActive, panel.isVisible else { return }
         presentation.showActivity(activity)
     }
+
+    /// Keeps the compact island widened for a running timer.
+    func setLive(_ live: Bool) { presentation.setLive(live) }
 
     /// Keeps the shelf open during an outgoing drag. On release, the pointer
     /// position is re-read first because tracking events pause during a drag.
@@ -138,7 +141,7 @@ final class IslandPanelController {
             hide()
             return false
         }
-        let frame = layout.panelFrame(expanded: presentation.isExpanded, activity: presentation.activity != nil)
+        let frame = layout.panelFrame(expanded: presentation.isExpanded, activity: presentation.isWidened)
         if frame != panel.frame { panel.setFrame(frame, display: true) }
         // AppKit need not receive a fresh mouse event when a stationary
         // pointer changes containment because the panel has resized.

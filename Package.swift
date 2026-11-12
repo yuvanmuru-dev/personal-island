@@ -19,7 +19,7 @@ let package = Package(
                 "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift",
                 "ShelfDragSource.swift", "SpotifyAdapter.swift", "CalendarAdapter.swift", "BatteryAdapter.swift"
             ],
-            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyArtwork.swift", "CalendarAgenda.swift", "BatteryStatus.swift"]
+            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyArtwork.swift", "CalendarAgenda.swift", "BatteryStatus.swift", "IslandTimers.swift"]
         ),
         .testTarget(
             name: "PersonalIslandPresentationTests",

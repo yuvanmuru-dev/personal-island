@@ -9,7 +9,6 @@ struct SettingsView: View {
         ("calendar", "Calendar"),
         ("wifi", "Bluetooth, Wi-Fi, VPN and hotspot"),
         ("arrow.down.circle", "Downloads and AirDrop"),
-        ("timer", "Timers"),
         ("lock.square", "Lock-screen widgets and weather"),
         ("chart.bar", "System statistics"),
         ("doc.on.clipboard", "Clipboard history"),
@@ -103,6 +102,16 @@ struct SettingsView: View {
                             }
                             .padding(.leading, 16)
                         }
+                    }
+                    Toggle("Timers", isOn: $coordinator.timersEnabled)
+                    Text("Adds a Timers tab for countdowns you start, pause and cancel in the island. Timers live in memory: quitting Personal Island or turning this off cancels them.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if coordinator.timersEnabled {
+                        Toggle("Show the running timer beside the notch", isOn: $coordinator.timerInNotch)
+                            .padding(.leading, 16)
+                        Toggle("Play a sound when a timer ends", isOn: $coordinator.timerSound)
+                            .padding(.leading, 16)
                     }
                     Toggle("Battery and charging", isOn: $coordinator.batteryEnabled)
                     Text(batteryExplanation)
