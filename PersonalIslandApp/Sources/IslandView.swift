@@ -197,6 +197,7 @@ struct IslandView: View {
                         switch tab {
                         case .media: tabButton(.media, symbol: "music.note", title: "Media")
                         case .calendar: tabButton(.calendar, symbol: "calendar", title: "Calendar")
+                        case .clipboard: tabButton(.clipboard, symbol: "doc.on.clipboard", title: "Clipboard")
                         case .stats: tabButton(.stats, symbol: "gauge.with.dots.needle.50percent", title: "Stats")
                         case .timers: tabButton(.timers, symbol: "timer", title: "Timers",
                                                 count: coordinator.timers.isEmpty ? nil : coordinator.timers.count)
@@ -214,14 +215,8 @@ struct IslandView: View {
                 }
                 Spacer()
                 if let power = coordinator.power {
-                    HStack(spacing: 4) {
-                        Text("\(power.percent)%")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white.opacity(0.7))
-                        BatteryGlyph(percent: power.percent, charging: power.isPluggedIn,
-                                     tint: BatteryGlyph.tint(percent: power.percent, pluggedIn: power.isPluggedIn))
-                    }
+                    LabeledBatteryGlyph(percent: power.percent, charging: power.isPluggedIn,
+                                        tint: BatteryGlyph.tint(percent: power.percent, pluggedIn: power.isPluggedIn))
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Battery \(power.percent) percent\(power.isPluggedIn ? ", plugged in" : "")")
                     .help(Self.powerHelp(power))
@@ -255,6 +250,7 @@ struct IslandView: View {
                 case .calendar: CalendarContent(coordinator: coordinator)
                 case .timers: TimersContent(coordinator: coordinator)
                 case .stats: StatsContent(coordinator: coordinator)
+                case .clipboard: ClipboardContentView(coordinator: coordinator)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -304,22 +300,19 @@ struct IslandView: View {
             coordinator.expandedTab = tab
             if tab == .media { coordinator.islandDidExpand() }
         } label: {
-            HStack(spacing: 5) {
+            // Icons only, so every section fits beside the battery and
+            // buttons; the name shows on hover and to VoiceOver.
+            HStack(spacing: 4) {
                 Image(systemName: symbol)
-                    .font(.system(size: 11, weight: .semibold))
-                // With many sections, only the selected one is labeled so the
-                // header still fits beside the battery and buttons.
-                if selected || coordinator.availableTabs.count <= 3 {
-                    Text(title)
-                        .font(.system(size: 13, weight: .semibold))
-                }
+                    .font(.system(size: 13, weight: .semibold))
                 if let count {
                     Text("\(count)")
                         .font(.system(size: 10.5, weight: .medium, design: .rounded))
                         .foregroundStyle(.white.opacity(0.5))
                 }
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 9)
+            .frame(minWidth: 34)
             .frame(height: 26)
             .foregroundStyle(.white.opacity(selected ? 0.95 : 0.5))
             .background(.white.opacity(selected ? 0.12 : 0), in: Capsule())
@@ -1182,5 +1175,353 @@ private struct Sparkline: Shape {
             if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
         }
         return path
+    }
+}
+
+/// Recent copies, newest first. Click a row to copy it again.
+private struct ClipboardContentView: View {
+    @ObservedObject var coordinator: IslandCoordinator
+    @State private var query = ""
+    @State private var copiedID: UUID?
+    /// The item opened to read in full; the list returns if it disappears.
+    @State private var openID: UUID?
+
+    var body: some View {
+        if let openID, let item = coordinator.clipboardItems.first(where: { $0.id == openID }) {
+            ClipboardDetailView(
+                item: item,
+                thumbnail: coordinator.clipboardThumbnails[item.id],
+                copied: copiedID == item.id,
+                onBack: { self.openID = nil },
+                onCopy: { copy(item.id) },
+                onRemove: {
+                    self.openID = nil
+                    coordinator.removeClipboardItem(item.id)
+                }
+            )
+        } else {
+            list
+        }
+    }
+
+    private func copy(_ id: UUID) {
+        guard coordinator.copyClipboardItem(id) else { return }
+        copiedID = id
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.2))
+            if copiedID == id { copiedID = nil }
+        }
+    }
+
+    private var list: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                HStack(spacing: 5) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.white.opacity(0.45))
+                    TextField("Search", text: $query)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12))
+                }
+                .padding(.horizontal, 8)
+                .frame(height: 24)
+                .background(.white.opacity(0.08), in: Capsule())
+                let paused = coordinator.clipboardStatus == .paused
+                smallButton(paused ? "play.fill" : "pause.fill", label: paused ? "Resume recording" : "Pause recording") {
+                    coordinator.setClipboardPaused(!paused)
+                }
+                .disabled(coordinator.clipboardStatus == .needsAccess)
+                smallButton("trash", label: "Clear history") { coordinator.clearClipboard() }
+                    .disabled(coordinator.clipboardItems.isEmpty)
+            }
+            .padding(.top, 8)
+
+            if coordinator.clipboardStatus == .needsAccess {
+                notice("macOS asks before each clipboard read", button: "Open Settings") {
+                    coordinator.openClipboardPrivacySettings()
+                }
+            } else {
+                let items = coordinator.clipboardItems.filter { ClipboardHistory.matches($0, query: query) }
+                if items.isEmpty {
+                    Spacer(minLength: 0)
+                    Text(coordinator.clipboardItems.isEmpty
+                         ? (coordinator.clipboardStatus == .paused ? "Paused: new copies aren't recorded" : "Copy something to see it here")
+                         : "No matches")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.5))
+                    Spacer(minLength: 0)
+                } else {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 3) {
+                            ForEach(items) { item in row(item) }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.bottom, 4)
+    }
+
+    private func row(_ item: ClipboardItem) -> some View {
+        HStack(spacing: 8) {
+            icon(item)
+                .frame(width: 26, height: 26)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(ClipboardHistory.preview(item.content))
+                    .font(.system(size: 12))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Text([item.sourceApp, item.copiedAt.formatted(.relative(presentation: .named))]
+                        .compactMap { $0 }.joined(separator: " · "))
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(.white.opacity(0.45))
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                copy(item.id)
+            } label: {
+                Image(systemName: copiedID == item.id ? "checkmark" : "doc.on.doc")
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(copiedID == item.id ? .green : .white.opacity(0.75))
+                    .frame(width: 24, height: 22)
+                    .background(.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(copiedID == item.id ? "Copied" : "Copy")
+            .help("Copy")
+            Button {
+                coordinator.removeClipboardItem(item.id)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 8.5, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.45))
+                    .frame(width: 18, height: 18)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Remove from history")
+            .help("Remove from history")
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 4)
+        .background(.white.opacity(copiedID == item.id ? 0.12 : 0.05), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .contentShape(Rectangle())
+        .onTapGesture { openID = item.id }
+        .accessibilityElement(children: .contain)
+        .accessibilityAction(named: "Open") { openID = item.id }
+        .help("Click to see all of it")
+    }
+
+    @ViewBuilder
+    private func icon(_ item: ClipboardItem) -> some View {
+        switch item.content {
+        case .image:
+            if let thumbnail = coordinator.clipboardThumbnails[item.id] {
+                Image(nsImage: thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+            } else {
+                symbol("photo")
+            }
+        case .text: symbol("text.alignleft")
+        case .link: symbol("link")
+        case .files: symbol("doc")
+        }
+    }
+
+    private func symbol(_ name: String) -> some View {
+        Image(systemName: name)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(.white.opacity(0.6))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+    }
+
+    private func smallButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 10, weight: .semibold))
+                .frame(width: 24, height: 24)
+                .background(.white.opacity(0.1), in: Circle())
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .help(label)
+    }
+
+    private func notice(_ text: String, button: String, action: @escaping () -> Void) -> some View {
+        VStack(spacing: 8) {
+            Spacer(minLength: 0)
+            Text(text)
+                .font(.system(size: 12.5, weight: .medium))
+            Text("Allow Personal Island to always paste from other apps in Privacy & Security.")
+                .font(.system(size: 10.5))
+                .foregroundStyle(.white.opacity(0.5))
+                .multilineTextAlignment(.center)
+            Button(button, action: action)
+                .font(.system(size: 12))
+                .buttonStyle(.bordered)
+            Spacer(minLength: 0)
+        }
+    }
+}
+
+/// The menu-bar style: the percentage inside the battery, dark over the
+/// filled part and light over the empty part, with a bolt while charging.
+private struct LabeledBatteryGlyph: View {
+    let percent: Int
+    let charging: Bool
+    let tint: Color
+
+    private static let bodySize = CGSize(width: 33, height: 16)
+
+    var body: some View {
+        let level = CGFloat(min(100, max(0, percent))) / 100
+        let fill = Self.bodySize.width * level
+        HStack(spacing: 1.5) {
+            ZStack(alignment: .leading) {
+                Rectangle().fill(.white.opacity(0.22))
+                Rectangle().fill(tint).frame(width: fill)
+                label.foregroundStyle(.white)
+                label.foregroundStyle(.black.opacity(0.85))
+                    .mask(alignment: .leading) { Rectangle().frame(width: fill) }
+            }
+            .frame(width: Self.bodySize.width, height: Self.bodySize.height)
+            .clipShape(RoundedRectangle(cornerRadius: 4.5, style: .continuous))
+            RoundedRectangle(cornerRadius: 1)
+                .fill(.white.opacity(0.4))
+                .frame(width: 1.5, height: 5)
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var label: some View {
+        HStack(spacing: 0) {
+            Text("\(percent)")
+                .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                .monospacedDigit()
+            if charging {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 7, weight: .heavy))
+            }
+        }
+        .lineLimit(1)
+        .fixedSize()
+        .frame(width: Self.bodySize.width, height: Self.bodySize.height)
+    }
+}
+
+/// One copy shown in full: selectable text, a larger image, the whole link or
+/// the file list, with Copy and Remove.
+private struct ClipboardDetailView: View {
+    let item: ClipboardItem
+    let thumbnail: NSImage?
+    let copied: Bool
+    let onBack: () -> Void
+    let onCopy: () -> Void
+    let onRemove: () -> Void
+    @State private var image: NSImage?
+
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 8) {
+                Button(action: onBack) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 11, weight: .semibold))
+                        .frame(width: 24, height: 24)
+                        .background(.white.opacity(0.1), in: Circle())
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Back to history")
+                .help("Back")
+                Text(subtitle)
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Button(action: onRemove) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 10.5, weight: .semibold))
+                        .frame(width: 24, height: 24)
+                        .background(.white.opacity(0.1), in: Circle())
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Remove from history")
+                .help("Remove from history")
+                Button(action: onCopy) {
+                    Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+                        .font(.system(size: 11.5, weight: .semibold))
+                        .padding(.horizontal, 11)
+                        .frame(height: 24)
+                        .background((copied ? Color.green : .orange).opacity(0.8), in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.top, 8)
+
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(8)
+                .background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .padding(.bottom, 4)
+        .onExitCommand(perform: onBack)
+    }
+
+    private var subtitle: String {
+        [item.sourceApp, item.copiedAt.formatted(.relative(presentation: .named)), ClipboardHistory.sizeDescription(item.content)]
+            .compactMap { $0 }.joined(separator: " · ")
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch item.content {
+        case .text, .link, .files:
+            let shown = ClipboardHistory.displayText(item.content)
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(shown.text)
+                        .font(.system(size: 12))
+                        .foregroundStyle(isLink ? Color.cyan : .white)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if shown.isCut {
+                        Text("Showing the first \(ClipboardHistory.displayLimit.formatted()) characters. Copy copies all of it.")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.45))
+                    }
+                }
+            }
+        case .image:
+            Group {
+                if let image = image ?? thumbnail {
+                    Image(nsImage: image)
+                        .resizable()
+                        .interpolation(.high)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    Image(systemName: "photo").foregroundStyle(.white.opacity(0.4))
+                }
+            }
+            .task(id: item.id) {
+                if case .image(let data, _, _) = item.content {
+                    image = ClipboardAdapter.thumbnail(data, maximumPixels: 900)
+                }
+            }
+        }
+    }
+
+    private var isLink: Bool {
+        if case .link = item.content { return true }
+        return false
     }
 }

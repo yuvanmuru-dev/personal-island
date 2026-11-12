@@ -23,7 +23,7 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(!settings.batteryEnabled && settings.batteryLowAlerts && settings.batteryChargedAlert)
     #expect(!settings.spotifyArtworkEnabled)
     #expect(!settings.timersEnabled && settings.timerSound && settings.timerInNotch)
-    #expect(!settings.statsEnabled)
+    #expect(!settings.statsEnabled && !settings.clipboardEnabled)
 }
 
 @Test func everyChoiceRoundTrips() {
@@ -40,6 +40,7 @@ private final class MemoryStorage: @unchecked Sendable {
     settings.spotifyArtworkEnabled = true
     settings.timersEnabled = true
     settings.statsEnabled = true
+    settings.clipboardEnabled = true
     settings.timerSound = false
     settings.timerInNotch = false
     settings.batteryLowAlerts = false
@@ -55,7 +56,7 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(read.batteryEnabled && !read.batteryLowAlerts && !read.batteryChargedAlert)
     #expect(read.spotifyArtworkEnabled)
     #expect(read.timersEnabled && !read.timerSound && !read.timerInNotch)
-    #expect(read.statsEnabled)
+    #expect(read.statsEnabled && read.clipboardEnabled)
     #expect(storage.writes == 1)
 }
 

@@ -26,6 +26,10 @@ Turn on "Battery and charging" in Settings. Plugging in or unplugging briefly sh
 
 Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
 
+## Clipboard history (0.10.0)
+
+Turn on "Clipboard history" in Settings. The open island gets a Clipboard tab with your last 50 copies (text, links, images and files). Search, pause or clear them. Use a row's copy button to copy it again, or click the row to see all of it first (handy for long text), then Copy. History lives in memory only and is cleared when you quit. Password-manager copies are never read. If macOS asks whether Personal Island may read the clipboard, choose to always allow it.
+
 ## System activity (0.9.0)
 
 Turn on "System activity" in Settings. The open island gets a Stats tab with CPU, GPU, memory, network, disk activity and free space, each with a short graph. It only measures while that tab is open, and nothing is stored or sent.

@@ -54,12 +54,13 @@ final class IslandCoordinator: ObservableObject {
 
     let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
-    enum ExpandedTab: Equatable { case media, calendar, timers, stats, shelf }
+    enum ExpandedTab: Equatable { case media, calendar, timers, stats, clipboard, shelf }
 
     /// Sections the open island offers, in display order.
     var availableTabs: [ExpandedTab] {
         (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : [])
-            + (timersEnabled ? [.timers] : []) + (statsEnabled ? [.stats] : []) + [.shelf]
+            + (timersEnabled ? [.timers] : []) + (statsEnabled ? [.stats] : [])
+            + (clipboardEnabled ? [.clipboard] : []) + [.shelf]
     }
 
     /// The section actually shown, falling back if its feature was turned off.
@@ -163,6 +164,17 @@ final class IslandCoordinator: ObservableObject {
             updateStatsSampling()
         }
     }
+    /// Turning this off stops watching the clipboard and forgets the history.
+    @Published var clipboardEnabled = false {
+        didSet {
+            guard clipboardEnabled != oldValue else { return }
+            saveSettings()
+            updateClipboard(selectTab: clipboardEnabled)
+        }
+    }
+    @Published private(set) var clipboardItems: [ClipboardItem] = []
+    @Published private(set) var clipboardStatus: ClipboardStatus = .off
+    @Published private(set) var clipboardThumbnails: [UUID: NSImage] = [:]
     @Published private(set) var stats: StatsReading?
     @Published private(set) var statsHistory = StatsHistory()
     @Published private(set) var timers: [IslandTimer] = []
@@ -189,6 +201,7 @@ final class IslandCoordinator: ObservableObject {
         batteryEnabled = settings.batteryEnabled
         timersEnabled = settings.timersEnabled
         statsEnabled = settings.statsEnabled
+        clipboardEnabled = settings.clipboardEnabled
         timerSound = settings.timerSound
         timerInNotch = settings.timerInNotch
         batteryLowAlerts = settings.batteryLowAlerts
@@ -209,6 +222,7 @@ final class IslandCoordinator: ObservableObject {
         settings.batteryEnabled = batteryEnabled
         settings.timersEnabled = timersEnabled
         settings.statsEnabled = statsEnabled
+        settings.clipboardEnabled = clipboardEnabled
         settings.timerSound = timerSound
         settings.timerInNotch = timerInNotch
         settings.batteryLowAlerts = batteryLowAlerts
@@ -297,6 +311,21 @@ final class IslandCoordinator: ObservableObject {
         return controller
     }()
     private var timerWakeObserver: (any NSObjectProtocol)?
+    private lazy var clipboard: ClipboardController = {
+        let controller = ClipboardController(environment: ClipboardAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            guard let self else { return }
+            self.clipboardItems = controller.items
+            self.clipboardStatus = controller.status
+            var thumbnails: [UUID: NSImage] = [:]
+            for item in controller.items {
+                guard case .image(let data, _, _) = item.content else { continue }
+                thumbnails[item.id] = self.clipboardThumbnails[item.id] ?? ClipboardAdapter.thumbnail(data)
+            }
+            self.clipboardThumbnails = thumbnails
+        }
+        return controller
+    }()
     private lazy var statsController: StatsController = {
         let controller = StatsController(environment: SystemStatsAdapter.environment())
         controller.onChange = { [weak self, unowned controller] in
@@ -366,6 +395,7 @@ final class IslandCoordinator: ObservableObject {
         updateCalendar(askAccess: false)
         updateBattery()
         updateTimers(selectTab: false)
+        updateClipboard(selectTab: false)
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -386,6 +416,7 @@ final class IslandCoordinator: ObservableObject {
         calendarController.stop()
         battery.stop()
         updateTimers(selectTab: false)
+        updateClipboard(selectTab: false)
         updateStatsSampling()
         captureFlow.cancel()
         updateCaptureShortcut()
@@ -580,6 +611,29 @@ final class IslandCoordinator: ObservableObject {
         prepareShelfIfNeeded()
         guard spotify.isActive, visibleTab == .media else { return }
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
+    }
+
+    // MARK: - Clipboard history
+
+    private func updateClipboard(selectTab: Bool) {
+        if isRunning && clipboardEnabled {
+            if selectTab { expandedTab = .clipboard }
+            clipboard.start()
+        } else {
+            clipboard.stop()
+            if expandedTab == .clipboard { expandedTab = availableTabs.first ?? .shelf }
+        }
+    }
+
+    func setClipboardPaused(_ paused: Bool) { clipboard.setPaused(paused) }
+    func clearClipboard() { clipboard.clear() }
+    func removeClipboardItem(_ id: UUID) { clipboard.remove(id) }
+    @discardableResult
+    func copyClipboardItem(_ id: UUID) -> Bool { clipboard.copyBack(id) }
+
+    func openClipboardPrivacySettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Pasteboard") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     // MARK: - System activity

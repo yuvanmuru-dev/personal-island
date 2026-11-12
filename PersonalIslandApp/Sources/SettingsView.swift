@@ -10,7 +10,6 @@ struct SettingsView: View {
         ("wifi", "Bluetooth, Wi-Fi, VPN and hotspot"),
         ("arrow.down.circle", "Downloads and AirDrop"),
         ("lock.square", "Lock-screen widgets and weather"),
-        ("doc.on.clipboard", "Clipboard history"),
         ("waveform", "Visualizer and lyrics"),
         ("eyedropper", "Color picker"),
         ("moon", "Focus and recording status")
@@ -41,6 +40,13 @@ struct SettingsView: View {
         case .off: "Shows charging changes beside the notch and the battery level in the open island. Reads the same information as the menu bar; no permission needed."
         case .noBattery: "This Mac doesn't report a battery."
         case .ready: "Plugging in or unplugging shows a short notice beside the notch on every island. Nothing is stored or sent."
+        }
+    }
+
+    private var clipboardExplanation: String {
+        switch coordinator.clipboardStatus {
+        case .needsAccess: "macOS is set to ask (or deny) before Personal Island reads the clipboard. To keep a history, allow it to always paste under Privacy & Security; until then nothing is read."
+        default: "Keeps your last 50 copies (text, links, images and files) in memory only, cleared when you quit or turn this off. Copies marked as passwords are never read. macOS may ask once whether Personal Island can read the clipboard; choose to always allow it."
         }
     }
 
@@ -112,6 +118,10 @@ struct SettingsView: View {
                         Toggle("Play a sound when a timer ends", isOn: $coordinator.timerSound)
                             .padding(.leading, 16)
                     }
+                    Toggle("Clipboard history", isOn: $coordinator.clipboardEnabled)
+                    Text(clipboardExplanation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     Toggle("System activity", isOn: $coordinator.statsEnabled)
                     Text("Adds a Stats tab with CPU, GPU, memory, network and disk activity and free space. Readings are taken once a second only while that tab is open, and are never stored or sent.")
                         .font(.caption)
