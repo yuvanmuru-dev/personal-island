@@ -47,7 +47,12 @@ enum SpotifyCommand: Equatable {
     case seek(TimeInterval)
 }
 
-enum SpotifyPermission: Equatable { case granted, needsConsent, denied, notRunning }
+enum SpotifyPermission: Equatable {
+    case granted, needsConsent, denied, notRunning
+    /// The check itself failed or timed out (e.g. Spotify was busy). This is
+    /// not a permission answer and must not be shown as one.
+    case noAnswer
+}
 
 enum SpotifyError: Error, Equatable { case notRunning, notPermitted, unexpectedReply }
 
@@ -190,6 +195,13 @@ final class SpotifyController {
     private var permissionRequestInFlight = false
     /// Counts commands so only the latest one's confirmation is applied.
     private var commandSequence = 0
+    /// When the last quiet re-check ran, so a stuck permission state is
+    /// re-checked at most every `recheckInterval` seconds.
+    private var lastQuietCheck: Date?
+    static let recheckInterval: TimeInterval = 10
+    /// Past this many seconds, Spotify's "previous" restarts the current
+    /// track instead of going to the previous one.
+    static let restartThreshold: TimeInterval = 3
 
     var isActive: Bool { observation != nil }
 
@@ -211,6 +223,7 @@ final class SpotifyController {
         self.observation = nil
         generation += 1
         permissionRequestInFlight = false
+        lastQuietCheck = nil
         set(.off, nil)
     }
 
@@ -239,6 +252,7 @@ final class SpotifyController {
         case .needsConsent: set(.needsPermission, nowPlaying)
         case .denied: set(.denied, nowPlaying)
         case .notRunning: set(.notRunning, nil)
+        case .noAnswer: set(.unavailable, nowPlaying)
         }
     }
 
@@ -257,6 +271,7 @@ final class SpotifyController {
                 switch permission {
                 case .denied: set(.denied, nowPlaying)
                 case .notRunning: set(.notRunning, nil)
+                case .noAnswer: set(.unavailable, nowPlaying)
                 default: set(.needsPermission, nowPlaying)
                 }
                 return
@@ -281,7 +296,11 @@ final class SpotifyController {
                 track.isPlaying.toggle()
             case .seek(let target):
                 track.position = target
+            case .previous where track.position(at: now) >= SpotifyController.restartThreshold:
+                // Spotify restarts the current track rather than going back.
+                track.position = 0
             case .next, .previous:
+                // A different track: shown when Spotify reports it.
                 break
             }
             track.observedAt = now
@@ -312,6 +331,16 @@ final class SpotifyController {
             // Spotify's own notification needs no permission to receive.
             guard let update = SpotifyPlayback.update(fromNotification: info, at: environment.now()) else { return }
             apply(update, status: status == .notRunning || status == .unavailable ? .ready : status)
+            // Permission can be given in System Settings, and an earlier check
+            // may have failed for other reasons; re-check quietly (never shows
+            // a prompt) instead of staying stuck until a control is pressed.
+            if status == .needsPermission || status == .denied, !permissionRequestInFlight {
+                let now = environment.now()
+                if lastQuietCheck.map({ now.timeIntervalSince($0) >= Self.recheckInterval }) ?? true {
+                    lastQuietCheck = now
+                    Task { [weak self] in await self?.refresh() }
+                }
+            }
         case .launched:
             Task { await self.refresh() }
         case .terminated:

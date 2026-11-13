@@ -6,12 +6,15 @@ enum IslandActivity: Equatable {
     case battery(BatteryActivity)
     /// A countdown reached zero; its original length in seconds.
     case timerDone(duration: TimeInterval)
+    /// An AirDrop finished arriving.
+    case airDropReceived
 
     /// How long the notice stays, in nanoseconds.
     var displayDuration: UInt64 {
         switch self {
         case .battery: IslandPresentation.activityDuration
         case .timerDone: 8_000_000_000
+        case .airDropReceived: 4_000_000_000
         }
     }
 }

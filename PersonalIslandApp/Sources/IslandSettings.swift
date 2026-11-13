@@ -26,6 +26,7 @@ struct IslandSettings: Codable, Equatable {
     var statsEnabled = false
     /// Memory-only history of copies; off by default.
     var clipboardEnabled = false
+    var transfersEnabled = false
     var timerSound = true
     /// Show the running timer beside the notch.
     var timerInNotch = true
@@ -49,6 +50,7 @@ struct IslandSettings: Codable, Equatable {
         calendarEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .calendarEnabled)) ?? defaults.calendarEnabled
         let hidden = (try? values.decodeIfPresent([String].self, forKey: .hiddenCalendarIDs)) ?? []
         hiddenCalendarIDs = Array(Set(hidden.filter { !$0.isEmpty && $0.count <= 256 })).sorted()
+        transfersEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .transfersEnabled)) ?? defaults.transfersEnabled
         clipboardEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .clipboardEnabled)) ?? defaults.clipboardEnabled
         statsEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .statsEnabled)) ?? defaults.statsEnabled
         timersEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .timersEnabled)) ?? defaults.timersEnabled

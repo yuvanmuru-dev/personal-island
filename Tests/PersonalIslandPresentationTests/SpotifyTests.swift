@@ -473,3 +473,74 @@ private final class Latch: @unchecked Sendable {
     #expect(controller.nowPlaying?.isPlaying == true)   // re-read from Spotify
     #expect(!fake.log.contains("settle"))
 }
+
+// MARK: - Failed checks and recovery
+
+@Test @MainActor func aCheckThatFailsIsNotShownAsMissingPermission() async {
+    let fake = FakeSpotify()
+    fake.permission = .noAnswer
+    let controller = fake.controller()
+    await controller.start(askPermission: false)
+    #expect(controller.status == .unavailable)
+    await controller.perform(.next)
+    #expect(controller.status == .unavailable && fake.sent.isEmpty)
+}
+
+@Test @MainActor func aStuckPermissionStateIsRecheckedQuietlyWhenSpotifyUpdates() async {
+    let fake = FakeSpotify()
+    fake.permission = .needsConsent
+    let controller = fake.controller()
+    await controller.start(askPermission: false)
+    #expect(controller.status == .needsPermission)
+    fake.log = []
+    fake.permission = .granted                                   // allowed meanwhile in System Settings
+    fake.handler?(.playback(notification("Playing", id: "b", name: "Second", position: 5)))
+    while controller.status != .ready { await Task.yield() }
+    #expect(fake.log.first == "permission")                      // quiet check, never "permission(ask)"
+    #expect(!fake.log.contains("permission(ask)"))
+}
+
+@Test @MainActor func quietRechecksAreLimitedToOneEveryTenSeconds() async {
+    let fake = FakeSpotify()
+    fake.permission = .needsConsent
+    let controller = fake.controller()
+    await controller.start(askPermission: false)
+    fake.log = []
+    for _ in 0..<5 { fake.handler?(.playback(notification("Playing", id: "a", name: "First", position: 1))) }
+    for _ in 0..<20 { await Task.yield() }
+    #expect(fake.log.filter { $0 == "permission" }.count == 1)
+    fake.now = fake.now.addingTimeInterval(SpotifyController.recheckInterval)
+    fake.handler?(.playback(notification("Playing", id: "a", name: "First", position: 2)))
+    for _ in 0..<20 { await Task.yield() }
+    #expect(fake.log.filter { $0 == "permission" }.count == 2)
+    #expect(controller.status == .needsPermission)
+}
+
+// MARK: - Previous
+
+@Test @MainActor func previousPastThreeSecondsShowsTheRestartAtOnce() async {
+    let fake = FakeSpotify()                                     // playing, 10 s in
+    let controller = fake.controller()
+    await controller.start(askPermission: false)
+    fake.holdSettle = true
+    let pressing = Task { await controller.perform(.previous) }
+    while fake.pendingSettles.isEmpty { await Task.yield() }
+    #expect(controller.nowPlaying?.position(at: fake.now) == 0)  // before Spotify confirms
+    #expect(controller.nowPlaying?.trackID == "a")
+    fake.pendingSettles.removeFirst().resume()
+    await pressing.value
+}
+
+@Test @MainActor func previousNearTheStartWaitsForSpotifysNewTrack() async {
+    let fake = FakeSpotify()
+    fake.snapshot = .track(NowPlaying(trackID: "a", title: "First", artist: "X", album: "Y",
+                                      duration: 200, position: 1, isPlaying: true, observedAt: t0))
+    let controller = fake.controller()
+    await controller.start(askPermission: false)
+    fake.holdSettle = true
+    let pressing = Task { await controller.perform(.previous) }
+    while fake.pendingSettles.isEmpty { await Task.yield() }
+    #expect(controller.nowPlaying?.position(at: fake.now) == 1)  // unchanged: a different track is coming
+    fake.pendingSettles.removeFirst().resume()
+    await pressing.value
+}

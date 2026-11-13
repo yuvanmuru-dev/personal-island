@@ -4,9 +4,7 @@ struct SettingsView: View {
     @ObservedObject var coordinator: IslandCoordinator
 
     /// Kept features that are not built yet.
-    private let plannedFeatures: [(symbol: String, title: String)] = [
-        ("arrow.down.circle", "Downloads and AirDrop")
-    ]
+    private let plannedFeatures: [(symbol: String, title: String)] = []
 
     private var spotifyExplanation: String {
         switch coordinator.spotifyStatus {
@@ -111,6 +109,10 @@ struct SettingsView: View {
                         Toggle("Play a sound when a timer ends", isOn: $coordinator.timerSound)
                             .padding(.leading, 16)
                     }
+                    Toggle("AirDrop", isOn: $coordinator.transfersEnabled)
+                    Text("Shows files you receive by AirDrop arriving beside the notch and in an AirDrop tab. It follows the progress macOS publishes for them; your Downloads folder isn't read, and browser downloads aren't shown.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     Toggle("Clipboard history", isOn: $coordinator.clipboardEnabled)
                     Text(clipboardExplanation)
                         .font(.caption)
@@ -162,17 +164,19 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Coming next") {
-                    ForEach(plannedFeatures, id: \.title) { feature in
-                        HStack(spacing: 10) {
-                            Image(systemName: feature.symbol)
-                                .foregroundStyle(.secondary)
-                                .frame(width: 20)
-                            Text(feature.title)
-                            Spacer()
-                            Text("Planned")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                if !plannedFeatures.isEmpty {
+                    Section("Coming next") {
+                        ForEach(plannedFeatures, id: \.title) { feature in
+                            HStack(spacing: 10) {
+                                Image(systemName: feature.symbol)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text(feature.title)
+                                Spacer()
+                                Text("Planned")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }

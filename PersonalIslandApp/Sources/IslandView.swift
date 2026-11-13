@@ -59,6 +59,8 @@ struct IslandView: View {
             Group {
                 if let activity = presentation.activity {
                     activityContent(activity)
+                } else if presentation.showsLive, coordinator.transfersEnabled, let transfer = coordinator.activeTransfers.first {
+                    liveTransferContent(transfer, count: coordinator.activeTransfers.count)
                 } else if presentation.showsLive, let timer = coordinator.featuredTimer {
                     liveTimerContent(timer)
                 } else if presentation.showsLive, coordinator.stopwatch.isRunning {
@@ -83,7 +85,8 @@ struct IslandView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(presentation.activity.map(Self.activityDescription)
-            ?? (presentation.showsLive && coordinator.featuredTimer != nil ? "Timer running. Open island"
+            ?? (presentation.showsLive && coordinator.transfersEnabled && !coordinator.activeTransfers.isEmpty ? "AirDrop arriving. Open island"
+                : presentation.showsLive && coordinator.featuredTimer != nil ? "Timer running. Open island"
                 : presentation.showsLive && coordinator.stopwatch.isRunning ? "Stopwatch running. Open island"
                 : "Open shelf, \(coordinator.shelfItemCount) items"))
         .help("Open shelf")
@@ -121,6 +124,12 @@ struct IslandView: View {
             wings(leading: {
                 BatteryGlyph(percent: battery.percent, charging: Self.showsBolt(battery), tint: Self.tint(battery))
             }, trailing: Text(Self.activityText(battery)), tint: Self.tint(battery))
+        case .airDropReceived:
+            wings(leading: {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.green)
+            }, trailing: Text("Received"), tint: .green)
         case .timerDone:
             wings(leading: {
                 Image(systemName: "bell.fill")
@@ -129,6 +138,15 @@ struct IslandView: View {
                     .symbolEffect(.bounce, options: .repeat(3))
             }, trailing: Text("Done"), tint: .orange)
         }
+    }
+
+    /// An AirDrop arriving: a ring with the AirDrop icon and the percentage
+    /// (or the count when several files are arriving).
+    private func liveTransferContent(_ transfer: Transfer, count: Int) -> some View {
+        wings(leading: {
+            TransferRing(fraction: transfer.fraction, size: 16)
+        }, trailing: Text(count > 1 ? "\(count) files" : transfer.fraction.map { "\(Int(($0 * 100).rounded(.down)))%" } ?? "…"),
+        tint: .cyan)
     }
 
     /// A running stopwatch: its icon and the elapsed time.
@@ -177,6 +195,7 @@ struct IslandView: View {
         switch activity {
         case .battery(let battery): batteryDescription(battery)
         case .timerDone(let duration): "\(IslandTimers.lengthText(duration)) timer done"
+        case .airDropReceived: "AirDrop received"
         }
     }
 
@@ -199,6 +218,8 @@ struct IslandView: View {
                         case .calendar: tabButton(.calendar, symbol: "calendar", title: "Calendar")
                         case .clipboard: tabButton(.clipboard, symbol: "doc.on.clipboard", title: "Clipboard")
                         case .stats: tabButton(.stats, symbol: "gauge.with.dots.needle.50percent", title: "Stats")
+                        case .transfers: tabButton(.transfers, symbol: "dot.radiowaves.up.forward", title: "AirDrop",
+                                                   count: coordinator.activeTransfers.isEmpty ? nil : coordinator.activeTransfers.count)
                         case .timers: tabButton(.timers, symbol: "timer", title: "Timers",
                                                 count: coordinator.timers.isEmpty ? nil : coordinator.timers.count)
                         case .shelf: tabButton(.shelf, symbol: "tray.fill", title: "Shelf", count: coordinator.shelfItemCount)
@@ -249,6 +270,7 @@ struct IslandView: View {
                 case .media: MediaContent(coordinator: coordinator)
                 case .calendar: CalendarContent(coordinator: coordinator)
                 case .timers: TimersContent(coordinator: coordinator)
+                case .transfers: TransfersContent(coordinator: coordinator)
                 case .stats: StatsContent(coordinator: coordinator)
                 case .clipboard: ClipboardContentView(coordinator: coordinator)
                 }
@@ -499,6 +521,15 @@ private struct MediaContent: View {
 
     private var canControl: Bool { coordinator.spotifyStatus == .ready }
 
+    /// Why the controls may not work right now.
+    private var controlHint: String {
+        switch coordinator.spotifyStatus {
+        case .denied: "Allow control under Privacy & Security › Automation."
+        case .needsPermission: "Pressing a control will ask for permission."
+        default: "Spotify isn't answering controls right now."
+        }
+    }
+
     /// The cover, or a placeholder while it loads or when there is none.
     private var cover: some View {
         ZStack {
@@ -560,9 +591,7 @@ private struct MediaContent: View {
             control("forward.fill", label: "Next track") { coordinator.spotifyCommand(.next) }
         }
         if !canControl {
-            Text(coordinator.spotifyStatus == .denied
-                 ? "Allow control under Privacy & Security › Automation."
-                 : "Pressing a control will ask for permission.")
+            Text(controlHint)
                 .font(.system(size: 10))
                 .foregroundStyle(.white.opacity(0.45))
         }
@@ -1523,5 +1552,133 @@ private struct ClipboardDetailView: View {
     private var isLink: Bool {
         if case .link = item.content { return true }
         return false
+    }
+}
+
+/// Progress ring with the AirDrop icon.
+private struct TransferRing: View {
+    let fraction: Double?
+    let size: CGFloat
+
+    var body: some View {
+        let width = max(1.5, size / 9)
+        ZStack {
+            Circle().stroke(.white.opacity(0.18), lineWidth: width)
+            Circle()
+                .trim(from: 0, to: fraction ?? 0.15)
+                .stroke(Color.cyan, style: StrokeStyle(lineWidth: width, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            Image(systemName: "dot.radiowaves.up.forward")
+                .font(.system(size: size * 0.42, weight: .bold))
+                .foregroundStyle(.white.opacity(0.85))
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+}
+
+/// AirDrops arriving, with progress and Cancel, then recent ones with Show
+/// in Finder.
+private struct TransfersContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+
+    var body: some View {
+        VStack(spacing: 6) {
+            if coordinator.transfers.isEmpty {
+                Spacer(minLength: 0)
+                Image(systemName: "dot.radiowaves.up.forward")
+                    .font(.system(size: 22, weight: .light))
+                    .foregroundStyle(.white.opacity(0.35))
+                Text("Files you receive by AirDrop will show here")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.white.opacity(0.5))
+                Spacer(minLength: 0)
+            } else {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 4) {
+                        ForEach(coordinator.transfers) { transfer in row(transfer) }
+                    }
+                }
+                if coordinator.transfers.contains(where: { $0.state != .active }) {
+                    HStack {
+                        Spacer()
+                        Button("Clear finished") { coordinator.clearRecentTransfers() }
+                            .font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.6))
+                            .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+    }
+
+    private func row(_ transfer: Transfer) -> some View {
+        HStack(spacing: 9) {
+            if transfer.state == .active {
+                TransferRing(fraction: transfer.fraction, size: 24)
+            } else {
+                Image(systemName: transfer.state == .finished ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .font(.system(size: 19))
+                    .foregroundStyle(transfer.state == .finished ? Color.green : .white.opacity(0.4))
+                    .frame(width: 24, height: 24)
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(transfer.name)
+                    .font(.system(size: 12, weight: .medium))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                if transfer.state == .active, let fraction = transfer.fraction {
+                    ProgressView(value: fraction)
+                        .progressViewStyle(.linear)
+                        .tint(.cyan)
+                        .controlSize(.mini)
+                }
+                Text(detail(transfer))
+                    .font(.system(size: 10))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.5))
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if transfer.state == .active {
+                if transfer.isCancellable {
+                    roundButton("xmark", label: "Cancel") { coordinator.cancelTransfer(transfer.id) }
+                }
+            } else if transfer.state == .finished {
+                roundButton("magnifyingglass", label: "Show in Finder") { coordinator.showTransferInFinder(transfer) }
+            }
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 6)
+        .background(.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .accessibilityElement(children: .contain)
+    }
+
+    private func detail(_ transfer: Transfer) -> String {
+        switch transfer.state {
+        case .active:
+            let speed = transfer.bytesPerSecond.map { ByteCountFormatter.string(fromByteCount: Int64($0), countStyle: .file) + "/s" }
+            return [Transfers.sizeText(transfer), speed, Transfers.remainingText(transfer.secondsRemaining)]
+                .compactMap { $0 }.joined(separator: " · ")
+        case .finished:
+            return [Transfers.sizeText(transfer), "Received"].joined(separator: " · ")
+        case .cancelled:
+            return "Cancelled"
+        }
+    }
+
+    private func roundButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 10, weight: .bold))
+                .frame(width: 24, height: 24)
+                .background(.white.opacity(0.1), in: Circle())
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .help(label)
     }
 }

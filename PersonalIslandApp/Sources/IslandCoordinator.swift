@@ -54,12 +54,12 @@ final class IslandCoordinator: ObservableObject {
 
     let captureShortcutName = GlobalHotKey.Combination.captureRegion.displayName
 
-    enum ExpandedTab: Equatable { case media, calendar, timers, stats, clipboard, shelf }
+    enum ExpandedTab: Equatable { case media, calendar, timers, transfers, stats, clipboard, shelf }
 
     /// Sections the open island offers, in display order.
     var availableTabs: [ExpandedTab] {
         (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : [])
-            + (timersEnabled ? [.timers] : []) + (statsEnabled ? [.stats] : [])
+            + (timersEnabled ? [.timers] : []) + (transfersEnabled ? [.transfers] : []) + (statsEnabled ? [.stats] : [])
             + (clipboardEnabled ? [.clipboard] : []) + [.shelf]
     }
 
@@ -172,6 +172,17 @@ final class IslandCoordinator: ObservableObject {
             updateClipboard(selectTab: clipboardEnabled)
         }
     }
+    /// AirDrop progress. Turning this off stops following transfers (they
+    /// continue in AirDrop) and forgets the list.
+    @Published var transfersEnabled = false {
+        didSet {
+            guard transfersEnabled != oldValue else { return }
+            saveSettings()
+            updateTransfers(selectTab: transfersEnabled)
+        }
+    }
+    @Published private(set) var transfers: [Transfer] = []
+    var activeTransfers: [Transfer] { transfers.filter { $0.state == .active } }
     @Published private(set) var clipboardItems: [ClipboardItem] = []
     @Published private(set) var clipboardStatus: ClipboardStatus = .off
     @Published private(set) var clipboardThumbnails: [UUID: NSImage] = [:]
@@ -202,6 +213,7 @@ final class IslandCoordinator: ObservableObject {
         timersEnabled = settings.timersEnabled
         statsEnabled = settings.statsEnabled
         clipboardEnabled = settings.clipboardEnabled
+        transfersEnabled = settings.transfersEnabled
         timerSound = settings.timerSound
         timerInNotch = settings.timerInNotch
         batteryLowAlerts = settings.batteryLowAlerts
@@ -223,6 +235,7 @@ final class IslandCoordinator: ObservableObject {
         settings.timersEnabled = timersEnabled
         settings.statsEnabled = statsEnabled
         settings.clipboardEnabled = clipboardEnabled
+        settings.transfersEnabled = transfersEnabled
         settings.timerSound = timerSound
         settings.timerInNotch = timerInNotch
         settings.batteryLowAlerts = batteryLowAlerts
@@ -311,6 +324,19 @@ final class IslandCoordinator: ObservableObject {
         return controller
     }()
     private var timerWakeObserver: (any NSObjectProtocol)?
+    private let transfersAdapter = TransfersAdapter()
+    private lazy var transferController: TransferController = {
+        let controller = TransferController(environment: transfersAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            self?.transfers = controller.transfers
+            self?.applyTimerLive()
+        }
+        controller.onFinish = { [weak self] _ in
+            guard let self, !self.hiddenForCapture else { return }
+            for presenter in self.presenters.values { presenter.showActivity(.airDropReceived) }
+        }
+        return controller
+    }()
     private lazy var clipboard: ClipboardController = {
         let controller = ClipboardController(environment: ClipboardAdapter.environment())
         controller.onChange = { [weak self, unowned controller] in
@@ -396,6 +422,7 @@ final class IslandCoordinator: ObservableObject {
         updateBattery()
         updateTimers(selectTab: false)
         updateClipboard(selectTab: false)
+        updateTransfers(selectTab: false)
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -417,6 +444,7 @@ final class IslandCoordinator: ObservableObject {
         battery.stop()
         updateTimers(selectTab: false)
         updateClipboard(selectTab: false)
+        updateTransfers(selectTab: false)
         updateStatsSampling()
         captureFlow.cancel()
         updateCaptureShortcut()
@@ -476,7 +504,7 @@ final class IslandCoordinator: ObservableObject {
                 let presenter = IslandPanelController(screen: screen, coordinator: self)
                 presenters[id] = presenter
                 presenter.show()
-                presenter.setLive(isRunning && timersEnabled && timerInNotch && (!timers.isEmpty || stopwatch.isRunning))
+                presenter.setLive(liveInNotch)
             }
         }
         updateStatsSampling()
@@ -613,6 +641,23 @@ final class IslandCoordinator: ObservableObject {
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
     }
 
+    // MARK: - AirDrop
+
+    private func updateTransfers(selectTab: Bool) {
+        if isRunning && transfersEnabled {
+            if selectTab { expandedTab = .transfers }
+            transferController.start()
+        } else {
+            transferController.stop()
+            if expandedTab == .transfers { expandedTab = availableTabs.first ?? .shelf }
+        }
+        applyTimerLive()
+    }
+
+    func cancelTransfer(_ id: UUID) { transferController.cancel(id) }
+    func clearRecentTransfers() { transferController.clearRecent() }
+    func showTransferInFinder(_ transfer: Transfer) { TransfersAdapter.showInFinder(transfer) }
+
     // MARK: - Clipboard history
 
     private func updateClipboard(selectTab: Bool) {
@@ -684,8 +729,17 @@ final class IslandCoordinator: ObservableObject {
     func resumeTimer(_ id: UUID) { timerController.resume(id) }
     func cancelTimer(_ id: UUID) { timerController.cancel(id) }
 
+    /// Something ongoing to show beside the notch: a transfer, a timer or a
+    /// running stopwatch.
+    private var liveInNotch: Bool {
+        guard isRunning else { return false }
+        let transfer = transfersEnabled && !activeTransfers.isEmpty
+        let timer = timersEnabled && timerInNotch && (!timers.isEmpty || stopwatch.isRunning)
+        return transfer || timer
+    }
+
     private func applyTimerLive() {
-        let live = isRunning && timersEnabled && timerInNotch && (!timers.isEmpty || stopwatch.isRunning)
+        let live = liveInNotch
         for presenter in presenters.values { presenter.setLive(live) }
     }
 

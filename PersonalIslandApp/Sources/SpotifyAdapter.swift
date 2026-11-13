@@ -7,21 +7,28 @@
 
 import AppKit
 import CoreServices
+import os
 
 /// Real platform access for `SpotifyController`. Apple Events go only to
 /// Spotify, only while the feature is on, and never launch it. Every call
 /// runs off the main thread under a hard deadline, so neither a busy Spotify
 /// nor a stalled system service can freeze the feature.
 enum SpotifyAdapter {
+    /// Result codes only (never track, artist or account details), so a
+    /// failing check can be diagnosed from the system log.
+    private static let log = Logger(subsystem: "dev.personal.PersonalIsland", category: "spotify")
+
     @MainActor
     static func environment() -> SpotifyController.Environment {
         SpotifyController.Environment(
             isRunning: { isRunning() },
             permission: { ask in
                 // Asking waits for the user to answer the system dialog.
-                await Deadline.run(seconds: ask ? askTimeout + 10 : quickTimeout + 3, fallback: .needsConsent) {
+                let result = await Deadline.run(seconds: ask ? askTimeout + 10 : quickTimeout + 3, fallback: .noAnswer) {
                     probe(askIfNeeded: ask)
                 }
+                log.info("permission result (ask: \(ask, privacy: .public)): \(String(describing: result), privacy: .public)")
+                return result
             },
             snapshot: {
                 try await Deadline.run(seconds: 12, fallback: .failure(.unexpectedReply)) {
@@ -136,13 +143,16 @@ enum SpotifyAdapter {
                 options: askIfNeeded ? [.waitForReply] : [.waitForReply, .neverInteract],
                 timeout: askIfNeeded ? askTimeout : quickTimeout
             )
+            log.info("permission check (ask: \(askIfNeeded, privacy: .public)): granted")
             return .granted
         } catch let error as NSError {
+            log.error("permission check (ask: \(askIfNeeded, privacy: .public)) failed: \(error.domain, privacy: .public) \(error.code, privacy: .public)")
             switch error.code {
-            case Int(errAEEventWouldRequireUserConsent), Int(errAETimeout): return .needsConsent
+            case Int(errAEEventWouldRequireUserConsent): return .needsConsent
             case Int(errAEEventNotPermitted): return .denied
             case Int(procNotFound), Int(connectionInvalid): return .notRunning
-            default: return .needsConsent
+            // A timeout or other failure says nothing about permission.
+            default: return .noAnswer
             }
         }
     }
@@ -215,6 +225,7 @@ enum SpotifyAdapter {
         do {
             return try event.sendEvent(options: [.waitForReply, .neverInteract], timeout: quickTimeout)
         } catch let error as NSError {
+            log.error("Apple Event failed: \(error.domain, privacy: .public) \(error.code, privacy: .public)")
             switch error.code {
             case Int(procNotFound), Int(connectionInvalid): throw SpotifyError.notRunning
             case Int(errAEEventNotPermitted), Int(errAEEventWouldRequireUserConsent): throw SpotifyError.notPermitted

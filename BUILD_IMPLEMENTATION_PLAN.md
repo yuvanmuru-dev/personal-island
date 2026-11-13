@@ -4,7 +4,7 @@ Updated November 11, 2026. The product requirements are in [PLAN.md](PLAN.md); t
 
 ## Implementation decisions
 
-- Keep the **accepted utilities**: screenshots/file shelf, Spotify, calendar, battery, transfers (downloads/AirDrop), timers, statistics and clipboard. On November 12 the owner removed other players, connections, lock-screen widgets/weather, visualizer/lyrics, color picker, Focus and recording indicators.
+- Keep the **accepted utilities**: screenshots/file shelf, Spotify, calendar, battery, AirDrop progress, timers, statistics and clipboard. On November 12 the owner removed browser-download progress, other players, connections, lock-screen widgets/weather, visualizer/lyrics, color picker, Focus and recording indicators.
 - Use one controlled app host with deliberate component ports. Atoll is the primary reviewed reference because of its breadth; its entire startup/dependency graph is not inherited. Port individual DynamicNotch components where useful, especially floating capsule/display behavior and connection activities. Do not merge two complete app coordinators/settings systems.
 - Build the new storage/export engine as a dependency-free local Swift package, **PersonalIslandCore**, so the most sensitive cleanup rules can be tested now and then integrated into the chosen app. This does not replace the full feature scope or imply the upstream apps have already been built.
 - Preserve pinned audit snapshots. Work in the separate PersonalIslandApp source tree; retain licenses/notices and record copied files and upstream commits. Obtain complete matching upstream assets and dependency/helper source before later ports that require them.
@@ -120,13 +120,13 @@ Use EventKit for selected calendars already synchronized to Apple Calendar. Disp
 
 ## M4 — Complete the accepted utility groups
 
-Rows marked removed were dropped by the owner on November 12 and are kept only as a record. The remaining uncertainty is AirDrop/download observation.
+Rows marked removed were dropped by the owner on November 12 and are kept only as a record. Browser downloads were dropped after a first build mislabelled a finished download.
 
 | Group | Implementation work | Acceptance evidence |
 | --- | --- | --- |
 | Battery/charging | Adapt local power observers and alert routing. | Correct transitions; one alert across two presenters. |
 | Connections (removed) | Bluetooth/Wi-Fi/VPN/hotspot observation; separate online VPN-country lookup. | — |
-| Downloads/AirDrop | Adapt bounded observation and explicit system sharing. | Real progress/completion/cancel events; no unsolicited transfer. |
+| AirDrop (downloads removed) | Bounded observation of AirDrop receiving only. | Real progress/completion/cancel events; no unsolicited transfer. |
 | Timers | Own countdown model; distinguish system Clock observation. | Pause/resume, sleep/wake, cancel and chosen restart behavior. |
 | Lock-screen widgets/weather (removed) | Port presentation after platform checks; per-widget privacy and selected-city weather. | — |
 | System statistics | Shared CPU/GPU/RAM/network/disk collectors. | Values validated against system tools where available; hidden/disabled sampling stops. |
