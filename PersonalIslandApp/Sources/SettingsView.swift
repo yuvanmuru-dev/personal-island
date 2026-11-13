@@ -41,6 +41,13 @@ struct SettingsView: View {
         }
     }
 
+    private var callsExplanation: String {
+        switch coordinator.callStatus {
+        case .needsAccess: "Allow Personal Island under Privacy & Security › Accessibility so it can see macOS's call banner."
+        default: "Shows a ringing FaceTime or iPhone call beside the notch, with the caller's first name when macOS provides it. Answer or decline in macOS's own banner. Uses Accessibility only to find that banner; nothing is clicked, stored or sent."
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
@@ -131,6 +138,14 @@ struct SettingsView: View {
                             .padding(.leading, 16)
                         Toggle("Play a sound when a timer ends", isOn: $coordinator.timerSound)
                             .padding(.leading, 16)
+                    }
+                    Toggle("Incoming calls", isOn: $coordinator.callsEnabled)
+                    Text(callsExplanation)
+                        .font(.caption)
+                        .foregroundStyle(coordinator.callStatus == .needsAccess ? .orange : .secondary)
+                    if coordinator.callStatus == .needsAccess {
+                        Button("Open Accessibility Settings") { coordinator.openAccessibilitySettings() }
+                            .controlSize(.small)
                     }
                     Toggle("AirDrop", isOn: $coordinator.transfersEnabled)
                     Text("Shows files you receive by AirDrop arriving beside the notch and in an AirDrop tab. It follows the progress macOS publishes for them; your Downloads folder isn't read, and browser downloads aren't shown.")

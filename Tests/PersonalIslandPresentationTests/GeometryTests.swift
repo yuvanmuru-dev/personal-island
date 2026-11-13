@@ -87,7 +87,7 @@ private func menuItemRegions(of display: IslandGeometry.Display) -> [CGRect] {
     #expect(expanded.midX == display.frame.midX)
     #expect(expanded.contains(cameraHousing(of: display)))
     #expect(layout.topContentInset == 37)
-    #expect(layout.expandedSize == CGSize(width: 420, height: 228 + 37))
+    #expect(layout.expandedSize == CGSize(width: IslandGeometry.expandedWidth, height: 228 + 37))
     expectContained(expanded, in: display.frame)
 }
 
@@ -274,7 +274,7 @@ private func menuItemRegions(of display: IslandGeometry.Display) -> [CGRect] {
             auxiliaryTopLeft: nil, auxiliaryTopRight: nil, menuBarHeight: 24
         ))
         #expect(layout.compactSize == CGSize(width: 84, height: 18))
-        #expect(layout.expandedSize == CGSize(width: 420, height: 228))
+        #expect(layout.expandedSize == CGSize(width: IslandGeometry.expandedWidth, height: 228))
         #expect(frame.maxY - layout.topEdge == 3)
     }
 }
@@ -297,4 +297,39 @@ private func menuItemRegions(of display: IslandGeometry.Display) -> [CGRect] {
             expectContained(layout.panelFrame(expanded: expanded), in: layout.displayFrame, allowEmpty: true)
         }
     }
+}
+
+// MARK: - Animated resizing
+
+@Test func openingGrowsTheWindowAtOnceAndNeedsNoLaterStep() {
+    let layout = IslandGeometry.layout(for: macBookDisplay())
+    let compact = layout.panelFrame(expanded: false), open = layout.panelFrame(expanded: true)
+    let frames = IslandGeometry.animatedFrames(from: compact, to: open, animated: true)
+    #expect(frames.now == open && frames.later == nil)
+    #expect(layout.size(expanded: true) == open.size && layout.size(expanded: false, activity: true) == layout.activitySize)
+}
+
+@Test func closingKeepsTheWindowUntilTheIslandHasShrunkThenSettlesExactly() {
+    let layout = IslandGeometry.layout(for: macBookDisplay())
+    let compact = layout.panelFrame(expanded: false), open = layout.panelFrame(expanded: true)
+    let frames = IslandGeometry.animatedFrames(from: open, to: compact, animated: true)
+    #expect(frames.now == open && frames.later == compact)
+    // Settling applies the exact frame; asking again from there is already done.
+    let settled = IslandGeometry.animatedFrames(from: compact, to: compact, animated: true)
+    #expect(settled.now == compact && settled.later == nil)
+}
+
+@Test func widenedNoticeAndOpenIslandHoldTheirUnionWhileSwitching() {
+    let layout = IslandGeometry.layout(for: macBookDisplay())
+    let wide = layout.panelFrame(expanded: false, activity: true), open = layout.panelFrame(expanded: true)
+    let frames = IslandGeometry.animatedFrames(from: open, to: wide, animated: true)
+    #expect(frames.now.contains(open) && frames.now.contains(wide) && frames.later == wide)
+}
+
+@Test func reducedMotionAndMovesToAnotherDisplayGoStraightToTheTarget() {
+    let mac = IslandGeometry.layout(for: macBookDisplay()), dell = IslandGeometry.layout(for: dellDisplay())
+    let open = mac.panelFrame(expanded: true), compact = mac.panelFrame(expanded: false)
+    #expect(IslandGeometry.animatedFrames(from: open, to: compact, animated: false) == (compact, nil))
+    let moved = IslandGeometry.animatedFrames(from: open, to: dell.panelFrame(expanded: false), animated: true)
+    #expect(moved.now == dell.panelFrame(expanded: false) && moved.later == nil)
 }

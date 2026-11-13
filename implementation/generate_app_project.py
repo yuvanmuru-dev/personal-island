@@ -19,7 +19,7 @@ APP_FILES = [
     "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
     "RegionSelector.swift", "ScreenRegionCapture.swift", "ShelfDragFlow.swift", "ShelfDragSource.swift",
     "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyAdapter.swift", "SpotifyArtwork.swift",
-    "CalendarAgenda.swift", "CalendarAdapter.swift", "BatteryStatus.swift", "BatteryAdapter.swift", "IslandTimers.swift", "SystemStats.swift", "SystemStatsAdapter.swift", "ClipboardHistory.swift", "ClipboardAdapter.swift", "Transfers.swift", "TransfersAdapter.swift", "LoginItem.swift", "LoginItemAdapter.swift",
+    "CalendarAgenda.swift", "CalendarAdapter.swift", "BatteryStatus.swift", "BatteryAdapter.swift", "IslandTimers.swift", "SystemStats.swift", "SystemStatsAdapter.swift", "ClipboardHistory.swift", "ClipboardAdapter.swift", "Transfers.swift", "TransfersAdapter.swift", "LoginItem.swift", "LoginItemAdapter.swift", "IncomingCalls.swift", "IncomingCallsAdapter.swift",
 ]
 CORE_FILES = ["Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift"]
 RESOURCES = ["Atoll-LICENSE.txt", "Atoll-NOTICE.txt", "Atoll-COPYRIGHT_ASSETS.txt", "Atoll-TRADEMARKS.txt"]
@@ -55,8 +55,8 @@ def main():
         "CFBundleDevelopmentRegion": "en", "CFBundleExecutable": "$(EXECUTABLE_NAME)",
         "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)", "CFBundleInfoDictionaryVersion": "6.0",
         "CFBundleName": "Personal Island", "CFBundleDisplayName": "Personal Island",
-        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.12.0",
-        "CFBundleVersion": "17", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
+        "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.14.0",
+        "CFBundleVersion": "19", "LSMinimumSystemVersion": "$(MACOSX_DEPLOYMENT_TARGET)",
         "LSUIElement": True, "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication",
         "NSHumanReadableCopyright": "Personal local build. Includes attributed Atoll/boring.notch presentation code.",
         **app_policy.REQUIRED_INFO_STRINGS,

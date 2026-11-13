@@ -8,6 +8,8 @@ enum IslandActivity: Equatable {
     case timerDone(duration: TimeInterval)
     /// An AirDrop finished arriving.
     case airDropReceived
+    /// A call is ringing; ended explicitly when it stops.
+    case incomingCall(callerFirstName: String?)
 
     /// How long the notice stays, in nanoseconds.
     var displayDuration: UInt64 {
@@ -15,6 +17,8 @@ enum IslandActivity: Equatable {
         case .battery: IslandPresentation.activityDuration
         case .timerDone: 8_000_000_000
         case .airDropReceived: 4_000_000_000
+        // A safety limit; the notice normally ends when the call stops ringing.
+        case .incomingCall: 90_000_000_000
         }
     }
 }
@@ -44,6 +48,9 @@ final class IslandPresentation: ObservableObject {
     private let scheduler: Scheduler
     private var pendingInteraction: AnyCancellable?
     private var activityTimer: AnyCancellable?
+    /// An ongoing notice (a ringing call) that hides while the island is open
+    /// or another notice shows, and returns until it is cleared.
+    private(set) var stickyActivity: IslandActivity?
     private var activityID: UUID?
     private var pendingID: UUID?
     private var openedByHover = false
@@ -75,7 +82,7 @@ final class IslandPresentation: ObservableObject {
         openedByHover = false
         openedByPeek = false
         isExpanded.toggle()
-        if isExpanded { endActivity() }
+        if isExpanded { endActivity() } else { restoreSticky() }
         onExpansionChange?()
     }
 
@@ -85,6 +92,7 @@ final class IslandPresentation: ObservableObject {
         openedByPeek = false
         guard isExpanded else { return }
         isExpanded = false
+        restoreSticky()
         onExpansionChange?()
     }
 
@@ -182,6 +190,7 @@ final class IslandPresentation: ObservableObject {
         activityTimer = scheduler(nanoseconds) { [weak self] in
             guard let self, self.activityID == id else { return }
             self.endActivity()
+            self.restoreSticky()
         }
         if changed { onActivityChange?() }
     }
@@ -194,6 +203,23 @@ final class IslandPresentation: ObservableObject {
         let before = isWidened
         showsLive = live
         if isWidened != before { onActivityChange?() }
+    }
+
+    /// Sets or clears the ongoing notice. Clearing removes it if showing.
+    func setSticky(_ activity: IslandActivity?) {
+        guard activity != stickyActivity else { return }
+        let previous = stickyActivity
+        stickyActivity = activity
+        if let activity {
+            if !isExpanded { showActivity(activity) }
+        } else if let previous, self.activity == previous {
+            endActivity()
+        }
+    }
+
+    private func restoreSticky() {
+        guard let stickyActivity, !isExpanded, activity == nil else { return }
+        showActivity(stickyActivity)
     }
 
     func endActivity() {

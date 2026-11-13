@@ -35,6 +35,23 @@ final class IslandCoordinator: ObservableObject {
     }
     @Published private(set) var displays: [DisplayOption] = []
     /// Read from macOS, not remembered: System Settings can change it too.
+    /// Shows a ringing call beside the notch. Turning it off stops watching
+    /// Notification Center.
+    @Published var callsEnabled = false {
+        didSet {
+            guard callsEnabled != oldValue else { return }
+            saveSettings()
+            updateCalls()
+        }
+    }
+    @Published private(set) var callStatus: IncomingCallStatus = .off
+    private lazy var calls: IncomingCallController = {
+        let controller = IncomingCallController(environment: IncomingCallsAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            self?.callStatusChanged(controller.status)
+        }
+        return controller
+    }()
     @Published private(set) var loginItemState: LoginItemState = .off
     @Published private(set) var loginItemMessage: String?
     @Published private(set) var shelfItems: [ShelfItem] = []
@@ -217,6 +234,7 @@ final class IslandCoordinator: ObservableObject {
         statsEnabled = settings.statsEnabled
         clipboardEnabled = settings.clipboardEnabled
         transfersEnabled = settings.transfersEnabled
+        callsEnabled = settings.callsEnabled
         timerSound = settings.timerSound
         timerInNotch = settings.timerInNotch
         batteryLowAlerts = settings.batteryLowAlerts
@@ -239,6 +257,7 @@ final class IslandCoordinator: ObservableObject {
         settings.statsEnabled = statsEnabled
         settings.clipboardEnabled = clipboardEnabled
         settings.transfersEnabled = transfersEnabled
+        settings.callsEnabled = callsEnabled
         settings.timerSound = timerSound
         settings.timerInNotch = timerInNotch
         settings.batteryLowAlerts = batteryLowAlerts
@@ -434,6 +453,7 @@ final class IslandCoordinator: ObservableObject {
         updateTimers(selectTab: false)
         updateClipboard(selectTab: false)
         updateTransfers(selectTab: false)
+        updateCalls()
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -453,6 +473,7 @@ final class IslandCoordinator: ObservableObject {
         artworkLoader.stop()
         calendarController.stop()
         battery.stop()
+        calls.stop()
         updateTimers(selectTab: false)
         updateClipboard(selectTab: false)
         updateTransfers(selectTab: false)
@@ -658,6 +679,21 @@ final class IslandCoordinator: ObservableObject {
         prepareShelfIfNeeded()
         guard spotify.isActive, visibleTab == .media else { return }
         Task { @MainActor [weak self] in await self?.spotify.refresh() }
+    }
+
+    // MARK: - Incoming calls
+
+    private func updateCalls() {
+        if isRunning && callsEnabled { calls.start() } else { calls.stop() }
+    }
+
+    func openAccessibilitySettings() { IncomingCallsAdapter.openAccessibilitySettings() }
+
+    private func callStatusChanged(_ status: IncomingCallStatus) {
+        callStatus = status
+        var notice: IslandActivity?
+        if case .ringing(let call) = status { notice = .incomingCall(callerFirstName: call.callerFirstName) }
+        for presenter in presenters.values { presenter.setStickyNotice(notice) }
     }
 
     // MARK: - AirDrop

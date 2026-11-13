@@ -38,6 +38,8 @@ final class IslandPanelController {
     private var hoverEnabled: Bool
     private var isHoverTrackingActive = false
     private var isUpdatingFrame = false
+    /// A pending shrink after the island's closing animation.
+    private var shrinkWork: DispatchWorkItem?
 
     init(screen: NSScreen, coordinator: IslandCoordinator) {
         currentScreen = screen
@@ -52,6 +54,13 @@ final class IslandPanelController {
         hostingView.onPointerReconciliation = { [weak self] inside in
             guard let self, self.isHoverTrackingActive else { return }
             self.presentation.hoverChanged(inside, enabled: self.hoverEnabled)
+        }
+        // Hover follows the island's visible shape, not the window, which can
+        // briefly be larger while the island animates closed.
+        hostingView.islandFrame = { [weak self] in
+            guard let self else { return nil }
+            return self.presentation.layout.panelFrame(expanded: self.presentation.isExpanded,
+                                                       activity: self.presentation.isWidened)
         }
         presentation.onExpansionChange = { [weak self, weak coordinator] in
             guard let self else { return }
@@ -89,6 +98,10 @@ final class IslandPanelController {
         presentation.showActivity(activity)
     }
 
+    /// Keeps an ongoing notice (a ringing call) showing whenever the island
+    /// is closed; nil clears it.
+    func setStickyNotice(_ activity: IslandActivity?) { presentation.setSticky(activity) }
+
     /// Keeps the compact island widened for a running timer.
     func setLive(_ live: Bool) { presentation.setLive(live) }
 
@@ -121,6 +134,9 @@ final class IslandPanelController {
         isHoverTrackingActive = false
         hostingView.setHoverTrackingActive(false)
         hostingView.onPointerReconciliation = nil
+        hostingView.islandFrame = nil
+        shrinkWork?.cancel()
+        shrinkWork = nil
         presentation.onExpansionChange = nil
         presentation.onActivityChange = nil
         presentation.suspendHover()
@@ -145,11 +161,37 @@ final class IslandPanelController {
             return false
         }
         let frame = layout.panelFrame(expanded: presentation.isExpanded, activity: presentation.isWidened)
-        if frame != panel.frame { panel.setFrame(frame, display: true) }
+        shrinkWork?.cancel()
+        shrinkWork = nil
+        if frame != panel.frame {
+            // Reduce Motion or a hidden panel changes the frame directly.
+            let animated = panel.isVisible && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+            let frames = IslandGeometry.animatedFrames(from: panel.frame, to: frame, animated: animated)
+            if frames.now != panel.frame { panel.setFrame(frames.now, display: true) }
+            if frames.later != nil {
+                // Transparent surroundings let clicks through meanwhile.
+                let work = DispatchWorkItem { [weak self] in
+                    guard let self else { return }
+                    self.shrinkWork = nil
+                    self.settleFrame()
+                }
+                shrinkWork = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + IslandView.settleSeconds, execute: work)
+            }
+        }
         // AppKit need not receive a fresh mouse event when a stationary
         // pointer changes containment because the panel has resized.
         hostingView.reconcilePointer()
         return true
+    }
+
+    /// After the closing animation: the exact frame for the current state.
+    private func settleFrame() {
+        guard presentation.layout.hasUsableArea else { return }
+        let frame = presentation.layout.panelFrame(expanded: presentation.isExpanded,
+                                                   activity: presentation.isWidened)
+        if frame != panel.frame { panel.setFrame(frame, display: true) }
+        hostingView.reconcilePointer()
     }
 
     private static func layout(for screen: NSScreen) -> IslandGeometry.Layout {
@@ -169,6 +211,9 @@ final class IslandPanelController {
 @MainActor
 private final class IslandTrackingHostingView: NSHostingView<IslandView> {
     var onPointerReconciliation: ((Bool) -> Void)?
+    /// The island's visible frame in screen points; the window frame is used
+    /// when this is not set.
+    var islandFrame: (() -> CGRect?)?
     private var ownTrackingArea: NSTrackingArea?
     private var isHoverTrackingActive = false
 
@@ -194,7 +239,9 @@ private final class IslandTrackingHostingView: NSHostingView<IslandView> {
         guard ownTrackingArea == nil else { return }
         let area = NSTrackingArea(
             rect: .zero,
-            options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+            // Moves are needed too: while the window is briefly larger than
+            // the island, entering the island happens inside the window.
+            options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect],
             owner: self,
             userInfo: nil
         )
@@ -212,6 +259,11 @@ private final class IslandTrackingHostingView: NSHostingView<IslandView> {
         reconcilePointer()
     }
 
+    override func mouseMoved(with event: NSEvent) {
+        super.mouseMoved(with: event)
+        reconcilePointer()
+    }
+
     func reconcilePointer() {
         guard isHoverTrackingActive, let window, window.isVisible else { return }
         // This borderless host fills the panel. Use the actual window frame so
@@ -221,7 +273,7 @@ private final class IslandTrackingHostingView: NSHostingView<IslandView> {
         // The compact notch window touches the top of the display, where the
         // pointer can rest exactly on the frame's maxY. CGRect.contains
         // excludes that edge, so include it explicitly.
-        let frame = window.frame
+        let frame = islandFrame?() ?? window.frame
         let point = NSEvent.mouseLocation
         let inside = frame.contains(point)
             || (point.y == frame.maxY && point.x >= frame.minX && point.x < frame.maxX)

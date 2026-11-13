@@ -61,8 +61,14 @@ enum IslandGeometry {
         /// Width of each side of the activity beside the compact island.
         var activityWingWidth: CGFloat { max(0, (activitySize.width - compactSize.width) / 2) }
 
+        /// The island's visible size in a state; the window may briefly be
+        /// larger while the island animates.
+        func size(expanded: Bool, activity: Bool = false) -> CGSize {
+            expanded ? expandedSize : activity ? activitySize : compactSize
+        }
+
         func panelFrame(expanded: Bool, activity: Bool = false) -> CGRect {
-            let size = expanded ? expandedSize : activity ? activitySize : compactSize
+            let size = size(expanded: expanded, activity: activity)
             return CGRect(
                 x: displayFrame.midX - size.width / 2,
                 y: topEdge - size.height,
@@ -70,6 +76,18 @@ enum IslandGeometry {
                 height: size.height
             )
         }
+    }
+
+    /// Window frames around an animated change: the frame to use now, and
+    /// the exact frame to settle on after the animation (nil when `now` is
+    /// already exact). Growing happens at once; shrinking waits so the
+    /// closing island is never cut off. A move to an unrelated place (another
+    /// display) or no animation goes straight to the target.
+    static func animatedFrames(from current: CGRect, to target: CGRect,
+                               animated: Bool) -> (now: CGRect, later: CGRect?) {
+        guard animated, current.intersects(target) else { return (target, nil) }
+        let holding = current.union(target)
+        return (holding, holding == target ? nil : target)
     }
 
     /// Upper bound for a plausible camera-housing height in layout points.
@@ -80,7 +98,8 @@ enum IslandGeometry {
     static let maximumNotchWidth: CGFloat = 320
     static let pillWidth: CGFloat = 84
     static let pillMaximumHeight: CGFloat = 22
-    static let expandedWidth: CGFloat = 420
+    /// Wide enough for every section icon, the battery and the buttons.
+    static let expandedWidth: CGFloat = 460
     static let expandedContentHeight: CGFloat = 228
     /// Each side of a notch activity. Kept inside the menu bar's empty
     /// center so it rarely reaches menu titles or status items.

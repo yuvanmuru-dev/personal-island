@@ -1,8 +1,26 @@
 # Implementation status
 
+## Incoming calls — November 13
+
+Version 0.14.0 (19) passes all 333 automated tests plus the Release build and bundle/signature checks. The user reported the ringing notice shows. They then found that opening and closing the island during a call removed the notice, because opening clears one-off notices; a ringing call is now a sticky notice that hides while the island is open (or while another notice shows) and returns when it closes, until the call ends. The user then reported this works.
+
+The owner asked for incoming calls. macOS offers no public way to observe calls: CallKit's call observer and CoreTelephony's call center are unavailable on macOS, and LiveCommunicationKit's call history is iPhone-only. A temporary diagnostic probe (Accessibility, logging only structure and known button names) showed during two test FaceTime calls that macOS's incoming-call banner is a Notification Center banner with the identifier FACETIME_NOTIFICATION, but its contents are a sealed iOS content group: no children, actions or reachable buttons, even by hit-testing 24 points along the button row. Answer and Decline could therefore only be done by synthetic clicks on the banner, which the owner declined in favour of an indicator. The probe was removed.
+
+With "Incoming calls" on (off by default), Personal Island asks once for Accessibility, observes Notification Center's window changes and looks for that banner; while it is present the compact island widens with a bouncing green phone and the caller's first name when the banner's description provides a plain name (otherwise "Call"), and the notice ends when the banner goes away. It checks every second while ringing and every five seconds otherwise. The description is used only for display and is never logged or stored; nothing is clicked. Turning the switch off stops observing. Not yet verified: whether the banner's description includes the caller's name, iPhone calls relayed to the Mac, other apps' calls (WhatsApp, Zoom and so on use their own windows and are not detected), and the Dell.
+
+## Smoother opening and closing — November 12
+
+Version 0.13.0 (18) passes all 333 automated tests plus the Release build and bundle/signature checks. Not yet checked by the user.
+
+Previously the window jumped to its new size and only the content faded (120 ms). Now one island shape springs (about 0.36 s response, no bounce) between the closed notch, a widened notice and the open island, with its corner rounding animating too. The open content is laid out at full size and revealed by the growing shape, then fades in, so text never reflows mid-animation. The window grows at once to hold both states and shrinks to the exact size about 0.42 s later, after the island has shrunk; a newer open, close or notice cancels a pending shrink. The window's transparent surroundings let clicks through meanwhile, and hover now follows the island's visible frame (also re-checked on pointer moves inside the window), so the briefly larger window cannot reopen it. Reduce Motion keeps instant changes.
+
+The user's first look found the header spilling past both edges and asked for the island to expand from the notch. With seven sections the header (icons, battery, capture and close) is wider than the 420-point island; before this change the window had silently stretched to fit (about 460 points), and drawing the island at exactly 420 exposed it. The open island is now 460 points wide (still bounded by the display), tab spacing is slightly tighter, and everything is masked to the island's outline. The closed island used to be almost transparent, so opening began as a fade; it is now solid black just inside the camera housing (slightly inset so no corner shows past the housing's rounded corners), so the black grows out of the notch, and the open content scales out from the top edge as it fades in and back in when closing. The user then asked for it to come from the notch in all directions: opening now uses a spring with a slight overshoot (about 0.42 s response) while the content starts at 30% size and blurred at the notch and grows and sharpens outward; closing uses a quicker spring without bounce.
+
+Not yet verified on the MacBook or the Dell: how the animation looks at 120 Hz, clicks during the brief larger window, and hover at the edges.
+
 ## Open at login — November 12
 
-Version 0.12.0 (17) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported Open at login works on the MacBook.
+Version 0.12.0 (17) passes all 333 automated tests plus the Release build and bundle/signature checks. The user reported Open at login works on the MacBook.
 
 Settings has an Open at login switch, off unless the user turns it on. It uses macOS's own login-item service for this app (SMAppService.mainApp), which lists Personal Island under System Settings › General › Login Items; no helper or launch agent file is installed. The switch shows macOS's current state, re-read whenever Settings opens, so removing the item in System Settings is reflected. If macOS needs the user's approval, the switch stays on with a note and a button to open Login Items. The login item points at the built app where it is; moving or deleting that copy makes macOS report it unavailable, and rebuilding in place keeps it.
 
@@ -14,7 +32,7 @@ The user then reported controls still did not work. Result-code logging (codes o
 
 ## M4 AirDrop progress — November 12
 
-Version 0.11.0 (16) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported a real AirDrop works on the MacBook.
+Version 0.11.0 (16) passes all 333 automated tests plus the Release build and bundle/signature checks. The user reported a real AirDrop works on the MacBook.
 
 The first build followed browser downloads too. On the MacBook the user saw a finished PDF download listed as "Stopped" and decided to drop downloads and keep only AirDrop. The cause was the rule that treated any transfer ending short of its reported total as interrupted; browsers do not always report the last bytes before they finish. The feature now follows only AirDrop's "receiving" progress, and only an actual cancel counts as stopped.
 
@@ -36,7 +54,7 @@ Updated November 12, 2026.
 
 ## M4 clipboard history — November 12
 
-Version 0.10.0 (15) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported clipboard history, the opened view, the icon-only tabs and the menu-bar-style battery work on the MacBook.
+Version 0.10.0 (15) passes all 333 automated tests plus the Release build and bundle/signature checks. The user reported clipboard history, the opened view, the icon-only tabs and the menu-bar-style battery work on the MacBook.
 
 The user chose clipboard history over connections, memory-only retention, and automatic skipping of password-manager copies. It is off by default. With it on, Personal Island checks the clipboard's change count every half second and, for each new copy, first checks the copy's types: anything marked concealed, transient or auto-generated (the nspasteboard.org markers used by 1Password, Keychain-based tools and other password managers) is never read. Other copies are kept as text, a link (a single http or https address), an image (PNG or TIFF, up to 20 MB each and 150 MB together) or file references, with the app that was in front. The last 50 are listed newest first in a Clipboard tab with search, pause and clear; each row has a copy button that copies it again without recording a duplicate, and clicking a row opens it to check the whole copy before using it: selectable full text (up to 20,000 characters shown; Copy always copies all of it), a larger image, the whole link or the file paths, with Copy, Remove and Back. Nothing is written to disk; quitting or turning the switch off forgets everything, and what was on the clipboard before turning it on is not recorded.
 
@@ -48,7 +66,7 @@ Not itemized by the user: the system alert and the setting it creates, real pass
 
 ## M4 system activity — November 12
 
-Version 0.9.0 (14) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported the Stats tab works on the MacBook.
+Version 0.9.0 (14) passes all 333 automated tests plus the Release build and bundle/signature checks. The user reported the Stats tab works on the MacBook.
 
 System activity is off by default. With it on, the open island gets a Stats tab of six tiles, each with a one-minute graph where it applies: CPU (busy share of all cores), GPU (the driver's reported utilization; "Not reported" if a Mac's driver gives none), memory used as Activity Monitor counts it (app, wired and compressed memory, in 1024-based units) against installed memory, network download and upload rates across all interfaces except loopback, disk read and write rates across all storage drivers, and free space on the startup volume. Everything comes from public Mach, routing-table and IOKit counters, with no permission, no list of other apps and nothing stored or sent. Readings are taken once a second only while the Stats tab is on screen in an open island; switching tabs, closing the island, a display change or turning the switch off stops sampling and clears readings and graphs, so graphs restart when the tab is reopened. A one-off manual run on the MacBook returned CPU, GPU, memory, network, disk and free-space values, which showed GPU utilization is reported on this M5.
 
@@ -56,7 +74,7 @@ Not itemized by the user: values against Activity Monitor over time, the Dell, a
 
 ## M4 timers and stopwatch — November 12
 
-Version 0.8.0 (13) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported timers and the stopwatch work on the MacBook.
+Version 0.8.0 (13) passes all 333 automated tests plus the Release build and bundle/signature checks. The user reported timers and the stopwatch work on the MacBook.
 
 Timers are off by default. With "Timers" on, the open island gets a Timers tab: preset buttons (1, 3, 5, 10, 15, 25, 30 minutes and 1 hour), a custom length from 1 minute to 3 hours (1-minute steps below an hour, 5-minute steps above), and up to five timers at once, each with a progress ring, time left, pause/resume and cancel. While any timer exists, the compact island stays widened with the timer finishing first (a ring and the time left); this can be turned off. When a timer ends, the Glass system sound plays (optional) and a "Done" notice with a bell shows beside the notch for eight seconds. One run-loop wake-up is scheduled at the earliest end; waking from sleep finishes anything overdue. With four sections the header labels only the selected tab. These are Personal Island's own timers kept in memory: Apple's Clock timers are not observed, and quitting or turning the switch off cancels every timer, its wake-up and the wake observer.
 
@@ -90,7 +108,7 @@ Not yet verified on a running Mac: the wing placement and size against crowded m
 | M3 Spotify/Calendar | Built and user-confirmed on the MacBook (0.5.0, 0.6.0) | Current track, seekable progress and play/pause/previous/next via Spotify's local scripting interface; user reported it works. Calendar: today's agenda and next event, read-only, with per-calendar visibility; user reported it works. Both-display sync awaits the Dell. |
 | M4 kept utilities | Complete on the MacBook (every kept utility user-confirmed): battery (user-confirmed, 0.7.0–0.7.1) and timers with stopwatch (0.8.0) built and user-confirmed on the MacBook; system activity (0.9.0) built and user-confirmed on the MacBook; clipboard history (0.10.0) built and user-confirmed on the MacBook; AirDrop (0.11.0) built and user-confirmed on the MacBook | All kept utilities are now built. The owner removed connections, lock-screen widgets/weather, media extras, color picker, Focus and recording indicators on November 12. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 319 automated tests pass locally: 38 storage, 199 presentation and 82 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 333 automated tests pass locally: 38 storage, 213 presentation and 82 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.

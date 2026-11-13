@@ -7,45 +7,96 @@ struct IslandView: View {
     @ObservedObject var presentation: IslandPresentation
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// Opening pops out of the notch with a slight overshoot; closing pulls
+    /// back in quickly without bouncing.
+    static let openSpring = Animation.spring(response: 0.42, dampingFraction: 0.74)
+    static let closeSpring = Animation.spring(response: 0.3, dampingFraction: 0.92)
+    /// How long the window waits before shrinking after the island closes.
+    static let settleSeconds: Double = 0.42
+
+    private var islandSize: CGSize {
+        presentation.layout.size(expanded: presentation.isExpanded, activity: presentation.isWidened)
+    }
+
+    /// The drawn island. Closed on a notched display it sits just inside the
+    /// camera housing, solid black, so opening grows out of the notch and no
+    /// corner can show past the housing's own rounded corners.
+    private var shapeSize: CGSize {
+        let size = islandSize
+        guard presentation.layout.hasNotch, !presentation.isExpanded, !presentation.isWidened else { return size }
+        return CGSize(width: max(0, size.width - 6), height: max(0, size.height - 2))
+    }
+
     var body: some View {
-        Group {
+        let size = islandSize
+        let drawn = shapeSize
+        let expandedSize = presentation.layout.expandedSize
+        ZStack(alignment: .top) {
+            background
+                .frame(width: drawn.width, height: drawn.height)
             if presentation.isExpanded {
+                // Laid out at full size and revealed by the growing shape, so
+                // nothing reflows; it scales out of the notch as it appears
+                // and back into it when the island closes.
                 expandedContent
+                    .frame(width: expandedSize.width, height: expandedSize.height, alignment: .top)
+                    .transition(reduceMotion ? .opacity : .asymmetric(
+                        insertion: .modifier(active: NotchBurst(progress: 0), identity: NotchBurst(progress: 1))
+                            .combined(with: .opacity.animation(.easeOut(duration: 0.2).delay(0.04))),
+                        removal: .modifier(active: NotchBurst(progress: 0), identity: NotchBurst(progress: 1))
+                            .combined(with: .opacity.animation(.easeIn(duration: 0.12)))
+                    ))
             } else {
                 compactContent
+                    .frame(width: size.width, height: size.height)
+                    .transition(.opacity.animation(reduceMotion ? nil : .easeOut(duration: 0.12)))
             }
+        }
+        .frame(width: max(size.width, presentation.isExpanded ? expandedSize.width : 0),
+               height: max(size.height, presentation.isExpanded ? expandedSize.height : 0),
+               alignment: .top)
+        // Nothing draws outside the island's own outline.
+        .mask(alignment: .top) {
+            maskShape.frame(width: drawn.width, height: drawn.height)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background {
-            if presentation.layout.hasNotch {
-                if presentation.isExpanded {
-                    NotchShape(topCornerRadius: 6, bottomCornerRadius: 22)
-                        .fill(.black)
-                } else if presentation.isWidened {
-                    // Wings beside the housing join it seamlessly in black.
-                    NotchShape(topCornerRadius: 6, bottomCornerRadius: 12)
-                        .fill(.black)
-                } else {
-                    // The compact window is the camera housing itself. Paint
-                    // nothing visible: square black corners would show beside
-                    // the housing's rounded bottom corners.
-                    Rectangle().fill(.black.opacity(0.01))
-                }
-            } else {
-                RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous)
-                    .fill(.black)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous)
-                            .strokeBorder(.white.opacity(0.13), lineWidth: 1)
-                    }
-            }
-        }
         .foregroundStyle(.white)
         .preferredColorScheme(.dark)
         .onExitCommand { presentation.collapse() }
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.12), value: presentation.isExpanded)
+        .animation(reduceMotion ? nil : presentation.isExpanded ? Self.openSpring : Self.closeSpring,
+                   value: presentation.isExpanded)
+        .animation(reduceMotion ? nil : presentation.isWidened ? Self.openSpring : Self.closeSpring,
+                   value: presentation.isWidened)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: presentation.activity)
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: presentation.showsLive)
+    }
+
+    /// One shape whose size and corners animate between states.
+    @ViewBuilder
+    private var background: some View {
+        if presentation.layout.hasNotch {
+            let open = presentation.isExpanded || presentation.isWidened
+            // Closed, the island is the camera housing itself: almost clear,
+            // so no square corners show beside the housing's rounded ones.
+            NotchShape(topCornerRadius: 6,
+                       bottomCornerRadius: presentation.isExpanded ? 22 : open ? 12 : 10)
+                .fill(.black)
+        } else {
+            RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous)
+                .fill(.black)
+                .overlay {
+                    RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous)
+                        .strokeBorder(.white.opacity(0.13), lineWidth: 1)
+                }
+        }
+    }
+
+    private var maskShape: AnyShape {
+        if presentation.layout.hasNotch {
+            let open = presentation.isExpanded || presentation.isWidened
+            return AnyShape(NotchShape(topCornerRadius: 6,
+                                       bottomCornerRadius: presentation.isExpanded ? 22 : open ? 12 : 10))
+        }
+        return AnyShape(RoundedRectangle(cornerRadius: backgroundCornerRadius, style: .continuous))
     }
 
     private var backgroundCornerRadius: CGFloat {
@@ -124,6 +175,13 @@ struct IslandView: View {
             wings(leading: {
                 BatteryGlyph(percent: battery.percent, charging: Self.showsBolt(battery), tint: Self.tint(battery))
             }, trailing: Text(Self.activityText(battery)), tint: Self.tint(battery))
+        case .incomingCall(let name):
+            wings(leading: {
+                Image(systemName: "phone.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.green)
+                    .symbolEffect(.bounce, options: .repeating)
+            }, trailing: Text(name ?? "Call"), tint: .green)
         case .airDropReceived:
             wings(leading: {
                 Image(systemName: "checkmark.circle.fill")
@@ -196,6 +254,7 @@ struct IslandView: View {
         case .battery(let battery): batteryDescription(battery)
         case .timerDone(let duration): "\(IslandTimers.lengthText(duration)) timer done"
         case .airDropReceived: "AirDrop received"
+        case .incomingCall(let name): name.map { "Incoming call from \($0)" } ?? "Incoming call"
         }
     }
 
@@ -210,7 +269,7 @@ struct IslandView: View {
 
     private var expandedContent: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 9) {
+            HStack(spacing: 6) {
                 if coordinator.availableTabs.count > 1 {
                     ForEach(coordinator.availableTabs, id: \.self) { tab in
                         switch tab {
@@ -333,8 +392,8 @@ struct IslandView: View {
                         .foregroundStyle(.white.opacity(0.5))
                 }
             }
-            .padding(.horizontal, 9)
-            .frame(minWidth: 34)
+            .padding(.horizontal, 8)
+            .frame(minWidth: 32)
             .frame(height: 26)
             .foregroundStyle(.white.opacity(selected ? 0.95 : 0.5))
             .background(.white.opacity(selected ? 0.12 : 0), in: Capsule())
@@ -1680,5 +1739,17 @@ private struct TransfersContent: View {
         .buttonStyle(.plain)
         .accessibilityLabel(label)
         .help(label)
+    }
+}
+
+/// Content emerging from the notch: small and soft at the notch's center,
+/// growing and sharpening outward in every direction.
+private struct NotchBurst: ViewModifier {
+    let progress: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(0.3 + 0.7 * progress, anchor: .top)
+            .blur(radius: 12 * (1 - progress))
     }
 }
