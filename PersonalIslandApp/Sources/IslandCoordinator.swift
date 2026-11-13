@@ -677,6 +677,7 @@ final class IslandCoordinator: ObservableObject {
     }
 
     func mediaCommand(_ command: MediaCommand, on id: String) { mediaController.perform(command, on: id) }
+    func retryMedia() { mediaController.retry() }
 
     // MARK: - Spotify
 

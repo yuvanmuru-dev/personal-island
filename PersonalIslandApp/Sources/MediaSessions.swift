@@ -50,8 +50,10 @@ enum MediaStatus: Equatable {
     case off
     case starting
     case ready
-    /// The helper cannot run on this Mac (or keeps failing).
+    /// This Mac's macOS lacks what the helper needs.
     case unavailable
+    /// The helper kept stopping; it can be tried again.
+    case failed
 }
 
 enum MediaSessions {
@@ -170,6 +172,13 @@ final class MediaSessionsController {
         update(.off, [])
     }
 
+    /// Starts again after the helper kept stopping.
+    func retry() {
+        guard isRunning, status == .failed else { return }
+        failures = 0
+        launch()
+    }
+
     func perform(_ command: MediaCommand, on id: String) {
         guard status == .ready, let helper, let index = sessions.firstIndex(where: { $0.id == id }) else { return }
         var command = command
@@ -238,7 +247,7 @@ final class MediaSessionsController {
         helper = nil
         guard isRunning, status != .unavailable else { return }
         guard failures < MediaSessions.restartDelays.count else {
-            update(.unavailable, [])
+            update(.failed, [])
             return
         }
         let delay = MediaSessions.restartDelays[failures]

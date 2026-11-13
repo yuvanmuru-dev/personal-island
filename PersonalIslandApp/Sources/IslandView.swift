@@ -2011,7 +2011,14 @@ private struct AllMediaContent: View {
     var body: some View {
         switch coordinator.mediaStatus {
         case .unavailable:
-            placeholder("Can't read media from other apps", detail: "macOS isn't allowing it right now.")
+            placeholder("Can't read media from other apps", detail: "This version of macOS doesn't allow it.")
+        case .failed:
+            VStack(spacing: 8) {
+                placeholder("The media helper keeps stopping", detail: nil)
+                Button("Try again") { coordinator.retryMedia() }
+                    .font(.system(size: 12))
+                    .buttonStyle(.bordered)
+            }
         case .off:
             placeholder("Looking for media…", detail: nil)
         case .starting where sessions.isEmpty:

@@ -43,7 +43,14 @@ static BOOL refreshing, refreshAgain;
 enum { CommandTogglePlayPause = 2, CommandNextTrack = 4, CommandPreviousTrack = 5, CommandSeek = 24 };
 
 static void emit(NSDictionary *object) {
-    NSData *data = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
+    // JSON cannot hold every value an app may report; never crash over one.
+    NSData *data = nil;
+    @try {
+        if (![NSJSONSerialization isValidJSONObject:object]) return;
+        data = [NSJSONSerialization dataWithJSONObject:object options:0 error:nil];
+    } @catch (NSException *exception) {
+        return;
+    }
     if (!data) return;
     NSString *line = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     if ([line isEqualToString:lastLine]) return;
@@ -52,7 +59,11 @@ static void emit(NSDictionary *object) {
     fflush(stdout);
 }
 
-static id number(id value) { return [value isKindOfClass:NSNumber.class] ? value : NSNull.null; }
+/// Finite numbers only: live streams can report an infinite duration.
+static id number(id value) {
+    if (![value isKindOfClass:NSNumber.class] || !isfinite([value doubleValue])) return NSNull.null;
+    return value;
+}
 static id text(id value) { return [value isKindOfClass:NSString.class] ? value : NSNull.null; }
 
 static void refresh(void) {
@@ -79,7 +90,7 @@ static void refresh(void) {
                 player[@"elapsed"] = number(d[@"kMRMediaRemoteNowPlayingInfoElapsedTime"]);
                 player[@"rate"] = number(d[@"kMRMediaRemoteNowPlayingInfoPlaybackRate"]);
                 id stamp = d[@"kMRMediaRemoteNowPlayingInfoTimestamp"];
-                player[@"timestamp"] = [stamp isKindOfClass:NSDate.class] ? @([stamp timeIntervalSince1970]) : NSNull.null;
+                player[@"timestamp"] = [stamp isKindOfClass:NSDate.class] ? number(@([stamp timeIntervalSince1970])) : NSNull.null;
                 dispatch_group_leave(group);
             });
         }

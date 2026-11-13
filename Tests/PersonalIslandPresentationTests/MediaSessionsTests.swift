@@ -35,6 +35,29 @@ private let received = Date(timeIntervalSince1970: 1_000)
     } else { Issue.record("not parsed") }
 }
 
+@Test func infiniteOrMissingNumbersFromAnAppAreTreatedAsUnknown() {
+    // Live streams can report an infinite length; the helper sends null, and
+    // the parser must cope with either.
+    let line = #"{"players":[{"id":"com.brave.Browser","name":"Brave","title":"Live","duration":null,"elapsed":null,"rate":1,"timestamp":null}]}"#
+    if case .sessions(let sessions)? = MediaSessions.parse(line, receivedAt: received) {
+        #expect(sessions.first?.duration == nil && sessions.first?.position == nil && sessions.first?.isPlaying == true)
+    } else { Issue.record("not parsed") }
+    // A number JSON cannot hold makes the whole line unreadable: skipped, never a crash.
+    #expect(MediaSessions.parse(#"{"players":[{"id":"a.b","name":"A","duration":1e400}]}"#, receivedAt: received) == nil)
+}
+
+@Test @MainActor func tryAgainOnlyAppliesAfterTheHelperKeptStopping() {
+    let helper = FakeHelper()
+    let controller = helper.controller()
+    controller.retry()                                              // not running
+    controller.start()
+    controller.retry()                                              // running fine: nothing to retry
+    #expect(helper.launches == 1)
+    helper.onLine?(#"{"error":"unavailable"}"#)
+    controller.retry()                                              // macOS refused: retrying cannot help
+    #expect(helper.launches == 1 && controller.status == .unavailable)
+}
+
 @Test func onlySafeCommandsReachTheHelper() {
     #expect(MediaSessions.commandLine(.togglePlayPause, for: "com.brave.Browser") == "toggle\tcom.brave.Browser\n")
     #expect(MediaSessions.commandLine(.seek(61.5), for: "org.mozilla.firefox") == "seek\torg.mozilla.firefox\t61.500\n")
@@ -138,7 +161,11 @@ private final class FakeHelper {
         #expect(helper.launches == attempt + 2)
     }
     helper.onExit?()
-    #expect(controller.status == .unavailable && controller.sessions.isEmpty)
+    #expect(controller.status == .failed && controller.sessions.isEmpty)   // not "macOS refused"
+    controller.retry()                                                    // Try again
+    #expect(helper.launches == MediaSessions.restartDelays.count + 2 && controller.status == .starting)
+    helper.report(playing: true)
+    #expect(controller.status == .ready)
 }
 
 @Test @MainActor func reportingCountsAsHealthySoLaterCrashesRestartAgain() {
@@ -168,7 +195,7 @@ private final class FakeHelper {
     let controller = helper.controller()
     controller.start()
     for _ in MediaSessions.restartDelays { helper.fireTimer() }
-    #expect(controller.status == .unavailable)
+    #expect(controller.status == .failed)
     #expect(helper.launches == MediaSessions.restartDelays.count + 1)
 }
 
