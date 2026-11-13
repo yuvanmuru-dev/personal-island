@@ -78,7 +78,7 @@ final class IslandCoordinator: ObservableObject {
 
     /// Sections the open island offers, in display order.
     var availableTabs: [ExpandedTab] {
-        (spotifyEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : [])
+        (spotifyEnabled || allMediaEnabled ? [.media] : []) + (calendarEnabled ? [.calendar] : [])
             + (timersEnabled ? [.timers] : []) + (transfersEnabled ? [.transfers] : []) + (statsEnabled ? [.stats] : [])
             + (clipboardEnabled ? [.clipboard] : []) + [.shelf]
     }
@@ -124,6 +124,25 @@ final class IslandCoordinator: ObservableObject {
             updateSpotify(askPermission: spotifyEnabled)
         }
     }
+    /// Media from every app (browsers, Spotify, Music…) through the helper.
+    /// Turning it off stops the helper process.
+    @Published var allMediaEnabled = false {
+        didSet {
+            guard allMediaEnabled != oldValue else { return }
+            saveSettings()
+            updateAllMedia(selectTab: allMediaEnabled)
+        }
+    }
+    @Published private(set) var mediaStatus: MediaStatus = .off
+    @Published private(set) var mediaSessions: [MediaSession] = []
+    private lazy var mediaController: MediaSessionsController = {
+        let controller = MediaSessionsController(environment: MediaBridgeAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            self?.mediaStatus = controller.status
+            self?.mediaSessions = controller.sessions
+        }
+        return controller
+    }()
     @Published private(set) var spotifyStatus: SpotifyStatus = .off
     @Published private(set) var nowPlaying: NowPlaying? {
         didSet { if nowPlaying?.trackID != oldValue?.trackID { updateArtwork() } }
@@ -230,6 +249,7 @@ final class IslandCoordinator: ObservableObject {
         captureShortcutEnabled = settings.captureShortcutEnabled
         disabledDisplays = Set(settings.disabledDisplays)
         spotifyEnabled = settings.spotifyEnabled
+        allMediaEnabled = settings.allMediaEnabled
         spotifyArtworkEnabled = settings.spotifyArtworkEnabled
         calendarEnabled = settings.calendarEnabled
         hiddenCalendarIDs = Set(settings.hiddenCalendarIDs)
@@ -253,6 +273,7 @@ final class IslandCoordinator: ObservableObject {
         settings.captureShortcutEnabled = captureShortcutEnabled
         settings.disabledDisplays = disabledDisplays.sorted()
         settings.spotifyEnabled = spotifyEnabled
+        settings.allMediaEnabled = allMediaEnabled
         settings.spotifyArtworkEnabled = spotifyArtworkEnabled
         settings.calendarEnabled = calendarEnabled
         settings.hiddenCalendarIDs = hiddenCalendarIDs.sorted()
@@ -457,6 +478,7 @@ final class IslandCoordinator: ObservableObject {
         startExportCleanup()
         updateSpotify(askPermission: false)
         updateCalendar(askAccess: false)
+        updateAllMedia(selectTab: false)
         updateBattery()
         updateTimers(selectTab: false)
         updateClipboard(selectTab: false)
@@ -479,6 +501,7 @@ final class IslandCoordinator: ObservableObject {
         isRunning = false
         spotify.stop()
         artworkLoader.stop()
+        mediaController.stop()
         calendarController.stop()
         battery.stop()
         calls.stop()
@@ -641,6 +664,20 @@ final class IslandCoordinator: ObservableObject {
         }
     }
 
+    // MARK: - Media from all apps
+
+    private func updateAllMedia(selectTab: Bool) {
+        if isRunning && allMediaEnabled {
+            if selectTab { expandedTab = .media }
+            mediaController.start()
+        } else {
+            mediaController.stop()
+            if expandedTab == .media && !spotifyEnabled { expandedTab = availableTabs.first ?? .shelf }
+        }
+    }
+
+    func mediaCommand(_ command: MediaCommand, on id: String) { mediaController.perform(command, on: id) }
+
     // MARK: - Spotify
 
     private func updateSpotify(askPermission: Bool) {
@@ -650,7 +687,7 @@ final class IslandCoordinator: ObservableObject {
         } else {
             spotify.stop()
             artworkLoader.stop()
-            if expandedTab == .media { expandedTab = availableTabs.first ?? .shelf }
+            if expandedTab == .media && !allMediaEnabled { expandedTab = availableTabs.first ?? .shelf }
         }
     }
 

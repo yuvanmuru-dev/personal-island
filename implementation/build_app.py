@@ -5,6 +5,7 @@ import hashlib
 import json
 import plistlib
 import stat
+import shutil
 import subprocess
 import sys
 
@@ -55,6 +56,23 @@ def collect_bundle_entries(app):
     return entries
 
 
+def build_media_bridge(app):
+    """Compile the media bridge helper into the app's Resources.
+
+    It is plain local source (PersonalIslandApp/Helper), built with warnings
+    as errors; the loader is copied as text. Both are covered by the app's
+    signature, and the library is signed before the app.
+    """
+    helper = ROOT / "PersonalIslandApp/Helper"
+    resources = app / "Contents/Resources"
+    compiled = run(["/usr/bin/xcrun", "clang", "-dynamiclib", "-fobjc-arc", "-fblocks", "-arch", "arm64",
+                    "-mmacosx-version-min=15.2", "-framework", "Foundation", "-Wall", "-Wextra", "-Werror",
+                    str(helper / "MediaBridge.m"), "-o", str(resources / "MediaBridge.dylib")])
+    if compiled.returncode:
+        raise PolicyError("Media bridge build failed: " + compiled.stdout.strip()[-400:])
+    shutil.copyfile(helper / "MediaBridge.pl", resources / "MediaBridge.pl")
+
+
 def apply_local_signing(app):
     """Re-sign with the user's local identity when exactly one exists.
 
@@ -68,16 +86,21 @@ def apply_local_signing(app):
     if listed.returncode:
         raise PolicyError("Could not list local code-signing identities")
     identity = parse_signing_identity(listed.stdout, LOCAL_SIGNING_IDENTITY)
-    if identity is None:
-        return None
+    # The media bridge was added after Xcode signed the app, so the app is
+    # always re-signed: with the local identity, or ad hoc without one.
+    signer = identity or "-"
+    bridge = run(["/usr/bin/codesign", "--force", "--sign", signer, "--timestamp=none",
+                  str(app / "Contents/Resources/MediaBridge.dylib")])
+    if bridge.returncode:
+        raise PolicyError("Media bridge signing failed: " + bridge.stdout.strip()[-300:])
     # Re-signing replaces the signature, so the reviewed entitlements must be
     # supplied again or they would be silently dropped.
-    signed = run(["/usr/bin/codesign", "--force", "--sign", identity, "--options", "runtime",
+    signed = run(["/usr/bin/codesign", "--force", "--sign", signer, "--options", "runtime",
                   "--timestamp=none", "--entitlements", str(ROOT / "PersonalIslandApp/PersonalIsland.entitlements"),
                   str(app)])
     if signed.returncode:
         raise PolicyError("Local signing failed: " + signed.stdout.strip()[-300:])
-    return LOCAL_SIGNING_IDENTITY
+    return LOCAL_SIGNING_IDENTITY if identity else None
 
 
 def main():
@@ -97,6 +120,7 @@ def main():
         *list((ROOT / "PersonalIslandApp/Sources").glob("*.swift")),
         *list((ROOT / "PersonalIslandCore/Sources/PersonalIslandCore").glob("*.swift")),
         *list((ROOT / "PersonalIslandApp/Resources").glob("*")),
+        *list((ROOT / "PersonalIslandApp/Helper").glob("*")),
         ROOT / "PersonalIslandApp/PersonalIsland.xcodeproj/project.pbxproj",
         ROOT / "PersonalIslandApp/PersonalIsland.xcodeproj/xcshareddata/xcschemes/PersonalIsland.xcscheme",
         ROOT / "PersonalIslandApp/Info.plist", ROOT / "PersonalIslandApp/PersonalIsland.entitlements",
@@ -120,6 +144,7 @@ def main():
     if any(hashlib.sha256(p.read_bytes()).hexdigest() != source_hashes[str(p.relative_to(ROOT))] for p in input_paths):
         raise RuntimeError("Build inputs changed during compilation; rebuild before recording success")
     app = BUILD / "XcodeDerivedData/Build/Products/Release/PersonalIsland.app"
+    build_media_bridge(app)
     signing_authority = apply_local_signing(app)
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     validate_info_plist(info)
@@ -153,6 +178,8 @@ def main():
         "toolchain": toolchain, "build_command": command, "build_input_sha256": source_hashes,
         "bundle_identifier": info["CFBundleIdentifier"], "executable_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
         "external_package_dependencies": [], "embedded_upstream_helpers": [],
+        "local_helpers": [{"path": "Contents/Resources/MediaBridge.dylib", "source": "PersonalIslandApp/Helper/MediaBridge.m",
+                           "loader": "Contents/Resources/MediaBridge.pl", "runs_under": "/usr/bin/perl"}],
         "signature_verification": verification.stdout.strip(), "signature_details": signature.stdout.strip(),
         "signing": {"mode": "local_identity" if signing_authority else "ad_hoc", "authority": signing_authority},
         "effective_entitlements": entitlements, "hardened_runtime": True, "runtime_search_paths": runtime_paths,

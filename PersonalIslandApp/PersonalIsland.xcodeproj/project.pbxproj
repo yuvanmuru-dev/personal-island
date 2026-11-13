@@ -355,6 +355,26 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "5AB91A1F4C52B72CB6F0D6F1";
 		};
+		"50F4672701D5FC4E89AA814B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "MediaSessions.swift";
+			"sourceTree" = "<group>";
+		};
+		"1B418839E7011E77223E623F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "50F4672701D5FC4E89AA814B";
+		};
+		"09DF1790981F7F073608AE88" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "MediaBridgeAdapter.swift";
+			"sourceTree" = "<group>";
+		};
+		"066E9F3AC533C3D9A8FA3673" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "09DF1790981F7F073608AE88";
+		};
 		"00AC2B8D68B96F643FAFC676" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -489,6 +509,8 @@
 				"53AB73DFE352A24A5FA37080",
 				"05DF2BE0600DABD7FC90294A",
 				"5AB91A1F4C52B72CB6F0D6F1",
+				"50F4672701D5FC4E89AA814B",
+				"09DF1790981F7F073608AE88",
 			);
 			"path" = "Sources";
 			"sourceTree" = "<group>";
@@ -575,6 +597,8 @@
 				"0E7D12BBCDB8D4E9456CB203",
 				"AFAA13AE8002658056335016",
 				"63D61DBA8711D98A9A171F88",
+				"1B418839E7011E77223E623F",
+				"066E9F3AC533C3D9A8FA3673",
 			);
 			"runOnlyForDeploymentPostprocessing" = 0;
 		};

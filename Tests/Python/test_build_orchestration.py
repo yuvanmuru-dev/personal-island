@@ -94,17 +94,27 @@ class LocalSigningTests(unittest.TestCase):
     APP = Path("/synthetic/PersonalIsland.app")
     LISTED = '  1) 0123456789ABCDEF0123456789ABCDEF01234567 "Personal Island Local Signing" (CSSMERR_TP_NOT_TRUSTED)\n'
 
-    def test_without_an_identity_the_ad_hoc_signature_is_kept(self):
-        with patch.object(build_app, "run", return_value=subprocess.CompletedProcess([], 0, stdout="     0 identities found\n")) as run:
+    def test_without_an_identity_the_bridge_and_app_are_re_signed_ad_hoc(self):
+        # The media bridge is added after Xcode signs, so the app must be re-signed even in CI.
+        ok = subprocess.CompletedProcess([], 0, stdout="")
+        results = [subprocess.CompletedProcess([], 0, stdout="     0 identities found\n"), ok, ok]
+        with patch.object(build_app, "run", side_effect=results) as run:
             self.assertIsNone(build_app.apply_local_signing(self.APP))
-        self.assertEqual(run.call_count, 1)
-        self.assertNotIn("/usr/bin/codesign", run.call_args.args[0])
+        bridge, app = (call.args[0] for call in run.call_args_list[1:])
+        self.assertEqual(bridge[:4], ["/usr/bin/codesign", "--force", "--sign", "-"])
+        self.assertTrue(bridge[-1].endswith("Contents/Resources/MediaBridge.dylib"))
+        self.assertEqual(app[:4], ["/usr/bin/codesign", "--force", "--sign", "-"])
+        self.assertIn("runtime", app)
+        self.assertEqual(app[-1], str(self.APP))
 
-    def test_an_identity_re_signs_with_hardened_runtime_and_the_reviewed_entitlements(self):
-        results = [subprocess.CompletedProcess([], 0, stdout=self.LISTED), subprocess.CompletedProcess([], 0, stdout="")]
+    def test_an_identity_signs_the_bridge_then_the_app_with_runtime_and_the_reviewed_entitlements(self):
+        ok = subprocess.CompletedProcess([], 0, stdout="")
+        results = [subprocess.CompletedProcess([], 0, stdout=self.LISTED), ok, ok]
         with patch.object(build_app, "run", side_effect=results) as run:
             self.assertEqual(build_app.apply_local_signing(self.APP), "Personal Island Local Signing")
-        arguments = run.call_args_list[1].args[0]
+        bridge = run.call_args_list[1].args[0]
+        self.assertTrue(bridge[-1].endswith("Contents/Resources/MediaBridge.dylib"))
+        arguments = run.call_args_list[2].args[0]
         self.assertEqual(arguments[:4], ["/usr/bin/codesign", "--force", "--sign", "0123456789ABCDEF0123456789ABCDEF01234567"])
         self.assertIn("runtime", arguments)
         entitlements = arguments[arguments.index("--entitlements") + 1]
@@ -112,14 +122,21 @@ class LocalSigningTests(unittest.TestCase):
         self.assertEqual(arguments[-1], str(self.APP))
 
     def test_listing_or_signing_failures_stop_the_build(self):
+        ok = subprocess.CompletedProcess([], 0, stdout="")
         for results in (
             [subprocess.CompletedProcess([], 1, stdout="security failure")],
-            [subprocess.CompletedProcess([], 0, stdout=self.LISTED), subprocess.CompletedProcess([], 1, stdout="errSecInternalComponent")],
+            [subprocess.CompletedProcess([], 0, stdout=self.LISTED), subprocess.CompletedProcess([], 1, stdout="bridge failure")],
+            [subprocess.CompletedProcess([], 0, stdout=self.LISTED), ok, subprocess.CompletedProcess([], 1, stdout="errSecInternalComponent")],
             [subprocess.CompletedProcess([], 0, stdout=self.LISTED + self.LISTED.replace("0123", "FFFF"))],
         ):
             with self.subTest(results=results), patch.object(build_app, "run", side_effect=results):
                 with self.assertRaises(build_app.PolicyError):
                     build_app.apply_local_signing(self.APP)
+
+    def test_a_bridge_compile_failure_stops_the_build(self):
+        with patch.object(build_app, "run", return_value=subprocess.CompletedProcess([], 1, stdout="error: x")):
+            with self.assertRaises(build_app.PolicyError):
+                build_app.build_media_bridge(self.APP)
 
 
 if __name__ == "__main__":

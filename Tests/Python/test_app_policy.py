@@ -51,8 +51,18 @@ ENTITLEMENT_BYTES = plistlib.dumps(ENTITLEMENTS)
 
 
 def bundle_entries():
-    return [policy.BundleEntry(name, "file", b"\xcf\xfa\xed\xfeexecutable" if name == policy.EXECUTABLE_PATH else b"ordinary text")
-            for name in sorted(policy.ALLOWED_BUNDLE_FILES)]
+    return [policy.BundleEntry(name, "file", fixture_bytes(name)) for name in sorted(policy.ALLOWED_BUNDLE_FILES)]
+
+
+DYLIB = b"\xcf\xfa\xed\xfe" + bytes(8) + policy.MH_DYLIB.to_bytes(4, "little") + b"library"
+
+
+def fixture_bytes(name):
+    if name == policy.EXECUTABLE_PATH:
+        return b"\xcf\xfa\xed\xfeexecutable"
+    if name == policy.MEDIA_BRIDGE_LIBRARY:
+        return DYLIB
+    return b"ordinary text"
 
 
 class InfoPolicyTests(unittest.TestCase):
@@ -323,6 +333,23 @@ class BundlePolicyTests(unittest.TestCase):
             with self.subTest(magic=magic), self.assertRaises(policy.PolicyError):
                 policy.validate_bundle_entries(entries)
 
+    def test_the_media_bridge_must_be_a_library_and_its_loader_plain_text(self):
+        executable_type = b"\xcf\xfa\xed\xfe" + bytes(8) + (2).to_bytes(4, "little") + b"program"
+        for data in (executable_type, b"ordinary text", b"#!/bin/sh\n", b"\xce\xfa\xed\xfe" + bytes(12), b"\xcf\xfa\xed\xfe"):
+            entries = [replace(value, data=data) if value.path == policy.MEDIA_BRIDGE_LIBRARY else value for value in bundle_entries()]
+            with self.subTest(library=data[:8]), self.assertRaises(policy.PolicyError):
+                policy.validate_bundle_entries(entries)
+        for data in (b"#!/usr/bin/perl\nuse strict;", DYLIB, b"text\x00hidden", b"\xff\xfe not utf-8"):
+            entries = [replace(value, data=data) if value.path == policy.MEDIA_BRIDGE_LOADER else value for value in bundle_entries()]
+            with self.subTest(loader=data[:8]), self.assertRaises(policy.PolicyError):
+                policy.validate_bundle_entries(entries)
+        self.assertEqual(len(policy.validate_bundle_entries(bundle_entries())), len(policy.ALLOWED_BUNDLE_FILES))
+
+    def test_the_media_bridge_paths_cannot_be_reused_elsewhere(self):
+        for path in ("Contents/Resources/Other.dylib", "Contents/MacOS/MediaBridge.dylib", "Contents/Resources/MediaBridge2.pl"):
+            with self.subTest(path=path), self.assertRaises(policy.PolicyError):
+                policy.validate_bundle_entries(bundle_entries() + [policy.BundleEntry(path, "file", DYLIB)])
+
     def test_non_macho_main_executable_fails(self):
         entries = [replace(value, data=b"#!/bin/sh\n") if value.path == policy.EXECUTABLE_PATH else value for value in bundle_entries()]
         with self.assertRaises(policy.PolicyError):
@@ -350,7 +377,7 @@ class FilesystemCollectionTests(unittest.TestCase):
 
     def test_actual_regular_file_tree_passes_without_execution(self):
         inventory = policy.validate_bundle_entries(build_app.collect_bundle_entries(self.app))
-        self.assertEqual(len(inventory), 8)
+        self.assertEqual(len(inventory), len(policy.ALLOWED_BUNDLE_FILES))
 
     def test_actual_file_symlink_is_rejected_and_outside_sentinel_untouched(self):
         outside = self.root / "sentinel"

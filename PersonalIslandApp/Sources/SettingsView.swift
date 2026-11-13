@@ -17,6 +17,13 @@ struct SettingsView: View {
         }
     }
 
+    private var allMediaExplanation: String {
+        switch coordinator.mediaStatus {
+        case .unavailable: "This Mac's macOS doesn't allow reading other apps' media right now, so only Spotify (above) can be shown."
+        default: "Shows everything with Now Playing, such as Brave, Firefox, Safari, Music and Spotify, one card per app in the Media tab. macOS blocks apps from reading this, so Personal Island runs a small bundled helper with Apple's built-in Perl, which macOS still allows; a future macOS update could stop it working. Nothing is stored or sent."
+        }
+    }
+
     private var calendarExplanation: String {
         switch coordinator.calendarStatus {
         case .off: "Shows your next event and today's agenda from calendars on this Mac, read-only. macOS will ask for Calendar access; it only offers full access, but Personal Island never changes events."
@@ -108,6 +115,10 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                             .padding(.leading, 16)
                     }
+                    Toggle("Media from all apps", isOn: $coordinator.allMediaEnabled)
+                    Text(allMediaExplanation)
+                        .font(.caption)
+                        .foregroundStyle(coordinator.mediaStatus == .unavailable ? .orange : .secondary)
                     Toggle("Calendar in the island", isOn: $coordinator.calendarEnabled)
                     Text(calendarExplanation)
                         .font(.caption)

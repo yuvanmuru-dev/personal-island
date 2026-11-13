@@ -326,7 +326,12 @@ struct IslandView: View {
             Group {
                 switch coordinator.visibleTab {
                 case .shelf: shelfContent
-                case .media: MediaContent(coordinator: coordinator)
+                case .media:
+                    if coordinator.allMediaEnabled {
+                        AllMediaContent(coordinator: coordinator)
+                    } else {
+                        MediaContent(coordinator: coordinator)
+                    }
                 case .calendar: CalendarContent(coordinator: coordinator)
                 case .timers: TimersContent(coordinator: coordinator)
                 case .transfers: TransfersContent(coordinator: coordinator)
@@ -1983,4 +1988,187 @@ private struct MonthScrollCatcher: NSViewRepresentable {
             return true
         }
     }
+}
+
+/// Every app with Now Playing, one card at a time. Scroll or swipe over the
+/// card, or use the arrows and dots, to move between apps.
+private struct AllMediaContent: View {
+    @ObservedObject var coordinator: IslandCoordinator
+    /// The shown app, kept by identifier so it stays put when others change.
+    @State private var shownID: String?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var sessions: [MediaSession] { coordinator.mediaSessions }
+
+    private var index: Int {
+        guard let shownID, let found = sessions.firstIndex(where: { $0.id == shownID }) else {
+            // Default to something playing, else the first.
+            return sessions.firstIndex(where: \.isPlaying) ?? 0
+        }
+        return found
+    }
+
+    var body: some View {
+        switch coordinator.mediaStatus {
+        case .unavailable:
+            placeholder("Can't read media from other apps", detail: "macOS isn't allowing it right now.")
+        case .off:
+            placeholder("Looking for media…", detail: nil)
+        case .starting where sessions.isEmpty:
+            placeholder("Looking for media…", detail: nil)
+        default:
+            if sessions.isEmpty {
+                placeholder("Nothing playing", detail: "Media from Brave, Firefox, Music, Spotify and others shows here.")
+            } else {
+                VStack(spacing: 6) {
+                    card(sessions[index])
+                        .id(sessions[index].id)
+                        .transition(reduceMotion ? .opacity : .opacity.combined(with: .offset(x: 12)))
+                        .background {
+                            MonthScrollCatcher { step in move(step) }
+                        }
+                    if sessions.count > 1 { pager }
+                }
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: sessions[index].id)
+            }
+        }
+    }
+
+    private func move(_ step: Int) {
+        guard !sessions.isEmpty else { return }
+        let next = min(max(index + step, 0), sessions.count - 1)
+        shownID = sessions[next].id
+    }
+
+    private var pager: some View {
+        HStack(spacing: 10) {
+            arrow("chevron.left", label: "Previous app") { move(-1) }
+                .disabled(index == 0)
+            HStack(spacing: 5) {
+                ForEach(Array(sessions.enumerated()), id: \.element.id) { offset, session in
+                    Button { shownID = session.id } label: {
+                        Circle()
+                            .fill(.white.opacity(offset == index ? 0.9 : 0.3))
+                            .frame(width: 5, height: 5)
+                            .padding(3)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(session.appName)
+                }
+            }
+            arrow("chevron.right", label: "Next app") { move(1) }
+                .disabled(index >= sessions.count - 1)
+        }
+    }
+
+    private func card(_ session: MediaSession) -> some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 12) {
+                cover(session)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(session.title ?? session.appName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .lineLimit(1)
+                    Text([session.artist, session.album].compactMap { $0 }.joined(separator: " — ").nonEmpty ?? session.appName)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .lineLimit(1)
+                    Text(session.appName)
+                        .font(.system(size: 9.5, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+            }
+            if session.duration != nil {
+                TimelineView(.periodic(from: .now, by: 0.5)) { context in
+                    PlaybackScrubber(
+                        position: session.position(at: context.date) ?? 0,
+                        duration: session.duration,
+                        enabled: true,
+                        onSeek: { coordinator.mediaCommand(.seek($0), on: session.id) }
+                    )
+                }
+            }
+            HStack(spacing: 26) {
+                control("backward.fill", label: "Previous track") { coordinator.mediaCommand(.previous, on: session.id) }
+                control(session.isPlaying ? "pause.fill" : "play.fill", label: session.isPlaying ? "Pause" : "Play", size: 18) {
+                    coordinator.mediaCommand(.togglePlayPause, on: session.id)
+                }
+                .transaction { $0.animation = nil }
+                control("forward.fill", label: "Next track") { coordinator.mediaCommand(.next, on: session.id) }
+            }
+        }
+        .padding(.top, 6)
+        .contentShape(Rectangle())
+    }
+
+    /// Spotify's album art when the Spotify feature has it for this track;
+    /// otherwise the app's own icon.
+    @ViewBuilder
+    private func cover(_ session: MediaSession) -> some View {
+        Group {
+            if session.id == SpotifyPlayback.bundleIdentifier, let artwork = coordinator.artwork,
+               coordinator.nowPlaying?.title == session.title {
+                Image(nsImage: artwork).resizable().aspectRatio(contentMode: .fill)
+            } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: session.id) {
+                Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable().padding(4)
+            } else {
+                Image(systemName: "music.note")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.35))
+            }
+        }
+        .frame(width: 52, height: 52)
+        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .accessibilityHidden(true)
+    }
+
+    private func control(_ symbol: String, label: String, size: CGFloat = 14, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: size, weight: .semibold))
+                .frame(width: 34, height: 30)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.white.opacity(0.9))
+        .accessibilityLabel(label)
+        .help(label)
+    }
+
+    private func arrow(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 9, weight: .bold))
+                .frame(width: 18, height: 16)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.white.opacity(0.6))
+        .accessibilityLabel(label)
+        .help(label)
+    }
+
+    private func placeholder(_ text: String, detail: String?) -> some View {
+        VStack(spacing: 7) {
+            Image(systemName: "music.note.list")
+                .font(.system(size: 22, weight: .light))
+                .foregroundStyle(.white.opacity(0.4))
+            Text(text).font(.system(size: 13, weight: .medium))
+            if let detail {
+                Text(detail)
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private extension String {
+    var nonEmpty: String? { isEmpty ? nil : self }
 }

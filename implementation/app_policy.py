@@ -25,11 +25,18 @@ NOTICE_NAMES = (
     "Atoll-LICENSE.txt", "Atoll-NOTICE.txt", "Atoll-COPYRIGHT_ASSETS.txt",
     "Atoll-TRADEMARKS.txt",
 )
+# The media bridge: a helper library built from PersonalIslandApp/Helper and
+# its plain-text Perl loader. Apple's /usr/bin/perl loads the library to read
+# other apps' Now Playing sessions, which the app itself cannot.
+MEDIA_BRIDGE_LIBRARY = "Contents/Resources/MediaBridge.dylib"
+MEDIA_BRIDGE_LOADER = "Contents/Resources/MediaBridge.pl"
 ALLOWED_BUNDLE_FILES = frozenset({
     "Contents/Info.plist", EXECUTABLE_PATH, "Contents/PkgInfo",
     "Contents/_CodeSignature/CodeResources",
     *("Contents/Resources/" + name for name in NOTICE_NAMES),
+    MEDIA_BRIDGE_LIBRARY, MEDIA_BRIDGE_LOADER,
 })
+MH_DYLIB = 6
 ALLOWED_RUNTIME_PATHS = frozenset({"/usr/lib/swift", "@executable_path/../Frameworks"})
 FORBIDDEN_INFO_KEYS = frozenset({
     "NSAppTransportSecurity", "CFBundleURLTypes", "SMPrivilegedExecutables",
@@ -264,6 +271,18 @@ def validate_bundle_entries(entries: Sequence[BundleEntry]) -> list[dict]:
         if entry.path == EXECUTABLE_PATH:
             if entry.data[:4] not in MACHO_MAGICS:
                 raise PolicyError("Main executable is not a Mach-O file")
+        elif entry.path == MEDIA_BRIDGE_LIBRARY:
+            # Only a 64-bit dynamic library; never a program or a script.
+            if entry.data[:4] != b"\xcf\xfa\xed\xfe" or len(entry.data) < 16 \
+                    or int.from_bytes(entry.data[12:16], "little") != MH_DYLIB:
+                raise PolicyError("Media bridge must be a 64-bit Mach-O dynamic library")
+        elif entry.path == MEDIA_BRIDGE_LOADER:
+            if has_code or b"\x00" in entry.data:
+                raise PolicyError("Media bridge loader must be plain text")
+            try:
+                entry.data.decode("utf-8")
+            except UnicodeDecodeError:
+                raise PolicyError("Media bridge loader must be plain text") from None
         elif has_code:
             raise PolicyError("Unexpected additional executable code in app")
         files.add(entry.path)

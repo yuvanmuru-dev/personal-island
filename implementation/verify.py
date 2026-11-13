@@ -221,6 +221,8 @@ def verify_provenance():
     actual = {str(path.relative_to(ROOT)) for folder in (
         "PersonalIslandCore/Sources/PersonalIslandCore", "PersonalIslandApp/Sources"
     ) for path in (ROOT / folder).glob("*.swift")}
+    # The media bridge helper is app source too, though not Swift.
+    actual |= {str(path.relative_to(ROOT)) for path in (ROOT / "PersonalIslandApp/Helper").glob("*") if path.is_file()}
     if actual != {item["local_path"] for item in document["files"]}:
         raise RuntimeError("Source provenance does not cover the current app/core source list")
     for item in document["files"]:

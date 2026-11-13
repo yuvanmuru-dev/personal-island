@@ -21,7 +21,7 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(!settings.calendarEnabled)
     #expect(settings.hiddenCalendarIDs.isEmpty)
     #expect(!settings.batteryEnabled && settings.batteryLowAlerts && settings.batteryChargedAlert)
-    #expect(!settings.spotifyArtworkEnabled)
+    #expect(!settings.spotifyArtworkEnabled && !settings.allMediaEnabled)
     #expect(!settings.timersEnabled && settings.timerSound && settings.timerInNotch)
     #expect(!settings.statsEnabled && !settings.clipboardEnabled && !settings.transfersEnabled && !settings.callsEnabled)
 }
@@ -38,6 +38,7 @@ private final class MemoryStorage: @unchecked Sendable {
     settings.hiddenCalendarIDs = ["b", "a"]
     settings.batteryEnabled = true
     settings.spotifyArtworkEnabled = true
+    settings.allMediaEnabled = true
     settings.timersEnabled = true
     settings.statsEnabled = true
     settings.clipboardEnabled = true
@@ -56,7 +57,7 @@ private final class MemoryStorage: @unchecked Sendable {
     #expect(read.calendarEnabled)
     #expect(read.hiddenCalendarIDs == ["a", "b"])
     #expect(read.batteryEnabled && !read.batteryLowAlerts && !read.batteryChargedAlert)
-    #expect(read.spotifyArtworkEnabled)
+    #expect(read.spotifyArtworkEnabled && read.allMediaEnabled)
     #expect(read.timersEnabled && !read.timerSound && !read.timerInNotch)
     #expect(read.statsEnabled && read.clipboardEnabled && read.transfersEnabled && read.callsEnabled)
     #expect(storage.writes == 1)

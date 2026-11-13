@@ -17,9 +17,9 @@ let package = Package(
                 "PersonalIslandApp.swift", "IslandCoordinator.swift", "IslandPanelController.swift",
                 "IslandView.swift", "SettingsView.swift", "NotchShape.swift",
                 "GlobalHotKey.swift", "RegionSelector.swift", "ScreenRegionCapture.swift",
-                "ShelfDragSource.swift", "SpotifyAdapter.swift", "CalendarAdapter.swift", "BatteryAdapter.swift", "SystemStatsAdapter.swift", "ClipboardAdapter.swift", "TransfersAdapter.swift", "LoginItemAdapter.swift", "IncomingCallsAdapter.swift"
+                "ShelfDragSource.swift", "SpotifyAdapter.swift", "CalendarAdapter.swift", "BatteryAdapter.swift", "SystemStatsAdapter.swift", "ClipboardAdapter.swift", "TransfersAdapter.swift", "LoginItemAdapter.swift", "IncomingCallsAdapter.swift", "MediaBridgeAdapter.swift"
             ],
-            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyArtwork.swift", "CalendarAgenda.swift", "BatteryStatus.swift", "IslandTimers.swift", "SystemStats.swift", "ClipboardHistory.swift", "Transfers.swift", "LoginItem.swift", "IncomingCalls.swift"]
+            sources: ["IslandGeometry.swift", "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "ShelfDragFlow.swift", "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyArtwork.swift", "CalendarAgenda.swift", "BatteryStatus.swift", "IslandTimers.swift", "SystemStats.swift", "ClipboardHistory.swift", "Transfers.swift", "LoginItem.swift", "IncomingCalls.swift", "MediaSessions.swift"]
         ),
         .testTarget(
             name: "PersonalIslandPresentationTests",

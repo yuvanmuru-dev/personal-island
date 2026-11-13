@@ -26,6 +26,10 @@ Turn on "Battery and charging" in Settings. Plugging in or unplugging briefly sh
 
 Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
 
+## Media from all apps (0.16.0)
+
+Turn on "Media from all apps" in Settings to see everything with Now Playing (Brave, Firefox, Safari, Music, Spotify and more) in the Media tab, one card per app. Scroll or swipe over the card, or use the arrows and dots, to move between apps. macOS blocks apps from reading this, so Personal Island runs a small bundled helper with Apple's built-in Perl, which macOS still allows; a future macOS update could stop it working.
+
 ## Incoming calls (0.14.0)
 
 Turn on "Incoming calls" in Settings and allow Accessibility when asked. A ringing FaceTime or iPhone call shows beside the notch with a green phone and the caller's first name when available. Answer or decline in macOS's own banner. Calls in other apps (WhatsApp, Zoom and so on) aren't shown.

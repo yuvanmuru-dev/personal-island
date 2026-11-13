@@ -16,6 +16,8 @@ struct IslandSettings: Codable, Equatable {
     /// display; an unknown ID simply has no effect.
     var disabledDisplays: [UInt32] = []
     var spotifyEnabled = false
+    /// Every app's media through the bundled helper; off by default.
+    var allMediaEnabled = false
     /// Downloads cover images from Spotify's image server; off by default.
     var spotifyArtworkEnabled = false
     var calendarEnabled = false
@@ -46,6 +48,7 @@ struct IslandSettings: Codable, Equatable {
         let displays = (try? values.decodeIfPresent([UInt32].self, forKey: .disabledDisplays)) ?? []
         disabledDisplays = Array(Set(displays)).sorted()
         spotifyEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .spotifyEnabled)) ?? defaults.spotifyEnabled
+        allMediaEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .allMediaEnabled)) ?? defaults.allMediaEnabled
         spotifyArtworkEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .spotifyArtworkEnabled))
             ?? defaults.spotifyArtworkEnabled
         calendarEnabled = (try? values.decodeIfPresent(Bool.self, forKey: .calendarEnabled)) ?? defaults.calendarEnabled
