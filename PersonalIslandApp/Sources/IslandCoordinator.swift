@@ -34,6 +34,9 @@ final class IslandCoordinator: ObservableObject {
         }
     }
     @Published private(set) var displays: [DisplayOption] = []
+    /// Read from macOS, not remembered: System Settings can change it too.
+    @Published private(set) var loginItemState: LoginItemState = .off
+    @Published private(set) var loginItemMessage: String?
     @Published private(set) var shelfItems: [ShelfItem] = []
     @Published private(set) var shelfAvailability: ShelfAvailability = .notStarted
     /// Short status text, e.g. a capture failure. Never contains image data.
@@ -361,6 +364,14 @@ final class IslandCoordinator: ObservableObject {
         }
         return controller
     }()
+    private lazy var loginItem: LoginItemController = {
+        let controller = LoginItemController(environment: LoginItemAdapter.environment())
+        controller.onChange = { [weak self, unowned controller] in
+            self?.loginItemState = controller.state
+            self?.loginItemMessage = controller.message
+        }
+        return controller
+    }()
     private lazy var battery: BatteryController = {
         let controller = BatteryController(environment: BatteryAdapter.environment())
         controller.lowAlertsEnabled = batteryLowAlerts
@@ -510,7 +521,15 @@ final class IslandCoordinator: ObservableObject {
         updateStatsSampling()
     }
 
+    var opensAtLogin: Bool { loginItem.isOn }
+
+    /// Explicit user action from Settings only; never turned on automatically.
+    func setOpensAtLogin(_ enabled: Bool) { loginItem.setEnabled(enabled) }
+
+    func openLoginItemsSettings() { LoginItemAdapter.openLoginItemsSettings() }
+
     func showSettings() {
+        loginItem.refresh(force: true)
         if settingsWindowController == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 550, height: 650),

@@ -124,7 +124,7 @@ class ProjectGenerationTests(unittest.TestCase):
             "IslandPresentation.swift", "CaptureGeometry.swift", "CaptureFlow.swift", "GlobalHotKey.swift",
             "RegionSelector.swift", "ScreenRegionCapture.swift", "ShelfDragFlow.swift", "ShelfDragSource.swift",
             "WindowPicker.swift", "IslandSettings.swift", "SpotifyPlayback.swift", "SpotifyAdapter.swift",
-            "CalendarAgenda.swift", "CalendarAdapter.swift", "BatteryStatus.swift", "BatteryAdapter.swift", "SpotifyArtwork.swift", "IslandTimers.swift", "SystemStats.swift", "SystemStatsAdapter.swift", "ClipboardHistory.swift", "ClipboardAdapter.swift", "Transfers.swift", "TransfersAdapter.swift",
+            "CalendarAgenda.swift", "CalendarAdapter.swift", "BatteryStatus.swift", "BatteryAdapter.swift", "SpotifyArtwork.swift", "IslandTimers.swift", "SystemStats.swift", "SystemStatsAdapter.swift", "ClipboardHistory.swift", "ClipboardAdapter.swift", "Transfers.swift", "TransfersAdapter.swift", "LoginItem.swift", "LoginItemAdapter.swift",
         })
         self.assertEqual(set(self.phase_files(self.target("PersonalIslandCore"), "PBXSourcesBuildPhase")), {
             "Models.swift", "OwnedExportDirectory.swift", "ShelfStore.swift",

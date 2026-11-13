@@ -31,7 +31,7 @@ Swift Testing parameterized cases may produce more scenario inputs than top-leve
 
 ## Latest local results
 
-November 12, 2026, Xcode 27.2 / Swift 6.4.2: **315 tests passed, zero failed** (38 storage, 195 presentation, 82 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
+November 12, 2026, Xcode 27.2 / Swift 6.4.2: **319 tests passed, zero failed** (38 storage, 199 presentation, 82 Python policy/verifier), followed by a passing Release build and bundle/signature inspection. Verifier tests additionally cover rejecting stale/ambiguous coverage, source/test drift, and misleading success receipts.
 
 Measured production line coverage from that run:
 
@@ -55,6 +55,8 @@ These are line measurements for the tested core/presentation sources, not a clai
 Ten hover regressions additionally verify that repeated entry/exit callbacks preserve the original deadline, preference changes take effect while stationary, manual opening is retained, and suspended/hidden presenters cannot be reopened or closed by stale work. Native AppKit event delivery is compiled and reviewed but remains a manual running-app check.
 
 A publishable-text check now runs first in `verify.py`: every tracked text file (except third-party snapshots and retained upstream notices) must contain no home-folder path and no email address other than GitHub's no-reply or the co-author no-reply address. Five Python tests cover reporting with file and line, allowed relative links, `/Users/Shared` and no-reply addresses, skipped third-party files, lookalike no-reply addresses, and the current checkout. Outside a git checkout the check has nothing to publish and is skipped. Since 0.8.0 it also scans new files not yet added to git (ignored files excluded), so running it before a commit covers what that commit will publish; a test with a throwaway repository checks a new file is reported and an ignored one is not. This was added after a credential-shaped test URL (not personal data) was committed in 0.7.1 because the file was new when the check ran.
+
+Version 0.12.0 adds 4 presentation regressions for Open at login with a fake login-item service: turning it on and off registers and removes the item once each; waiting for approval counts as on and is not registered twice, and approval is picked up on refresh; a refusal shows a message while the switch shows macOS's real state, and a retry clears it; and changes made in System Settings are read rather than remembered. The SMAppService adapter is compiled and reviewed but not executed: tests never register a login item.
 
 Version 0.11.0 also adds 3 Spotify regressions after the user saw a stuck permission message: a failed or timed-out check shows Spotify as not answering (and sends nothing), not as missing permission; a needs-permission state is re-checked quietly on the next Spotify update and becomes ready without ever asking; and quiet re-checks happen at most once every 10 seconds. Two more cover the previous button: past 3 seconds the slider shows the restart before Spotify confirms, and near the start it is left unchanged until the new track arrives. The first run of the permission tests crashed because the re-check task kept the controller alive after a test ended; the task now holds the controller weakly.
 

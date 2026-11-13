@@ -26,6 +26,10 @@ Turn on "Battery and charging" in Settings. Plugging in or unplugging briefly sh
 
 Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
 
+## Open at login (0.12.0)
+
+Turn on "Open at login" at the top of Settings to start Personal Island when you log in. It appears under System Settings › General › Login Items, where you can also remove it. Keep the app where it was built; moving it means turning the switch on again.
+
 ## AirDrop (0.11.0)
 
 Turn on "AirDrop" in Settings. Files you receive by AirDrop show a progress ring beside the notch and a "Received" notice when they arrive. The AirDrop tab shows progress, speed and time left, with Cancel and, once received, Show in Finder. Browser downloads aren't shown.

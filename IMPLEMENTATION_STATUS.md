@@ -1,5 +1,11 @@
 # Implementation status
 
+## Open at login — November 12
+
+Version 0.12.0 (17) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported Open at login works on the MacBook.
+
+Settings has an Open at login switch, off unless the user turns it on. It uses macOS's own login-item service for this app (SMAppService.mainApp), which lists Personal Island under System Settings › General › Login Items; no helper or launch agent file is installed. The switch shows macOS's current state, re-read whenever Settings opens, so removing the item in System Settings is reflected. If macOS needs the user's approval, the switch stays on with a note and a button to open Login Items. The login item points at the built app where it is; moving or deleting that copy makes macOS report it unavailable, and rebuilding in place keeps it.
+
 ## Spotify permission state — November 12
 
 The user reported Spotify "broken again": the Media tab showed the track but said pressing a control would ask for permission. The app's signature and designated requirement were unchanged (same local certificate), and its Apple Events entitlement and usage text were intact, so macOS's remembered permission still applied. The privacy log showed the Automation setting for Personal Island being modified shortly before, but no denial. Two app problems explain the symptom: any failed or timed-out permission check (for example a busy Spotify right after launch) was reported as missing permission, and that state never re-checked until a control was pressed. Now only macOS's "would require consent" answer means needs permission; a failed check shows "Spotify didn't answer" with Try again; and while the tab says permission is needed or denied, each Spotify update triggers a quiet re-check (which never shows a prompt) at most every 10 seconds, so allowing it in System Settings or a transient failure recovers on its own. Not yet confirmed by the user.
@@ -8,7 +14,7 @@ The user then reported controls still did not work. Result-code logging (codes o
 
 ## M4 AirDrop progress — November 12
 
-Version 0.11.0 (16) passes all 315 automated tests plus the Release build and bundle/signature checks. The user reported a real AirDrop works on the MacBook.
+Version 0.11.0 (16) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported a real AirDrop works on the MacBook.
 
 The first build followed browser downloads too. On the MacBook the user saw a finished PDF download listed as "Stopped" and decided to drop downloads and keep only AirDrop. The cause was the rule that treated any transfer ending short of its reported total as interrupted; browsers do not always report the last bytes before they finish. The feature now follows only AirDrop's "receiving" progress, and only an actual cancel counts as stopped.
 
@@ -30,7 +36,7 @@ Updated November 12, 2026.
 
 ## M4 clipboard history — November 12
 
-Version 0.10.0 (15) passes all 315 automated tests plus the Release build and bundle/signature checks. The user reported clipboard history, the opened view, the icon-only tabs and the menu-bar-style battery work on the MacBook.
+Version 0.10.0 (15) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported clipboard history, the opened view, the icon-only tabs and the menu-bar-style battery work on the MacBook.
 
 The user chose clipboard history over connections, memory-only retention, and automatic skipping of password-manager copies. It is off by default. With it on, Personal Island checks the clipboard's change count every half second and, for each new copy, first checks the copy's types: anything marked concealed, transient or auto-generated (the nspasteboard.org markers used by 1Password, Keychain-based tools and other password managers) is never read. Other copies are kept as text, a link (a single http or https address), an image (PNG or TIFF, up to 20 MB each and 150 MB together) or file references, with the app that was in front. The last 50 are listed newest first in a Clipboard tab with search, pause and clear; each row has a copy button that copies it again without recording a duplicate, and clicking a row opens it to check the whole copy before using it: selectable full text (up to 20,000 characters shown; Copy always copies all of it), a larger image, the whole link or the file paths, with Copy, Remove and Back. Nothing is written to disk; quitting or turning the switch off forgets everything, and what was on the clipboard before turning it on is not recorded.
 
@@ -42,7 +48,7 @@ Not itemized by the user: the system alert and the setting it creates, real pass
 
 ## M4 system activity — November 12
 
-Version 0.9.0 (14) passes all 315 automated tests plus the Release build and bundle/signature checks. The user reported the Stats tab works on the MacBook.
+Version 0.9.0 (14) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported the Stats tab works on the MacBook.
 
 System activity is off by default. With it on, the open island gets a Stats tab of six tiles, each with a one-minute graph where it applies: CPU (busy share of all cores), GPU (the driver's reported utilization; "Not reported" if a Mac's driver gives none), memory used as Activity Monitor counts it (app, wired and compressed memory, in 1024-based units) against installed memory, network download and upload rates across all interfaces except loopback, disk read and write rates across all storage drivers, and free space on the startup volume. Everything comes from public Mach, routing-table and IOKit counters, with no permission, no list of other apps and nothing stored or sent. Readings are taken once a second only while the Stats tab is on screen in an open island; switching tabs, closing the island, a display change or turning the switch off stops sampling and clears readings and graphs, so graphs restart when the tab is reopened. A one-off manual run on the MacBook returned CPU, GPU, memory, network, disk and free-space values, which showed GPU utilization is reported on this M5.
 
@@ -50,7 +56,7 @@ Not itemized by the user: values against Activity Monitor over time, the Dell, a
 
 ## M4 timers and stopwatch — November 12
 
-Version 0.8.0 (13) passes all 315 automated tests plus the Release build and bundle/signature checks. The user reported timers and the stopwatch work on the MacBook.
+Version 0.8.0 (13) passes all 319 automated tests plus the Release build and bundle/signature checks. The user reported timers and the stopwatch work on the MacBook.
 
 Timers are off by default. With "Timers" on, the open island gets a Timers tab: preset buttons (1, 3, 5, 10, 15, 25, 30 minutes and 1 hour), a custom length from 1 minute to 3 hours (1-minute steps below an hour, 5-minute steps above), and up to five timers at once, each with a progress ring, time left, pause/resume and cancel. While any timer exists, the compact island stays widened with the timer finishing first (a ring and the time left); this can be turned off. When a timer ends, the Glass system sound plays (optional) and a "Done" notice with a bell shows beside the notch for eight seconds. One run-loop wake-up is scheduled at the earliest end; waking from sleep finishes anything overdue. With four sections the header labels only the selected tab. These are Personal Island's own timers kept in memory: Apple's Clock timers are not observed, and quitting or turning the switch off cancels every timer, its wake-up and the wake observer.
 
@@ -84,7 +90,7 @@ Not yet verified on a running Mac: the wing placement and size against crowded m
 | M3 Spotify/Calendar | Built and user-confirmed on the MacBook (0.5.0, 0.6.0) | Current track, seekable progress and play/pause/previous/next via Spotify's local scripting interface; user reported it works. Calendar: today's agenda and next event, read-only, with per-calendar visibility; user reported it works. Both-display sync awaits the Dell. |
 | M4 kept utilities | Complete on the MacBook (every kept utility user-confirmed): battery (user-confirmed, 0.7.0–0.7.1) and timers with stopwatch (0.8.0) built and user-confirmed on the MacBook; system activity (0.9.0) built and user-confirmed on the MacBook; clipboard history (0.10.0) built and user-confirmed on the MacBook; AirDrop (0.11.0) built and user-confirmed on the MacBook | All kept utilities are now built. The owner removed connections, lock-screen widgets/weather, media extras, color picker, Focus and recording indicators on November 12. |
 | M5 personal-use qualification | Planned | Runtime privacy, stability, accessibility and resource measurements not performed. |
-| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 315 automated tests pass locally: 38 storage, 195 presentation and 82 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
+| Public repository and automated checks | Local verification passed; automatic checks configured | Public yuvanmuru-dev/personal-island repository (made public by the owner on November 12; history rewritten to remove a home-folder path). 319 automated tests pass locally: 38 storage, 199 presentation and 82 build-policy/verifier tests, followed by the actual Release build and bundle policy. GitHub checks run the same command on main/PR changes; current cloud results are linked in TESTING.md. |
 | Face unlock | Deferred | No active research or implementation. |
 
 Current tools: `/Applications/Xcode.app/Contents/Developer`, Xcode 27.2 (27B52), Apple Swift 6.4.2, macOS SDK 27.2. First-launch tool setup check passed. Earlier Command Line Tools/SDK 15.5 values in the initial core receipt are historical.

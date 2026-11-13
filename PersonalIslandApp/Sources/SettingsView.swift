@@ -60,6 +60,29 @@ struct SettingsView: View {
 
             Form {
                 Section("Island") {
+                    Toggle("Open at login", isOn: Binding(
+                        get: { coordinator.loginItemState == .on || coordinator.loginItemState == .needsApproval },
+                        set: { coordinator.setOpensAtLogin($0) }
+                    ))
+                    .disabled(coordinator.loginItemState == .unavailable)
+                    if coordinator.loginItemState == .needsApproval {
+                        HStack {
+                            Text("Allow Personal Island under Login Items to finish turning this on.")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                            Button("Open Login Items") { coordinator.openLoginItemsSettings() }
+                                .controlSize(.small)
+                        }
+                    } else if coordinator.loginItemState == .unavailable {
+                        Text("macOS can't register Personal Island from its current location.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if let message = coordinator.loginItemMessage {
+                        Text(message)
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                     Toggle("Show islands", isOn: Binding(
                         get: { coordinator.islandsVisible },
                         set: { coordinator.setIslandsVisible($0) }
