@@ -759,6 +759,8 @@ private struct PlaybackScrubber: View {
 /// Apple Calendar; Join appears only for validated meeting links.
 private struct CalendarContent: View {
     @ObservedObject var coordinator: IslandCoordinator
+    /// A day of this month picked in the grid; nil shows today.
+    @State private var selectedDay: Int?
 
     var body: some View {
         switch coordinator.calendarStatus {
@@ -777,75 +779,229 @@ private struct CalendarContent: View {
         }
     }
 
-    @ViewBuilder
+    /// Today on the left (weekday, date and events), the month on the right.
     private func agenda(now: Date) -> some View {
-        let rows = coordinator.todayEvents
-        // Once today has nothing left, show what comes next (any later day).
-        let todayDone = rows.allSatisfy { $0.end <= now }
-        ScrollView {
-            VStack(alignment: .leading, spacing: 4) {
-                sectionLabel("Today")
-                if rows.isEmpty {
-                    Text("No events")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.45))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
+        let calendar = Calendar.autoupdatingCurrent
+        let shown = coordinator.calendarShownMonth ?? now
+        let grid = CalendarAgenda.monthGrid(containing: now, month: shown, calendar: calendar)
+        // A picked day that is today, or not in the shown month, shows today.
+        let picked = selectedDay.flatMap { day -> Date? in
+            day == grid.today ? nil : CalendarAgenda.date(ofDay: day, inMonthOf: shown, calendar: calendar)
+        }
+        return HStack(alignment: .top, spacing: 18) {
+            Group {
+                if let picked, let day = selectedDay {
+                    otherDay(day, date: picked, shown: shown, now: now, calendar: calendar)
                 } else {
-                    ForEach(rows) { event in row(event, now: now, showDay: false) }
-                }
-                if todayDone {
-                    sectionLabel("Next event")
-                    if let upcoming = coordinator.upcomingEvent {
-                        row(upcoming, now: now, showDay: true)
-                    } else {
-                        Text("Nothing in the next \(CalendarAgenda.lookaheadDays) days")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.white.opacity(0.45))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                    }
+                    today(now: now, calendar: calendar)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            month(grid, selected: picked == nil ? nil : selectedDay,
+                  awayFromToday: coordinator.calendarMonthOffset != 0 || picked != nil)
+                .frame(width: 196)
         }
-        .scrollIndicators(.hidden)
+        .onChange(of: coordinator.calendarMonthOffset) { selectedDay = nil }
+        .padding(.top, 8)
     }
 
-    private func sectionLabel(_ text: String) -> some View {
-        Text(text.uppercased())
-            .font(.system(size: 9, weight: .semibold, design: .rounded))
-            .tracking(0.8)
-            .foregroundStyle(.white.opacity(0.4))
-            .padding(.top, 2)
+    private func today(now: Date, calendar: Calendar) -> some View {
+        let rows = coordinator.todayEvents
+        // Once today has nothing left, show what comes next (any later day).
+        let todayDone = rows.allSatisfy { $0.end <= now }
+        return VStack(alignment: .leading, spacing: 0) {
+            Text(now.formatted(.dateTime.weekday(.wide)).uppercased())
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Self.accent)
+            Text(now.formatted(.dateTime.day()))
+                .font(.system(size: 40, weight: .light))
+                .monospacedDigit()
+                .padding(.top, -2)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(rows) { event in row(event, now: now, showDay: false) }
+                    if todayDone {
+                        if rows.isEmpty {
+                            Text("No events today")
+                                .font(.system(size: 11.5))
+                                .foregroundStyle(.white.opacity(0.45))
+                        }
+                        if let upcoming = coordinator.upcomingEvent {
+                            row(upcoming, now: now, showDay: true)
+                        } else if rows.isEmpty {
+                            Text("Nothing in the next \(CalendarAgenda.lookaheadDays) days")
+                                .font(.system(size: 10.5))
+                                .foregroundStyle(.white.opacity(0.35))
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .scrollIndicators(.hidden)
+            .padding(.top, 6)
+        }
+    }
+
+    private static let accent = Color(.sRGB, red: 1, green: 0.27, blue: 0.33)
+
+    /// A day picked in the grid: its date and every event on it.
+    private func otherDay(_ day: Int, date: Date, shown: Date, now: Date, calendar: Calendar) -> some View {
+        let events = CalendarAgenda.events(onDay: day, inMonthOf: shown, coordinator.calendarMonthEvents, calendar: calendar)
+        return VStack(alignment: .leading, spacing: 0) {
+            Text(date.formatted(.dateTime.weekday(.wide).month(.abbreviated)).uppercased())
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.white.opacity(0.7))
+            Text(date.formatted(.dateTime.day()))
+                .font(.system(size: 40, weight: .light))
+                .monospacedDigit()
+                .padding(.top, -2)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 4) {
+                    if events.isEmpty {
+                        Text("No events")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.white.opacity(0.45))
+                    }
+                    ForEach(events) { event in row(event, now: now, showDay: false) }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .scrollIndicators(.hidden)
+            .padding(.top, 6)
+        }
+    }
+
+    private func month(_ grid: MonthGrid, selected: Int?, awayFromToday: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(grid.monthName.uppercased())
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(grid.today == nil ? .white.opacity(0.75) : Self.accent)
+                Spacer()
+                if awayFromToday {
+                    Button("Today") {
+                        selectedDay = nil
+                        coordinator.showCalendarMonth(offset: 0)
+                    }
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(Self.accent)
+                    .buttonStyle(.plain)
+                    .help("Back to today")
+                }
+            }
+            .padding(.horizontal, 4)
+            // Six-week months must fit the open island's height.
+            Grid(horizontalSpacing: 0, verticalSpacing: 0) {
+                GridRow {
+                    ForEach(Array(grid.weekdaySymbols.enumerated()), id: \.offset) { column, symbol in
+                        Text(symbol)
+                            .font(.system(size: 9.5, weight: .semibold))
+                            .foregroundStyle(.white.opacity(grid.weekendColumns.contains(column) ? 0.35 : 0.75))
+                            .frame(width: 28, height: 14)
+                    }
+                }
+                ForEach(Array(grid.weeks.enumerated()), id: \.offset) { _, week in
+                    GridRow {
+                        ForEach(Array(week.enumerated()), id: \.offset) { column, day in
+                            dayCell(day, grid: grid, weekend: grid.weekendColumns.contains(column), selected: selected)
+                        }
+                    }
+                }
+            }
+        }
+        // Scrolling over the month moves between months.
+        .background {
+            MonthScrollCatcher { step in
+                coordinator.showCalendarMonth(offset: coordinator.calendarMonthOffset + step)
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(grid.monthName)
+        .accessibilityAction(named: "Next month") {
+            coordinator.showCalendarMonth(offset: coordinator.calendarMonthOffset + 1)
+        }
+        .accessibilityAction(named: "Previous month") {
+            coordinator.showCalendarMonth(offset: coordinator.calendarMonthOffset - 1)
+        }
+    }
+
+    @ViewBuilder
+    private func dayCell(_ day: Int?, grid: MonthGrid, weekend: Bool, selected: Int?) -> some View {
+        if let day {
+            let isToday = day == grid.today
+            let isSelected = day == selected
+            Button {
+                selectedDay = isToday || isSelected ? nil : day
+            } label: {
+            ZStack(alignment: .bottom) {
+                Text("\(day)")
+                    .font(.system(size: 10.5, weight: isToday ? .bold : .medium))
+                    .monospacedDigit()
+                    .foregroundStyle(isToday ? .white : .white.opacity(weekend ? 0.38 : 0.85))
+                    .frame(width: 18, height: 18)
+                    .background(isToday ? Self.accent : .clear, in: Circle())
+                    .overlay {
+                        if isSelected { Circle().strokeBorder(.white.opacity(0.85), lineWidth: 1.2) }
+                    }
+                    .frame(maxHeight: .infinity)
+                if coordinator.calendarEventDays.contains(day), !isToday {
+                    Circle()
+                        .fill(.white.opacity(0.45))
+                        .frame(width: 3, height: 3)
+                        .offset(y: 1)
+                }
+            }
+            .frame(width: 28, height: 19)
+            .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(grid.monthName) \(day)\(isToday ? ", today" : "")\(coordinator.calendarEventDays.contains(day) ? ", has events" : "")")
+            .accessibilityAddTraits(isSelected || (isToday && selected == nil) ? .isSelected : [])
+        } else {
+            Color.clear.frame(width: 28, height: 19)
+        }
     }
 
     private func row(_ event: AgendaEvent, now: Date, showDay: Bool) -> some View {
         let isNext = event.id == coordinator.nextEvent?.id || (showDay && event.id == coordinator.upcomingEvent?.id)
         let finished = event.end <= now
-        return HStack(spacing: 8) {
-            Circle()
-                .fill(Color(.sRGB, red: event.color[safe: 0], green: event.color[safe: 1], blue: event.color[safe: 2]))
-                .frame(width: 7, height: 7)
-            Text(timeText(event, now: now, showDay: showDay))
-                .font(.system(size: 10.5, weight: .medium).monospacedDigit())
-                .foregroundStyle(.white.opacity(isNext ? 0.85 : 0.5))
-                .frame(width: showDay ? 132 : 92, alignment: .leading)
-            Text(event.title)
-                .font(.system(size: 12, weight: isNext ? .semibold : .regular))
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            if isNext, event.meetingURL != nil {
-                Button("Join") { coordinator.joinMeeting(event) }
-                    .font(.system(size: 10.5, weight: .semibold))
-                    .buttonStyle(.bordered)
-                    .controlSize(.mini)
+        let color = Color(.sRGB, red: event.color[safe: 0], green: event.color[safe: 1], blue: event.color[safe: 2])
+        return VStack(alignment: .leading, spacing: 1) {
+            HStack(spacing: 6) {
+                if event.isAllDay && !showDay {
+                    Image(systemName: "star.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(color)
+                } else {
+                    Circle().fill(color).frame(width: 6, height: 6)
+                }
+                Text(event.title)
+                    .font(.system(size: 11.5, weight: isNext || event.isAllDay ? .semibold : .regular))
+                    .foregroundStyle(event.isAllDay && !showDay ? color : .white)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                if isNext, event.meetingURL != nil {
+                    Button("Join") { coordinator.joinMeeting(event) }
+                        .font(.system(size: 10, weight: .semibold))
+                        .buttonStyle(.bordered)
+                        .controlSize(.mini)
+                }
+            }
+            if !(event.isAllDay && !showDay) {
+                Text(timeText(event, now: now, showDay: showDay))
+                    .font(.system(size: 9.5, weight: .medium).monospacedDigit())
+                    .foregroundStyle(.white.opacity(isNext ? 0.7 : 0.45))
+                    .padding(.leading, 12)
             }
         }
         .opacity(finished ? 0.45 : 1)
-        .padding(.vertical, 3)
-        .padding(.horizontal, 6)
-        .background(isNext ? Color.white.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 7))
+        .padding(.vertical, 4)
+        .padding(.horizontal, 7)
+        .background {
+            // All-day events read as a tinted pill, like Apple's calendar widget.
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .fill(event.isAllDay && !showDay ? color.opacity(0.18) : isNext ? .white.opacity(0.08) : .clear)
+        }
         .contentShape(Rectangle())
         .onTapGesture { coordinator.openInCalendar(event) }
         .accessibilityElement(children: .combine)
@@ -1751,5 +1907,80 @@ private struct NotchBurst: ViewModifier {
         content
             .scaleEffect(0.3 + 0.7 * progress, anchor: .top)
             .blur(radius: 12 * (1 - progress))
+    }
+}
+
+/// Turns scrolling over the month grid into one-month steps: a mouse-wheel
+/// notch or one trackpad swipe (down or left = next month), ignoring the
+/// swipe's momentum so a single gesture never skips several months. Listens
+/// only while the pointer is over this view; clicks pass to the day buttons.
+private struct MonthScrollCatcher: NSViewRepresentable {
+    let onStep: @MainActor (Int) -> Void
+
+    func makeNSView(context: Context) -> CatcherView {
+        let view = CatcherView()
+        view.onStep = onStep
+        return view
+    }
+
+    func updateNSView(_ view: CatcherView, context: Context) { view.onStep = onStep }
+
+    static func dismantleNSView(_ view: CatcherView, coordinator: ()) { view.removeMonitor() }
+
+    final class CatcherView: NSView {
+        var onStep: (@MainActor (Int) -> Void)?
+        private var monitor: Any?
+        private var stepper = MonthScrollStepper()
+
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            removeMonitor()
+            guard window != nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+                // Local monitors run on the main thread.
+                let info = ScrollInfo(event)
+                let consumed = MainActor.assumeIsolated { self?.handle(info) ?? false }
+                return consumed ? nil : event
+            }
+        }
+
+        func removeMonitor() {
+            if let monitor { NSEvent.removeMonitor(monitor) }
+            monitor = nil
+        }
+
+        /// The parts of a scroll event needed here, safe to pass across.
+        struct ScrollInfo: Sendable {
+            let windowNumber: Int
+            let location: CGPoint
+            let deltaX: CGFloat, deltaY: CGFloat
+            let precise: Bool
+            let began: Bool
+            let momentum: Bool
+            init(_ event: NSEvent) {
+                windowNumber = event.windowNumber
+                location = event.locationInWindow
+                deltaX = event.scrollingDeltaX
+                deltaY = event.scrollingDeltaY
+                precise = event.hasPreciseScrollingDeltas
+                began = event.phase == .began || event.phase == .mayBegin
+                momentum = !event.momentumPhase.isEmpty
+            }
+        }
+
+        /// True when the scroll was over the month and was used here.
+        private func handle(_ event: ScrollInfo) -> Bool {
+            guard let window, event.windowNumber == window.windowNumber,
+                  bounds.contains(convert(event.location, from: nil)) else { return false }
+            // Positive means forward: scrolling down, or swiping left.
+            let delta = abs(event.deltaY) >= abs(event.deltaX) ? -event.deltaY : -event.deltaX
+            if let step = stepper.step(delta: Double(delta), precise: event.precise,
+                                       began: event.began, momentum: event.momentum) {
+                onStep?(step)
+            }
+            return true
+        }
     }
 }

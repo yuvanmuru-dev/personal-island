@@ -22,7 +22,7 @@ Drag a thumbnail into another app to attach it. Click thumbnails to select sever
 
 Turn on "Battery and charging" in Settings. Plugging in or unplugging briefly shows the battery and percentage on either side of the notch (or in a longer pill on other displays). Alerts at 20% and 10% and when charging finishes can be turned off individually. The open island shows the battery level; hover it for time remaining. No permission is needed.
 
-## Calendar (0.6.0)
+## Calendar (0.6.0, month view in 0.15.0)
 
 Turn on "Calendar in the island" in Settings. The open island gets a Calendar tab with today's agenda and, once today is empty or finished, the next event and its day from the calendars on this Mac, including synced Google or Outlook accounts. macOS asks once for Calendar access; it only offers full access, but Personal Island only reads events. Click an event to open it in Calendar, or Join for a meeting link. Hide individual calendars in Settings.
 

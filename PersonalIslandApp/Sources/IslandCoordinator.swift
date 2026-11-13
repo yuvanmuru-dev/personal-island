@@ -107,6 +107,10 @@ final class IslandCoordinator: ObservableObject {
     @Published private(set) var todayEvents: [AgendaEvent] = []
     @Published private(set) var nextEvent: AgendaEvent?
     @Published private(set) var upcomingEvent: AgendaEvent?
+    @Published private(set) var calendarEventDays: Set<Int> = []
+    @Published private(set) var calendarMonthEvents: [AgendaEvent] = []
+    @Published private(set) var calendarMonthOffset = 0
+    @Published private(set) var calendarShownMonth: Date?
     @Published private(set) var calendars: [CalendarSummary] = []
     /// Which section the open island shows; shared by both displays.
     @Published var expandedTab: ExpandedTab = .shelf {
@@ -305,6 +309,10 @@ final class IslandCoordinator: ObservableObject {
             self?.todayEvents = controller.todayEvents
             self?.nextEvent = controller.nextEvent
             self?.upcomingEvent = controller.upcomingEvent
+            self?.calendarEventDays = controller.eventDays
+            self?.calendarMonthEvents = controller.monthEvents
+            self?.calendarMonthOffset = controller.monthOffset
+            self?.calendarShownMonth = controller.shownMonth
             self?.calendars = controller.calendars
         }
         return controller
@@ -837,6 +845,9 @@ final class IslandCoordinator: ObservableObject {
     }
 
     func openInCalendar(_ event: AgendaEvent) { CalendarAdapter.openInCalendar(event) }
+
+    /// Moves the month grid by whole months; 0 returns to this month.
+    func showCalendarMonth(offset: Int) { calendarController.showMonth(offset: offset) }
 
     /// Opens a validated https meeting link (see CalendarAgenda.meetingLink).
     func joinMeeting(_ event: AgendaEvent) {
